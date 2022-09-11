@@ -1,0 +1,17 @@
+(*
+* Funcy Reference Grammar
+* The EBNF grammar from readme.md.
+*)
+
+program     = { func_decl }, EOF ;
+func_decl   = "func", IDENTIFIER, "(", [ param_decls ], ")", stmt_compound ;
+param_decls = IDENTIFIER, { ",", IDENTIFIER } ;
+
+stmt          = stmt_compound | stmt_nop | stmt_print | stmt_expr ;
+stmt_compound = "{", { stmt }, "}" ;
+stmt_nop      = ";" ;
+stmt_print    = "print", expr, ";" ;
+stmt_expr     = expr, ";" ;
+
+expr         = expr_primary ;
+expr_primary = "(", expr, ")" | LITERAL_INT ;
