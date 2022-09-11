@@ -16,3 +16,14 @@ class Token:
         """ Initialize the token's type """
         
         self.type = type
+    
+    
+    def __repr__(self) -> str:
+        """ Return the token's string representation. """
+        
+        if self.type == TokenType.ERROR or self.type == TokenType.IDENTIFIER:
+            return f"{self.type.name}: {self.str_value}"
+        elif self.type == TokenType.LITERAL_INT:
+            return f"{self.type.name}: {self.int_value}"
+        else:
+            return self.type.name
