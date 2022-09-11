@@ -1,0 +1,23 @@
+# OS:
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# IDE:
+.idea/*
+.vscode/*
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.suo
+
+# Python:
+__pycache__/*
+*$py.class
+*.pyc
+*.pyd
+*.pyo
+*.so
+
+# Ignore:
+ignore/*
