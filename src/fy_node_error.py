@@ -7,11 +7,10 @@ class ErrorNode(Node):
     """ The syntax error's message. """
     
     def __init__(self, message: str) -> None:
-        """ Initialize the syntax error's message and print itself. """
+        """ Initialize the syntax error's message. """
         
         super().__init__()
         self.message = message
-        print(self)
     
     
     def __repr__(self) -> str:

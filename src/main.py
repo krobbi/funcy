@@ -1,4 +1,5 @@
 from fy_node import Node
+from fy_node_program import ProgramNode
 from fy_parser import Parser
 from fy_token import Token
 from fy_token_type import TokenType
@@ -63,8 +64,15 @@ def main() -> None:
             while token.type != TokenType.EOF:
                 token = parser.lexer.get_token()
                 print(token)
+            
+            print("")
         elif mode == "P":
-            print_tree(parser.parse(source))
+            program: ProgramNode = parser.parse(source)
+            
+            if parser.has_errors:
+                print("")
+            
+            print_tree(program)
             print("")
         else:
             print(f"REPL bug: Illegal mode '{mode}'!")
