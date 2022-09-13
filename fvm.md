@@ -74,11 +74,10 @@ on the PNG format:
 | Type        | Description                                                      |
 | ----------: | :--------------------------------------------------------------- |
 | `u8`        | `0x83`: Ensures bit 7 is set. Function symbol in ANSI.           |
-| `3 * u8`    | `0x46 0x56 0x4D`: `FVM` identifier.                              |
+| `3 * u8`    | `0x46 0x56 0x4d`: `FVM` identifier.                              |
 | `2 * u8`    | `0x0d 0x0a`: `\r\n` sequence, tests for line ending conversion.  |
 | `u8`        | `0x1a`: Stops file display on some systems.                      |
 | `u8`        | `0x0a`: `\n`, tests for reverse line ending conversion.          |
-| `u8`        | Architecture word size, currently unused and always `0x20 (32)`. |
 | `u32`       | Format version. `0x00000000 (0)` for this specification.         |
 | `u32`       | `size` value. The number of bytes of FVM bytecode.               |
 | `size * u8` | The FVM bytecode to load into `pm`.                              |
@@ -146,12 +145,12 @@ change between format versions:
 8. Replace `args` at the top of `sm` in order.
 
 ## RETURN (`0x04`)
-1. Pop an element, `returnValue` from `sm`.
-2. Read an element, `poppedFP` from `sm[fp]`.
-3. Set `ip` to `sm[fp + 1]`.
-4. Set `fp` to `sm[fp]`.
+1. Read a value, `oldFP` from `fp`'s value.
+2. Set `ip` to `sm[oldFP + 1]`.
+3. Set `fp` to `sm[oldFP]`.
+4. Pop an element, `returnValue` from `sm`.
 5. Discard all elements from `sm` with an index greater than or equal to
-`poppedFP`.
+`oldFP`.
 6. Push `returnValue` to `sm`.
 
 ## PUSH_U8 (`0x05`)

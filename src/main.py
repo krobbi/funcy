@@ -1,3 +1,4 @@
+from fvm import FVM
 from fy_node import Node
 from fy_node_program import ProgramNode
 from fy_parser import Parser
@@ -28,13 +29,17 @@ def main() -> None:
     print("Type 'exit' to exit.")
     print("Type 'read <path>' to read code from <path>.")
     print("Type 'lexer' to enter lexer mode.")
-    print("Type 'parser' to enter parser mode.\n")
+    print("Type 'parser' to enter parser mode.")
+    print("Type 'interpreter' to enter interpreter mode.\n")
     print("Parser mode\n")
     parser: Parser = Parser()
+    fvm: FVM = FVM()
     mode: str = "P"
     
     while True:
+        is_bytecode: bool = False
         source: str = input(f"Fy:{mode}> ")
+        bytecode: bytes = bytes()
         
         if source == "exit":
             break
@@ -42,8 +47,14 @@ def main() -> None:
             path: str = source[5:]
             
             try:
-                with open(path, "rt") as file:
-                    source = file.read()
+                with open(path, "rb") as file:
+                    bytecode = file.read()
+                
+                if len(bytecode) >= 16 and bytecode[0:8] == fvm.HEADER:
+                    is_bytecode = True
+                else:
+                    with open(path, "rt") as file:
+                        source = file.read()
             except IOError:
                 print(f"Failed to read from '{path}'!\n")
                 continue
@@ -55,8 +66,16 @@ def main() -> None:
             mode = "P"
             print("Parser mode\n")
             continue
+        elif source == "interpreter":
+            mode = "I"
+            print("Interpreter mode\n")
+            continue
         
         if mode == "L":
+            if is_bytecode:
+                print("Lexer mode expects Funcy source code!\n")
+                continue
+            
             parser.lexer.begin(source)
             token: Token = parser.lexer.get_token()
             print(token)
@@ -67,6 +86,10 @@ def main() -> None:
             
             print("")
         elif mode == "P":
+            if is_bytecode:
+                print("Parser mode expects Funcy source code!\n")
+                continue
+            
             program: ProgramNode = parser.parse(source)
             
             if parser.has_errors:
@@ -74,6 +97,21 @@ def main() -> None:
             
             print_tree(program)
             print("")
+        elif mode == "I":
+            if not is_bytecode:
+                print("Funcy code generation is not yet implemented!\n")
+                continue
+            elif not fvm.load(bytecode):
+                print("Failed to load FVM bytecode!\n")
+                continue
+            elif not fvm.begin():
+                print("Failed to start FVM!\n")
+                continue
+            
+            while fvm.ef:
+                fvm.step()
+            
+            print(f"\nFVM finished with exit code {fvm.ec}.\n")
         else:
             print(f"REPL bug: Illegal mode '{mode}'!")
             break
