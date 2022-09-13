@@ -1,2 +1,6 @@
 # Prevent Linguist from detecting Funcy files as Fancy files:
 *.fy linguist-language=Text
+
+# Mark FVM bytecode files as binary:
+*.fvm binary
+*.fyc binary

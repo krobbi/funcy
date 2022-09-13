@@ -6,7 +6,8 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
 3. [Grammar](#grammar)
-4. [License](#license)
+4. [Runtime](#runtime)
+5. [License](#license)
 
 # About
 Funcy is a toy functional language written in Python. It is developed as an
@@ -85,6 +86,12 @@ stmt_expr     = expr, ";" ;
 expr         = expr_primary ;
 expr_primary = "(", expr, ")" | LITERAL_INT ;
 ```
+
+# Runtime
+For runtime, Funcy targets the Funcy Virtual Machine (FVM), a stack-based
+bytecode interpreter.
+
+See [fvm.md](./fvm.md) for specification details.
 
 # License
 Funcy is released under the MIT License:  
