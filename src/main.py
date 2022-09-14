@@ -1,4 +1,6 @@
 from fvm import FVM
+from fy_ir_code import IRCode
+from fy_ir_generator import IRGenerator
 from fy_node import Node
 from fy_node_program import ProgramNode
 from fy_parser import Parser
@@ -25,16 +27,28 @@ def main() -> None:
             print_tree(v, flags)
             flags.pop()
     
+    
+    def print_ir(code: IRCode) -> None:
+        """ Print IR code. """
+        
+        for block in code.blocks:
+            print(block)
+            
+            for op in block.ops:
+                print(f"    {op}")
+    
+    
     print("Funcy Lexer and Parser REPL")
     print("Type 'exit' to exit.")
     print("Type 'read <path>' to read code from <path>.")
     print("Type 'lexer' to enter lexer mode.")
     print("Type 'parser' to enter parser mode.")
     print("Type 'interpreter' to enter interpreter mode.\n")
-    print("Parser mode\n")
+    print("Interpreter mode\n")
     parser: Parser = Parser()
+    generator: IRGenerator = IRGenerator()
     fvm: FVM = FVM()
-    mode: str = "P"
+    mode: str = "I"
     
     while True:
         is_bytecode: bool = False
@@ -90,28 +104,35 @@ def main() -> None:
                 print("Parser mode expects Funcy source code!\n")
                 continue
             
-            program: ProgramNode = parser.parse(source)
+            ast: ProgramNode = parser.parse(source)
             
             if parser.has_errors:
                 print("")
             
-            print_tree(program)
+            print_tree(ast)
             print("")
         elif mode == "I":
-            if not is_bytecode:
-                print("Funcy code generation is not yet implemented!\n")
-                continue
-            elif not fvm.load(bytecode):
-                print("Failed to load FVM bytecode!\n")
-                continue
-            elif not fvm.begin():
-                print("Failed to start FVM!\n")
-                continue
-            
-            while fvm.ef:
-                fvm.step()
-            
-            print(f"\nFVM finished with exit code {fvm.ec}.\n")
+            if is_bytecode:
+                if not fvm.load(bytecode):
+                    print("Failed to load FVM bytecode!\n")
+                    continue
+                elif not fvm.begin():
+                    print("Failed to start FVM!\n")
+                    continue
+                
+                while fvm.ef:
+                    fvm.step()
+                
+                print(f"\nFVM finished with exit code {fvm.ec}.\n")
+            else:
+                ast: ProgramNode = parser.parse(source)
+                code: IRCode = generator.generate(ast)
+                
+                if parser.has_errors or generator.has_errors:
+                    print("")
+                
+                print_ir(code)
+                print("")
         else:
             print(f"REPL bug: Illegal mode '{mode}'!")
             break

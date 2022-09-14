@@ -14,12 +14,6 @@ class ScopeStack:
         self.scopes = [Scope(0)]
     
     
-    def __repr__(self) -> str:
-        """ Return the scope stack's string representation. """
-        
-        return "ScopeStack"
-    
-    
     def get_symbol(self, identifier: str) -> ScopeSymbol:
         """ Get a symbol from the scope stack. """
         
@@ -79,7 +73,7 @@ class ScopeStack:
                                 identifier, ScopeSymbolType.UNDEFINED)
     
     
-    def define_label(self, identifier: str, label: str) -> None:
+    def define_label(self, identifier: str, label: str, arg_count: int) -> None:
         """ Define a label symbol in the current scope. """
         
         if self.has_symbol(identifier):
@@ -87,6 +81,7 @@ class ScopeStack:
         else:
             symbol: ScopeSymbol = ScopeSymbol(identifier, ScopeSymbolType.LABEL)
             symbol.str_value = label
+            symbol.int_value = arg_count
             self.scopes[-1].symbols[identifier] = symbol
     
     

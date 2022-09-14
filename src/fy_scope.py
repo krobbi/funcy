@@ -14,9 +14,3 @@ class Scope:
         
         self.local_count = local_count
         self.symbols = {}
-    
-    
-    def __repr__(self) -> str:
-        """ Return the scope's string representation. """
-        
-        return f"Scope({self.local_count})"

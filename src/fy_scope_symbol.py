@@ -20,14 +20,3 @@ class ScopeSymbol:
         
         self.identifier = identifier
         self.type = type
-    
-    
-    def __repr__(self) -> str:
-        """ Return the symbol's string representation. """
-        
-        if self.type == ScopeSymbolType.LABEL:
-            return f"ScopeSymbol({self.identifier}): {self.type.name}({self.str_value})"
-        elif self.type == ScopeSymbolType.LOCAL:
-            return f"ScopeSymbol({self.identifier}): {self.type.name}({self.int_value})"
-        else:
-            return f"ScopeSymbol({self.identifier}): {self.type.name}"
