@@ -1,4 +1,5 @@
 from fvm import FVM
+from fy_fvm_generator import FVMGenerator
 from fy_ir_code import IRCode
 from fy_ir_generator import IRGenerator
 from fy_node import Node
@@ -28,16 +29,6 @@ def main() -> None:
             flags.pop()
     
     
-    def print_ir(code: IRCode) -> None:
-        """ Print IR code. """
-        
-        for block in code.blocks:
-            print(block)
-            
-            for op in block.ops:
-                print(f"    {op}")
-    
-    
     print("Funcy Lexer and Parser REPL")
     print("Type 'exit' to exit.")
     print("Type 'read <path>' to read code from <path>.")
@@ -46,7 +37,8 @@ def main() -> None:
     print("Type 'interpreter' to enter interpreter mode.\n")
     print("Interpreter mode\n")
     parser: Parser = Parser()
-    generator: IRGenerator = IRGenerator()
+    ir_generator: IRGenerator = IRGenerator()
+    fvm_generator: FVMGenerator = FVMGenerator()
     fvm: FVM = FVM()
     mode: str = "I"
     
@@ -112,27 +104,26 @@ def main() -> None:
             print_tree(ast)
             print("")
         elif mode == "I":
-            if is_bytecode:
-                if not fvm.load(bytecode):
-                    print("Failed to load FVM bytecode!\n")
-                    continue
-                elif not fvm.begin():
-                    print("Failed to start FVM!\n")
-                    continue
-                
-                while fvm.ef:
-                    fvm.step()
-                
-                print(f"\nFVM finished with exit code {fvm.ec}.\n")
-            else:
+            if not is_bytecode:
                 ast: ProgramNode = parser.parse(source)
-                code: IRCode = generator.generate(ast)
+                ir_code: IRCode = ir_generator.generate(ast)
                 
-                if parser.has_errors or generator.has_errors:
+                if parser.has_errors or ir_generator.has_errors:
                     print("")
                 
-                print_ir(code)
-                print("")
+                bytecode = fvm_generator.generate(ir_code, False)
+            
+            if not fvm.load(bytecode):
+                print("Failed to load FVM bytecode!\n")
+                continue
+            elif not fvm.begin():
+                print("Failed to start FVM!\n")
+                continue
+            
+            while fvm.ef:
+                fvm.step()
+            
+            print(f"\nFVM finished with exit code {fvm.ec}.\n")
         else:
             print(f"REPL bug: Illegal mode '{mode}'!")
             break

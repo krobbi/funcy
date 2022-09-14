@@ -27,3 +27,14 @@ class IROp:
             return f"{self.type.name} {self.str_value};"
         else:
             return f"{self.type.name};"
+    
+    
+    def get_size(self) -> int:
+        """ Get the IR operation's compiled size in bytes. """
+        
+        if self.type == IROpType.BRANCH_ALWAYS_LABEL or self.type == IROpType.CALL_ARGC:
+            return 1 + 4 + 1
+        elif self.type == IROpType.PUSH_LABEL or self.type == IROpType.PUSH_INT:
+            return 1 + 4
+        else:
+            return 1
