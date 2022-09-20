@@ -58,11 +58,18 @@ class Position:
 class Span:
     """ A span between two positions in text. """
     
-    start: Position = Position()
+    start: Position
     """ The span's start position. """
     
-    end: Position = Position()
+    end: Position
     """ The span's end position. """
+    
+    def __init__(self) -> None:
+        """ Initialize the span's positions. """
+        
+        self.start = Position()
+        self.end = Position()
+    
     
     def __str__(self) -> str:
         """ Return the span's string. """

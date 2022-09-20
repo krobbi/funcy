@@ -205,7 +205,7 @@ class Lexer:
     
     
     def accept(self, characters: str) -> bool:
-        """ Accept the current character from a set of characters. """
+        """ Accept the next character from a set of characters. """
         
         if not self.character or not self.character in characters:
             return False
