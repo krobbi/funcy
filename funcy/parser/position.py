@@ -107,6 +107,23 @@ class Span:
         self.end.advance(text, tab_size)
     
     
+    def include(self, other) -> None:
+        """ Expand the span to include another span. """
+        
+        if other.start.offset < self.start.offset:
+            self.start.replicate(other.start)
+        
+        if other.end.offset > self.end.offset:
+            self.end.replicate(other.end)
+    
+    
+    def replicate(self, other) -> None:
+        """ Replicate another span by value. """
+        
+        self.end.replicate(other.end)
+        self.start.replicate(other.start)
+    
+    
     def copy(self):
         """ Create a copy of the span by value. """
         

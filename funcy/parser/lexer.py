@@ -161,8 +161,7 @@ class Lexer:
         
         if self.lexeme:
             return self.make_error(
-                    "Lexer bug: "
-                    f"Fell through after accepting '{self.lexeme}'!")
+                    f"Bug: Fell through after accepting '{self.lexeme}'!")
         
         self.advance()
         return self.make_error(f"Illegal character '{self.lexeme}'!")

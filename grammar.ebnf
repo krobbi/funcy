@@ -1,17 +1,16 @@
-(*
-* Funcy Reference Grammar
-* The EBNF grammar from readme.md.
-*)
+(* Funcy Reference Grammar *)
 
-program     = { func_decl }, EOF ;
-func_decl   = "func", IDENTIFIER, "(", [ param_decls ], ")", stmt_compound ;
-param_decls = IDENTIFIER, { ",", IDENTIFIER } ;
+root = { stmt_func }, EOF ;
 
-stmt          = stmt_compound | stmt_nop | stmt_print | stmt_expr ;
-stmt_compound = "{", { stmt }, "}" ;
-stmt_nop      = ";" ;
-stmt_print    = "print", expr, ";" ;
-stmt_expr     = expr, ";" ;
+stmt = stmt_func | stmt_block | stmt_nop | stmt_print | stmt_expr ;
 
-expr         = expr_primary ;
-expr_primary = "(", expr, ")" | LITERAL_INT ;
+stmt_func  = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
+stmt_block = "{", { stmt }, "}" ;
+stmt_nop   = ";" ;
+stmt_print = "print", expr_paren, ";" ;
+stmt_expr  = expr, ";" ;
+
+expr_paren = "(", expr, ")" ;
+expr       = expr_primary ;
+
+expr_primary = expr_paren | LITERAL_INT | IDENTIFIER ;
