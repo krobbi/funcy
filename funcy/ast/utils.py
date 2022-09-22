@@ -16,6 +16,3 @@ def print_ast(node: Node, flags: list[bool] = []) -> None:
         flags.append(i == len(children) - 1)
         print_ast(v, flags)
         flags.pop()
-
-
-del Node
