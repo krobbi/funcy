@@ -1,5 +1,7 @@
 from .ast.utils import print_ast
 from .ast.visitor import Visitor
+from .fvm import FVM
+from .io.input_wrapper import InputWrapper
 from .io.log import Log
 from .ir.utils import print_code
 from .parser.parser import Parser
@@ -10,14 +12,16 @@ def repl() -> None:
     
     print("Funcy REPL")
     print("  Enter 'exit' to exit.")
-    print("  Enter 'mode (l|p|g)' to change mode.")
+    print("  Enter 'mode (l|p|g|i)' to change mode.")
     print("  Enter 'read <path>' to read source code from <path>.\n")
-    print("Generator Mode\n")
+    print("Interpreter Mode\n")
     
-    mode: str = "G"
+    mode: str = "I"
+    input_wrapper: InputWrapper = InputWrapper()
     log: Log = Log()
     parser: Parser = Parser(log)
     visitor: Visitor = Visitor(log)
+    fvm: FVM = FVM()
     
     while True:
         source: str = input(f"Funcy:{mode}> ")
@@ -36,24 +40,30 @@ def repl() -> None:
             elif option == "g":
                 mode = "G"
                 print("Generator Mode\n")
+            elif option == "i":
+                mode = "I"
+                print("Interpreter Mode\n")
             else:
                 print(f"Failed to change to mode '{option}'!\n")
             
             continue
         elif source.startswith("read "):
-            path: str = source[5:]
-            
-            try:
-                with open(path, "rt") as file:
-                    source = file.read()
-            except IOError:
-                print(f"Failed to read from '{path}'!\n")
-                continue
+            input_wrapper.from_path(source[5:])
+        else:
+            input_wrapper.from_source(source)
+        
+        if not input_wrapper.is_ok:
+            print(f"Failed to read from '{input_wrapper.path}'!\n")
+            continue
         
         log.clear()
         
         if mode == "L":
-            parser.lexer.begin(source)
+            if input_wrapper.is_binary:
+                print("Lexer mode expects source code!\n")
+                continue
+            
+            parser.lexer.begin(input_wrapper.source)
             token: Token = parser.lexer.get_token()
             tokens: list[Token] = []
             
@@ -73,9 +83,34 @@ def repl() -> None:
             for token in tokens:
                 print(token)
         elif mode == "P":
-            print_ast(parser.parse(source))
+            if input_wrapper.is_binary:
+                print("Parser mode expects source code!\n")
+                continue
+            
+            print_ast(parser.parse(input_wrapper.source))
         elif mode == "G":
-            print_code(visitor.generate(parser.parse(source)))
+            if input_wrapper.is_binary:
+                print("Generator mode expects source code!\n")
+                continue
+            
+            print_code(visitor.generate(parser.parse(input_wrapper.source)))
+        elif mode == "I":
+            if not input_wrapper.is_binary:
+                print("Interpreter mode expects bytecode!\n")
+                continue
+            
+            if not fvm.load(input_wrapper.bytecode):
+                print("Failed to load FVM bytecode!\n")
+                continue
+            
+            if not fvm.begin():
+                print("Failed to start FVM!\n")
+                continue
+            
+            while fvm.ef:
+                fvm.step()
+            
+            print(f"FVM finished with exit code '{fvm.ec}'!")
         
         print("")
         

@@ -4,6 +4,10 @@ Funcy
 The SDK for Funcy, a toy functional programming language. This package
 is in development and is not suitable for use.
 
+Classes
+-------
+* `FVM` - An implementation of the Funcy Virtual Machine.
+
 Methods
 -------
 * `funcy.repl() -> None` - Run the Funcy REPL.
@@ -34,6 +38,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from .fvm import FVM
 from .repl import repl
 
-__all__: list[str] = ["repl"]
+__all__: list[str] = ["FVM", "repl"]
