@@ -3,6 +3,7 @@ from .ast.visitor import Visitor
 from .fvm import FVM
 from .io.input_wrapper import InputWrapper
 from .io.log import Log
+from .ir.serializer import Serializer
 from .ir.utils import print_code
 from .parser.parser import Parser
 from .parser.token import Token, TokenType
@@ -21,6 +22,7 @@ def repl() -> None:
     log: Log = Log()
     parser: Parser = Parser(log)
     visitor: Visitor = Visitor(log)
+    serializer: Serializer = Serializer()
     fvm: FVM = FVM()
     
     while True:
@@ -96,21 +98,24 @@ def repl() -> None:
             print_code(visitor.generate(parser.parse(input_wrapper.source)))
         elif mode == "I":
             if not input_wrapper.is_binary:
-                print("Interpreter mode expects bytecode!\n")
-                continue
+                input_wrapper.bytecode = serializer.serialize(visitor.generate(
+                        parser.parse(input_wrapper.source)), False)
             
-            if not fvm.load(input_wrapper.bytecode):
-                print("Failed to load FVM bytecode!\n")
-                continue
-            
-            if not fvm.begin():
-                print("Failed to start FVM!\n")
-                continue
-            
-            while fvm.ef:
-                fvm.step()
-            
-            print(f"FVM finished with exit code '{fvm.ec}'!")
+            if log.has_records():
+                print("Refused to run FVM! Fix errors first:")
+            else:
+                if not fvm.load(input_wrapper.bytecode):
+                    print("Failed to load FVM bytecode!\n")
+                    continue
+                
+                if not fvm.begin():
+                    print("Failed to start FVM!\n")
+                    continue
+                
+                while fvm.ef:
+                    fvm.step()
+                
+                print(f"FVM finished with exit code '{fvm.ec}'!")
         
         print("")
         

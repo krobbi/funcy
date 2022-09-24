@@ -133,7 +133,7 @@ class FVM:
                 args.insert(0, self.sm.pop())
             
             self.sm.append(self.fp)
-            self.fp = len(self.sm - 1)
+            self.fp = len(self.sm) - 1
             self.sm.append(self.ip)
             self.ip = call_address
             self.sm.extend(args)
