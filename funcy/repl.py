@@ -1,5 +1,7 @@
 from .ast.utils import print_ast
+from .ast.visitor import Visitor
 from .io.log import Log
+from .ir.utils import print_code
 from .parser.parser import Parser
 from .parser.token import Token, TokenType
 
@@ -8,13 +10,14 @@ def repl() -> None:
     
     print("Funcy REPL")
     print("  Enter 'exit' to exit.")
-    print("  Enter 'mode (l|p)' to change mode.")
+    print("  Enter 'mode (l|p|g)' to change mode.")
     print("  Enter 'read <path>' to read source code from <path>.\n")
-    print("Parser Mode\n")
+    print("Generator Mode\n")
     
-    mode: str = "P"
+    mode: str = "G"
     log: Log = Log()
     parser: Parser = Parser(log)
+    visitor: Visitor = Visitor(log)
     
     while True:
         source: str = input(f"Funcy:{mode}> ")
@@ -30,6 +33,9 @@ def repl() -> None:
             elif option == "p":
                 mode = "P"
                 print("Parser Mode\n")
+            elif option == "g":
+                mode = "G"
+                print("Generator Mode\n")
             else:
                 print(f"Failed to change to mode '{option}'!\n")
             
@@ -68,6 +74,8 @@ def repl() -> None:
                 print(token)
         elif mode == "P":
             print_ast(parser.parse(source))
+        elif mode == "G":
+            print_code(visitor.generate(parser.parse(source)))
         
         print("")
         
