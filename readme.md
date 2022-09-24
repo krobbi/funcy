@@ -15,13 +15,6 @@ exercise to test implementing functions in an interpreted language. It is _not_
 suitable as a practical language, or as a guide for creating a programming
 language.
 
-Due to its unweildy structure, Funcy is being ported from `src/` to a correctly
-formatted package in `funcy/`. To test the new implementation, use
-`python -m funcy.tests.test_repl` in the root directory of this repository.
-
-The `src/` directory will be deleted after the new implementation reaches
-feature parity.
-
 # Example
 Below is an example program written in Funcy that demonstrates the feature set
 for its current implementation. The current implementation is only useful for
