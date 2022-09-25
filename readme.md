@@ -7,7 +7,10 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 2. [Example](#example)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
-5. [License](#license)
+5. [Python SDK](#python-sdk)
+   1. [FVM Example](#fvm-example)
+   2. [Command Line Interface](#command-line-interface)
+6. [License](#license)
 
 # About
 Funcy is a toy functional language written in Python. It is developed as an
@@ -99,6 +102,79 @@ For runtime, Funcy targets the Funcy Virtual Machine (FVM), a stack-based
 bytecode interpreter.
 
 See [fvm.md](./fvm.md) for specification details.
+
+# Python SDK
+The `funcy` package in this repository acts as an SDK for building Funcy source
+code and executing Funcy source code and FVM bytecode. The package also
+provides an FVM implementation and a command line interface.
+
+The following methods are available to the package:
+```Python
+import funcy
+
+# Run the Funcy CLI. See below for more information.
+my_exit_code: int = funcy.cli(["run", "input.fy"])
+
+# Run the Funcy REPL. Mostly used internally for testing.
+funcy.repl()
+
+# Compile Funcy code from an input file to an output file.
+funcy.build("input.fy", "output.fyc")
+
+# Compile Funcy source code to FVM bytecode.
+my_bytecode: bytes = funcy.compile("func main(){}")
+
+# Compile Funcy source code to FVM bytecode from a path.
+my_other_bytecode: bytes = funcy.compile_path("input.fy")
+
+# Execute Funcy source code or FVM bytecode.
+fvm_exit_code_a: int = funcy.exec("func main(){}")
+fvm_exit_code_b: int = funcy.exec(my_bytecode)
+
+# Execute Funcy source code or FVM bytecode from a path.
+fvm_exit_code_c: int = funcy.exec_path("input.fy")
+fvm_exit_code_d: int = funcy.exec_path("output.fyc")
+```
+
+## FVM Example
+The `FVM` class is used internally by the package, but may also be used to
+implement your own FVM instance with finer control:
+```Python
+from funcy import FVM
+
+def my_function(my_bytecode: bytes) -> int:
+   fvm: FVM = FVM()
+   
+   # Use `load_flat` to load headerless bytecode.
+   if not fvm.load(my_bytecode):
+      return 1 # Failed to load bytecode.
+   
+   if not fvm.begin():
+      return 1 # FVM already running.
+   
+   # While the FVM's execution flag is set (i.e. running).
+   while fvm.ef:
+      fvm.step() # Run one instruction.
+   
+   return fvm.ec # Return exit code.
+```
+
+## Command Line Interface
+Python can run the package as a module using `python -m funcy <subcommand>`.
+This is identical to the `funcy.cli` method, but accessible from the command
+line.
+
+The following subcommands are available:
+* `build <in> <out>` - Build the code at `<in>` to `<out>`.
+* `run <path>` - Run the code at `<path>`.
+
+Examples:
+* `python -m funcy build input.fy output.fyc`
+* `python -m funcy run input.fy`
+* `python -m funcy run output.fyc`
+
+Both Funcy source code and FVM bytecode can be run from the command line
+interface.
 
 # License
 Funcy is released under the MIT License:  
