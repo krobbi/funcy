@@ -128,6 +128,5 @@ class Span:
         """ Create a copy of the span by value. """
         
         result: Span = Span()
-        result.end.replicate(self.end)
-        result.start.replicate(self.start)
+        result.replicate(self)
         return result

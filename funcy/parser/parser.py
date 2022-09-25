@@ -324,10 +324,7 @@ class Parser:
                     "Missing closing ')' in parenthetical expression!",
                     self.current.span.end)
         
-        if not isinstance(expr, ExprNode):
-            return self.abort(expr)
-        
-        return self.end(expr)
+        return self.abort(expr) # Exclude parentheses from span.
     
     
     def parse_expr(self, is_stmt: bool = False) -> Node:
@@ -348,7 +345,7 @@ class Parser:
         self.begin()
         
         if self.next.type == TokenType.PARENTHESIS_OPEN:
-            return self.end(self.parse_expr_paren())
+            return self.abort(self.parse_expr_paren())
         elif self.accept(TokenType.LITERAL_INT):
             return self.end(IntExprNode(self.current.int_value))
         elif self.accept(TokenType.IDENTIFIER):
