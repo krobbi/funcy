@@ -39,8 +39,18 @@ printing a fixed sequence of integers:
 * the current implementation, functions are not callable and their parameters
 * can't be used.
 */
-func foo(bar, baz){
-   func qux(){} // Functions may be nested inside of other functions.
+func getGetMagic(foo, bar){
+   // Functions may be nested inside of other functions to limit their scope.
+   func getMagic(){
+      /*
+      * All functions return a value, but the value or even the entire return
+      * statement may be omitted.
+      */
+      return 123;
+   }
+   
+   // Functions may be passed to and returned from other functions.
+   return getMagic;
 }
 
 /*
@@ -51,13 +61,14 @@ func foo(bar, baz){
 func main(){
    /*
    * In the current implementation, 'print' is a keyword, and not the name of a
-   * standard function. The print statement expects parentheses. Only integers
-   * and function identifiers are available in the current implementation, so
-   * '123' is printed instead of a hello world message.
+   * standard function. The print statement expects parentheses. Strings are
+   * unavailable in the current implementation, so '123' is printed instead of
+   * a hello world message. Function calls are also checked for the correct
+   * parameter count.
    */
-   print(123);
+   print(getGetMagic(1, 2)());
    
-   print(foo); // We can also use the addresses of functions.
+   print(main); // We can use a function's name to get its address.
    
    /*
    * Curly braces mark block statements that contain 0 or more statements in
@@ -83,17 +94,20 @@ is as follows:
 
 root = { stmt_func }, EOF ;
 
-stmt = stmt_func | stmt_block | stmt_nop | stmt_print | stmt_expr ;
+stmt = stmt_func | stmt_block | stmt_nop | stmt_return | stmt_print | stmt_expr ;
 
-stmt_func  = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
-stmt_block = "{", { stmt }, "}" ;
-stmt_nop   = ";" ;
-stmt_print = "print", expr_paren, ";" ;
-stmt_expr  = expr, ";" ;
+stmt_func   = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
+stmt_block  = "{", { stmt }, "}" ;
+stmt_nop    = ";" ;
+stmt_return = "return", [ expr ], ";" ;
+stmt_print  = "print", expr_paren, ";" ;
+stmt_expr   = expr, ";" ;
 
 expr_paren = "(", expr, ")" ;
-expr       = expr_primary ;
+expr       = expr_call ;
 
+(* Expressions by increasing precedence level. *)
+expr_call    = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary = expr_paren | LITERAL_INT | IDENTIFIER ;
 ```
 

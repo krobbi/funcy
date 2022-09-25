@@ -105,11 +105,18 @@ class Parser:
         self.span_stack.append(self.next.span.copy())
     
     
+    def apply(self, node: Node) -> None:
+        """ Apply a node's position without popping the span stack. """
+        
+        node.span.replicate(self.span_stack[-1])
+        node.span.include(self.current.span)
+    
+    
     def end(self, node: Node) -> Node:
         """ End a node's position at the current token. """
         
-        node.span.replicate(self.span_stack.pop())
-        node.span.include(self.current.span)
+        self.apply(node)
+        self.span_stack.pop()
         return node
     
     
@@ -152,6 +159,23 @@ class Parser:
             return self.end(self.parse_stmt_block())
         elif self.accept(TokenType.SEMICOLON):
             return self.end(NopStmtNode())
+        elif self.accept(TokenType.KEYWORD_RETURN):
+            if self.accept(TokenType.SEMICOLON):
+                return self.end(ReturnStmtNode())
+            
+            expr: Node = self.parse_expr()
+            has_semicolon: bool = self.accept(TokenType.SEMICOLON)
+            
+            if not isinstance(expr, ExprNode):
+                self.log_error(expr)
+                return self.end(ReturnStmtNode())
+            
+            if not has_semicolon:
+                self.log_error(
+                        "Missing closing ';' in return statement!",
+                        self.current.span.end)
+            
+            return self.end(ReturnExprStmtNode(expr))
         elif self.accept(TokenType.KEYWORD_PRINT):
             expr: Node = self.parse_expr_paren()
             has_semicolon: bool = self.accept(TokenType.SEMICOLON)
@@ -331,12 +355,63 @@ class Parser:
         """ Parse an expression. """
         
         self.begin()
-        expr: Node = self.parse_expr_primary(is_stmt)
+        expr: Node = self.parse_expr_call(is_stmt)
         
         if not isinstance(expr, ExprNode):
             return self.abort(expr)
         
         return self.end(expr)
+    
+    
+    def parse_expr_call(self, is_stmt: bool) -> Node:
+        """ Parse a call expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_primary(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        while self.accept(TokenType.PARENTHESIS_OPEN):
+            expr = CallExprNode(expr)
+            
+            if self.accept(TokenType.PARENTHESIS_CLOSE):
+                self.apply(expr)
+                continue
+            
+            param: Node = self.parse_expr()
+            
+            if isinstance(param, ExprNode):
+                expr.params.append(param)
+            else:
+                self.log_error(param)
+            
+            while self.accept(TokenType.COMMA):
+                while self.accept(TokenType.COMMA):
+                    self.log_error(
+                            "Missing parameter in call expression!",
+                            self.current.span.end)
+                
+                if self.next.type == TokenType.PARENTHESIS_CLOSE:
+                    self.log_error(
+                            "Trailing ',' in call expression!", self.current)
+                    break
+                
+                param = self.parse_expr()
+                
+                if isinstance(param, ExprNode):
+                    expr.params.append(param)
+                else:
+                    self.log_error(param)
+            
+            if not self.accept(TokenType.PARENTHESIS_CLOSE):
+                self.log_error(
+                        "Missing closing ')' in call expression!",
+                        self.current.span.end)
+            
+            self.apply(expr)
+        
+        return self.abort(expr)
     
     
     def parse_expr_primary(self, is_stmt: bool) -> Node:

@@ -2,15 +2,18 @@
 
 root = { stmt_func }, EOF ;
 
-stmt = stmt_func | stmt_block | stmt_nop | stmt_print | stmt_expr ;
+stmt = stmt_func | stmt_block | stmt_nop | stmt_return | stmt_print | stmt_expr ;
 
-stmt_func  = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
-stmt_block = "{", { stmt }, "}" ;
-stmt_nop   = ";" ;
-stmt_print = "print", expr_paren, ";" ;
-stmt_expr  = expr, ";" ;
+stmt_func   = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
+stmt_block  = "{", { stmt }, "}" ;
+stmt_nop    = ";" ;
+stmt_return = "return", [ expr ], ";" ;
+stmt_print  = "print", expr_paren, ";" ;
+stmt_expr   = expr, ";" ;
 
 expr_paren = "(", expr, ")" ;
-expr       = expr_primary ;
+expr       = expr_call ;
 
+(* Expressions by increasing precedence level. *)
+expr_call    = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary = expr_paren | LITERAL_INT | IDENTIFIER ;

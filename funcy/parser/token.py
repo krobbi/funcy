@@ -23,6 +23,9 @@ class TokenType(Enum):
     KEYWORD_PRINT = auto()
     """ `print`. """
     
+    KEYWORD_RETURN = auto()
+    """ `return`. """
+    
     PARENTHESIS_OPEN = auto()
     """ `(`. """
     

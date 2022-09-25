@@ -60,6 +60,37 @@ class IdentifierExprNode(ExprNode):
         return f"IdentifierExpr: {self.name} @ ({self.span})"
 
 
+class CallExprNode(ExprNode):
+    """ A call expression statement of an abstract syntax tree. """
+    
+    callee: ExprNode
+    """ The call expression's callee expression. """
+    
+    params: list[ExprNode]
+    """ The call expression's parameter expressions. """
+    
+    def __init__(self, callee: ExprNode) -> None:
+        """ Initialize the call expression's expressions. """
+        
+        super().__init__()
+        self.callee = callee
+        self.params = []
+    
+    
+    def __str__(self) -> str:
+        """ Return the call expression's string. """
+        
+        return f"CallExpr @ ({self.span})"
+    
+    
+    def get_children(self) -> list[ExprNode]:
+        """ Get the call expression's children as a list. """
+        
+        result: list[ExprNode] = [self.callee]
+        result.extend(self.params)
+        return result
+
+
 class StmtNode(Node):
     """ A statement node of an abstract syntax tree. """
 
@@ -139,6 +170,44 @@ class NopStmtNode(StmtNode):
         return f"NopStmt @ ({self.span})"
 
 
+class ReturnStmtNode(StmtNode):
+    """ A return statement node of an abstract syntax tree. """
+    
+    def __str__(self) -> str:
+        """ Return the return statement's string. """
+        
+        return f"ReturnStmt @ ({self.span})"
+
+
+class ReturnExprStmtNode(StmtNode):
+    """
+    A return expression statement node of an abstract syntax tree.
+    """
+    
+    expr: ExprNode
+    """ The return expression statement's expression. """
+    
+    def __init__(self, expr: ExprNode) -> None:
+        """ Initialize the return expression statement's expression. """
+        
+        super().__init__()
+        self.expr = expr
+    
+    
+    def __str__(self) -> str:
+        """ Return the return expression statement's string. """
+        
+        return f"ReturnExprStmt @ ({self.span})"
+    
+    
+    def get_children(self) -> list[ExprNode]:
+        """
+        Get the return expression statement's children as a list.
+        """
+        
+        return [self.expr]
+
+
 class PrintStmtNode(StmtNode):
     """ A print statement node of an abstract syntax tree. """
     
@@ -190,7 +259,12 @@ class ExprStmtNode(StmtNode):
 
 
 class ErrorNode(Node):
-    """ A syntax error node of an abstract syntax tree. """
+    """
+    A syntax error node. Error nodes should not be inserted into the
+    abstract syntax tree, and are instead used to pass the results of
+    parsing errors up the recursive descent parser until they can be
+    logged and discarded.
+    """
     
     message: str
     """ The syntax error's message. """
@@ -200,12 +274,6 @@ class ErrorNode(Node):
         
         super().__init__()
         self.message = message
-    
-    
-    def __str__(self) -> str:
-        """ Return the syntax error's string. """
-        
-        return f"Error: {self.message} @ ({self.span})"
 
 
 class RootNode(Node):

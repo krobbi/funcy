@@ -144,6 +144,8 @@ class Lexer:
                 return self.make_token(TokenType.KEYWORD_FUNC)
             elif self.lexeme == "print":
                 return self.make_token(TokenType.KEYWORD_PRINT)
+            elif self.lexeme == "return":
+                return self.make_token(TokenType.KEYWORD_RETURN)
             else:
                 return self.make_str(TokenType.IDENTIFIER, self.lexeme)
         elif self.accept("("):

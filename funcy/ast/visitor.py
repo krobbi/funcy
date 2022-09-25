@@ -59,6 +59,10 @@ class Visitor:
             self.visit_block_stmt(node, code)
         elif isinstance(node, NopStmtNode):
             self.visit_nop_stmt(node, code)
+        elif isinstance(node, ReturnStmtNode):
+            self.visit_return_stmt(node, code)
+        elif isinstance(node, ReturnExprStmtNode):
+            self.visit_return_expr_stmt(node, code)
         elif isinstance(node, PrintStmtNode):
             self.visit_print_stmt(node, code)
         elif isinstance(node, ExprStmtNode):
@@ -67,6 +71,8 @@ class Visitor:
             self.visit_int_expr(node, code)
         elif isinstance(node, IdentifierExprNode):
             self.visit_identifier_expr(node, code)
+        elif isinstance(node, CallExprNode):
+            self.visit_call_expr(node, code)
         else:
             self.log_error(f"Unimplemented visitor for '{node}'!", node)
     
@@ -151,6 +157,21 @@ class Visitor:
         pass # No operation statements should have no effect.
     
     
+    def visit_return_stmt(self, node: ReturnStmtNode, code: Code) -> None:
+        """ Visit a return statement node. """
+        
+        code.make_push_int(0)
+        code.make_return()
+    
+    
+    def visit_return_expr_stmt(
+            self, node: ReturnExprStmtNode, code: Code) -> None:
+        """ Visit a return expression statement node. """
+        
+        self.visit(node.expr, code)
+        code.make_return()
+    
+    
     def visit_print_stmt(self, node: PrintStmtNode, code: Code) -> None:
         """ Visit a print statement node. """
         
@@ -192,3 +213,80 @@ class Visitor:
                     "Bug: Unimplemented symbol access "
                     f"'{symbol.access.name}' at '{node.name}'!", node)
             code.make_push_int(0)
+    
+    
+    def visit_call_expr(self, node: CallExprNode, code: Code) -> None:
+        """ Visit a call expression node. """
+        
+        is_callable: bool = False
+        
+        # Number of parameters expected. -1 for any number.
+        expected_params: int = -1
+        
+        if isinstance(node.callee, IntExprNode):
+            self.log_error(
+                    f"Called the integer value '{node.callee.value}' "
+                    "as a function!", node.callee)
+        elif isinstance(node.callee, IdentifierExprNode):
+            symbol: Symbol = self.scope_stack.get(node.callee.name)
+            
+            if symbol.access == SymbolAccess.UNDEFINED:
+                self.log_error(
+                        f"Called function name '{symbol.name}' is undefined "
+                        "in the current scope!", node.callee)
+            elif symbol.access == SymbolAccess.FUNC:
+                is_callable = True
+                expected_params = symbol.int_value
+            elif symbol.access == SymbolAccess.LOCAL:
+                self.log_error(
+                        "Function parameters are not yet callable!",
+                        node.callee)
+            else:
+                self.log_error(
+                        "Bug: Unimplemented callee symbol access "
+                        f"'{symbol.access.name}' at '{node.callee}'!",
+                        node.callee)
+        elif isinstance(node.callee, CallExprNode):
+            is_callable = True # A call may return a function.
+        else:
+            self.log_error(
+                    "Bug: Unimplemented callee expression type "
+                    f"for '{node.callee}'!", node.callee)
+        
+        for param in node.params:
+            self.visit(param, code)
+        
+        # Discard our parameters if we can't make the call.
+        if not is_callable:
+            for i in range(len(node.params)):
+                code.make_discard()
+            
+            code.make_push_int(0)
+            return
+        
+        if expected_params == -1:
+            expected_params = len(node.params)
+        elif len(node.params) != expected_params:
+            if expected_params == 1:
+                self.log_error(
+                        "Called function expected 1 parameter, "
+                        f"got {len(node.params)}!", node)
+            else:
+                self.log_error(
+                        f"Called function expected {expected_params} "
+                        f"parameters, got {len(node.params)}!", node)
+            
+            difference: int = len(node.params) - expected_params
+            
+            # Insert missing parameters.
+            while difference < 0:
+                code.make_push_int(0)
+                difference += 1
+            
+            # Or discard excess parameters.
+            while difference > 0:
+                code.make_discard()
+                difference -= 1
+        
+        self.visit(node.callee, code)
+        code.make_call_paramc(expected_params)
