@@ -72,9 +72,11 @@ def exec(source: str | bytes) -> int:
     fvm: FVM = FVM()
     
     if not fvm.load(source):
+        print("Failed to load bytecode!")
         return 1
     
     if not fvm.begin():
+        print("Failed to start FVM!")
         return 1
     
     while fvm.ef:
