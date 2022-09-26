@@ -48,14 +48,14 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.CALL)
                 elif op.type == OpType.RETURN:
                     self.append_opcode(bytecode, Opcode.RETURN)
+                elif op.type == OpType.DROP:
+                    self.append_opcode(bytecode, Opcode.DROP)
                 elif op.type == OpType.PUSH_LABEL:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(bytecode, labels.get(op.str_value, 0))
                 elif op.type == OpType.PUSH_INT:
                     self.append_opcode(bytecode, Opcode.PUSH_S32)
                     self.append_s32(bytecode, op.int_value)
-                elif op.type == OpType.DROP:
-                    self.append_opcode(bytecode, Opcode.DROP)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:
