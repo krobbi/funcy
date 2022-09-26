@@ -355,12 +355,93 @@ class Parser:
         """ Parse an expression. """
         
         self.begin()
-        expr: Node = self.parse_expr_call(is_stmt)
+        expr: Node = self.parse_expr_sum(is_stmt)
         
         if not isinstance(expr, ExprNode):
             return self.abort(expr)
         
         return self.end(expr)
+    
+    
+    def parse_expr_sum(self, is_stmt: bool) -> Node:
+        """ Parse a sum expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_term(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        while True:
+            op: BinOp = BinOp.NONE
+            
+            if self.accept(TokenType.PLUS):
+                op = BinOp.ADD
+            elif self.accept(TokenType.MINUS):
+                op = BinOp.SUBTRACT
+            else:
+                break
+            
+            rhs: Node = self.parse_expr_term()
+            
+            if not isinstance(rhs, ExprNode):
+                return self.abort(rhs)
+            
+            expr = BinExprNode(expr, op, rhs)
+            self.apply(expr)
+        
+        return self.abort(expr)
+    
+    
+    def parse_expr_term(self, is_stmt: bool = False) -> Node:
+        """ Parse a term expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_sign(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        while True:
+            op: BinOp = BinOp.NONE
+            
+            if self.accept(TokenType.PERCENT):
+                op = BinOp.MODULO
+            elif self.accept(TokenType.STAR):
+                op = BinOp.MULTIPLY
+            elif self.accept(TokenType.SLASH):
+                op = BinOp.DIVIDE
+            else:
+                break
+            
+            rhs: Node = self.parse_expr_sign()
+            
+            if not isinstance(rhs, ExprNode):
+                return self.abort(rhs)
+            
+            expr = BinExprNode(expr, op, rhs)
+            self.apply(expr)
+        
+        return self.abort(expr)
+    
+    
+    def parse_expr_sign(self, is_stmt: bool = False) -> Node:
+        """ Parse a sign expression. """
+        
+        while self.next.type == TokenType.PLUS:
+            self.advance()
+        
+        self.begin()
+        
+        if self.accept(TokenType.MINUS):
+            expr: Node = self.parse_expr_sign()
+            
+            if isinstance(expr, ExprNode):
+                return self.end(UnExprNode(expr, UnOp.NEGATE))
+            else:
+                return self.abort(expr)
+        
+        return self.abort(self.parse_expr_call(is_stmt))
     
     
     def parse_expr_call(self, is_stmt: bool) -> Node:

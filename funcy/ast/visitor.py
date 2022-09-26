@@ -73,6 +73,10 @@ class Visitor:
             self.visit_identifier_expr(node, code)
         elif isinstance(node, CallExprNode):
             self.visit_call_expr(node, code)
+        elif isinstance(node, UnExprNode):
+            self.visit_un_expr(node, code)
+        elif isinstance(node, BinExprNode):
+            self.visit_bin_expr(node, code)
         else:
             self.log_error(f"Unimplemented visitor for '{node}'!", node)
     
@@ -287,3 +291,39 @@ class Visitor:
         
         self.visit(node.callee, code)
         code.make_call_paramc(expected_params)
+    
+    
+    def visit_un_expr(self, node: UnExprNode, code: Code) -> None:
+        """ Visit a unary expression node. """
+        
+        self.visit(node.expr, code)
+        
+        if node.op == UnOp.NEGATE:
+            code.make_unary_negate()
+        else:
+            self.log_error(
+                    f"Bug: Unimplemented unary operator '{node.op.name}'!",
+                    node)
+    
+    
+    def visit_bin_expr(self, node: BinExprNode, code: Code) -> None:
+        """ Visit a binary expression node. """
+        
+        self.visit(node.lhs, code)
+        self.visit(node.rhs, code)
+        
+        if node.op == BinOp.ADD:
+            code.make_binary_add()
+        elif node.op == BinOp.SUBTRACT:
+            code.make_binary_subtract()
+        elif node.op == BinOp.MULTIPLY:
+            code.make_binary_multiply()
+        elif node.op == BinOp.DIVIDE:
+            code.make_binary_divide()
+        elif node.op == BinOp.MODULO:
+            code.make_binary_modulo()
+        else:
+            self.log_error(
+                    f"Bug: Unimplemented binary operator '{node.op.name}'!",
+                    node)
+            code.make_drop() # Preserve stack size.

@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 from ..parser.position import Span
 
 class Node:
@@ -61,7 +63,7 @@ class IdentifierExprNode(ExprNode):
 
 
 class CallExprNode(ExprNode):
-    """ A call expression statement of an abstract syntax tree. """
+    """ A call expression node of an abstract syntax tree. """
     
     callee: ExprNode
     """ The call expression's callee expression. """
@@ -89,6 +91,128 @@ class CallExprNode(ExprNode):
         result: list[ExprNode] = [self.callee]
         result.extend(self.params)
         return result
+
+
+class UnOp(Enum):
+    """ A unary operator. """
+    
+    NEGATE = auto()
+    """ `-x`. """
+    
+    NOT = auto()
+    """ `!x`. (Unimplemented.) """
+
+
+class UnExprNode(ExprNode):
+    """ A unary expression node of an abstract syntax tree. """
+    
+    expr: ExprNode
+    """ The unary expression's expression. """
+    
+    op: UnOp
+    """ The unary expression's operator. """
+    
+    def __init__(self, expr: ExprNode, op: UnOp) -> None:
+        """
+        Initialize the unary expression's expression and operator.
+        """
+        
+        super().__init__()
+        self.expr = expr
+        self.op = op
+    
+    
+    def __str__(self) -> str:
+        """ Return the unary expression's string. """
+        
+        return f"UnExpr: {self.op.name} @ ({self.span})"
+    
+    
+    def get_children(self) -> list[ExprNode]:
+        """ Get the unary expression's children as a list. """
+        
+        return [self.expr]
+
+
+class BinOp(Enum):
+    """ A binary operator. """
+    
+    NONE = auto()
+    """ Not a valid operator. Simplifies parsing. """
+    
+    ADD = auto()
+    """ `x + y`. """
+    
+    SUBTRACT = auto()
+    """ `x - y`. """
+    
+    MULTIPLY = auto()
+    """ `x * y`. """
+    
+    DIVIDE = auto()
+    """ `x / y`. """
+    
+    MODULO = auto()
+    """ `x % y`. """
+    
+    EQUALS = auto()
+    """ `x == y`. (Unimplemented.) """
+    
+    NOT_EQUALS = auto()
+    """ `x != y`. (Unimplemented.) """
+    
+    GREATER = auto()
+    """ `x > y`. (Unimplemented.) """
+    
+    GREATER_EQUALS = auto()
+    """ `x >= y`. (Unimplemented.) """
+    
+    LESS = auto()
+    """ `x < y`. (Unimplemented.) """
+    
+    LESS_EQUALS = auto()
+    """ `x <= y`. (Unimplemented.) """
+    
+    AND = auto()
+    """ `x (eager logical and) y`. (Unimplemented.) """
+    
+    OR = auto()
+    """ `x (eager logical or) y`. (Unimplemented.) """
+
+
+class BinExprNode(ExprNode):
+    """ A binary expression node of an abstract syntax tree. """
+    
+    lhs: ExprNode
+    """ The binary expression's left hand side expression. """
+    
+    op: BinOp
+    """ The binary expression's operator. """
+    
+    rhs: ExprNode
+    """ The binary expression's right hand side expression. """
+    
+    def __init__(self, lhs: ExprNode, op: BinOp, rhs: ExprNode) -> None:
+        """
+        Initialize the binary expression's expressions and operator.
+        """
+        
+        super().__init__()
+        self.lhs = lhs
+        self.op = op
+        self.rhs = rhs
+    
+    
+    def __str__(self) -> str:
+        """ Return the binary expression's string. """
+        
+        return f"BinExpr: {self.op.name} @ ({self.span})"
+    
+    
+    def get_children(self) -> list[ExprNode]:
+        """ Get the binary expression's children as a list. """
+        
+        return [self.lhs, self.rhs]
 
 
 class StmtNode(Node):

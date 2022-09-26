@@ -26,14 +26,29 @@ class TokenType(Enum):
     KEYWORD_RETURN = auto()
     """ `return`. """
     
+    PERCENT = auto()
+    """ `%`. """
+    
     PARENTHESIS_OPEN = auto()
     """ `(`. """
     
     PARENTHESIS_CLOSE = auto()
     """ `)`. """
     
+    STAR = auto()
+    """ `*`. """
+    
+    PLUS = auto()
+    """ `+`. """
+    
     COMMA = auto()
     """ `,`. """
+    
+    MINUS = auto()
+    """ `-`. """
+    
+    SLASH = auto()
+    """ `/`. """
     
     SEMICOLON = auto()
     """ `;`. """

@@ -148,12 +148,22 @@ class Lexer:
                 return self.make_token(TokenType.KEYWORD_RETURN)
             else:
                 return self.make_str(TokenType.IDENTIFIER, self.lexeme)
+        elif self.accept("%"):
+            return self.make_token(TokenType.PERCENT)
         elif self.accept("("):
             return self.make_token(TokenType.PARENTHESIS_OPEN)
         elif self.accept(")"):
             return self.make_token(TokenType.PARENTHESIS_CLOSE)
+        elif self.accept("*"):
+            return self.make_token(TokenType.STAR)
+        elif self.accept("+"):
+            return self.make_token(TokenType.PLUS)
         elif self.accept(","):
             return self.make_token(TokenType.COMMA)
+        elif self.accept("-"):
+            return self.make_token(TokenType.MINUS)
+        elif self.accept("/"):
+            return self.make_token(TokenType.SLASH)
         elif self.accept(";"):
             return self.make_token(TokenType.SEMICOLON)
         elif self.accept("{"):

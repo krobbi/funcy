@@ -27,6 +27,24 @@ class OpType(Enum):
     STORE_LOCAL_OFFSET = auto()
     """ Store local with offset. """
     
+    UNARY_NEGATE = auto()
+    """ Pop, negate, and push element. """
+    
+    BINARY_ADD = auto()
+    """ Pop, add, and push elements. """
+    
+    BINARY_SUBTRACT = auto()
+    """ Pop, subtract, and push elements. """
+    
+    BINARY_MULTIPLY = auto()
+    """ Pop, multiply, and push elements. """
+    
+    BINARY_DIVIDE = auto()
+    """ Pop, divide, and push elements. """
+    
+    BINARY_MODULO = auto()
+    """ Pop, modulo, and push elements. """
+    
     PRINT = auto()
     """ Pop and print element. """
 
@@ -180,6 +198,42 @@ class Code:
         """ Make a store local offset IR operation. """
         
         self.append_op_int(OpType.STORE_LOCAL_OFFSET, offset)
+    
+    
+    def make_unary_negate(self) -> None:
+        """ Make a unary negate IR operation. """
+        
+        self.append_op_standalone(OpType.UNARY_NEGATE)
+    
+    
+    def make_binary_add(self) -> None:
+        """ Make a binary add IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_ADD)
+    
+    
+    def make_binary_subtract(self) -> None:
+        """ Make a binary subtract IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_SUBTRACT)
+    
+    
+    def make_binary_multiply(self) -> None:
+        """ Make a binary multiply IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_MULTIPLY)
+    
+    
+    def make_binary_divide(self) -> None:
+        """ Make a binary divide IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_DIVIDE)
+    
+    
+    def make_binary_modulo(self) -> None:
+        """ Make a binary modulo IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_MODULO)
     
     
     def make_print(self) -> None:

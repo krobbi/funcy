@@ -71,6 +71,18 @@ class Serializer:
                     self.append_u32(
                             bytecode, op.int_value + self.FRAME_HEADER_SIZE)
                     self.append_opcode(bytecode, Opcode.STORE_LOCAL)
+                elif op.type == OpType.UNARY_NEGATE:
+                    self.append_opcode(bytecode, Opcode.UNARY_NEGATE)
+                elif op.type == OpType.BINARY_ADD:
+                    self.append_opcode(bytecode, Opcode.BINARY_ADD)
+                elif op.type == OpType.BINARY_SUBTRACT:
+                    self.append_opcode(bytecode, Opcode.BINARY_SUBTRACT)
+                elif op.type == OpType.BINARY_MULTIPLY:
+                    self.append_opcode(bytecode, Opcode.BINARY_MULTIPLY)
+                elif op.type == OpType.BINARY_DIVIDE:
+                    self.append_opcode(bytecode, Opcode.BINARY_DIVIDE)
+                elif op.type == OpType.BINARY_MODULO:
+                    self.append_opcode(bytecode, Opcode.BINARY_MODULO)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:
