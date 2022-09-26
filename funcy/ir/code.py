@@ -21,6 +21,12 @@ class OpType(Enum):
     PUSH_INT = auto()
     """ Push integer value. """
     
+    LOAD_LOCAL_OFFSET = auto()
+    """ Load local with offset. """
+    
+    STORE_LOCAL_OFFSET = auto()
+    """ Store local with offset. """
+    
     PRINT = auto()
     """ Pop and print element. """
 
@@ -46,7 +52,9 @@ class Op:
     def __str__(self) -> str:
         """ Return the IR operation's string. """
         
-        if self.type == OpType.CALL_PARAMC or self.type == OpType.PUSH_INT:
+        if self.type in (
+                OpType.CALL_PARAMC, OpType.PUSH_INT,
+                OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return f"{self.type.name} {self.int_value};"
         elif self.type == OpType.PUSH_LABEL:
             return f"{self.type.name} {self.str_value};"
@@ -160,6 +168,18 @@ class Code:
         """ Make a push int IR operation. """
         
         self.append_op_int(OpType.PUSH_INT, value)
+    
+    
+    def make_load_local_offset(self, offset: int) -> None:
+        """ Make a load local offset IR operation. """
+        
+        self.append_op_int(OpType.LOAD_LOCAL_OFFSET, offset)
+    
+    
+    def make_store_local_offset(self, offset: int) -> None:
+        """ Make a store local offset IR operation. """
+        
+        self.append_op_int(OpType.STORE_LOCAL_OFFSET, offset)
     
     
     def make_print(self) -> None:

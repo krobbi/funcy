@@ -35,22 +35,35 @@ printing a fixed sequence of integers:
 /*
 * A Funcy program contains 0 or more top-level function declarations. These
 * begin with the 'func' keyword and a function name, followed by a list of
-* parameter names in parentheses, and a function body in a block statement. In
-* the current implementation, functions are not callable and their parameters
-* can't be used.
+* parameter names in parentheses, and a function body in a block statement.
 */
 func getGetMagic(foo, bar){
    // Functions may be nested inside of other functions to limit their scope.
    func getMagic(){
-      /*
-      * All functions return a value, but the value or even the entire return
-      * statement may be omitted.
-      */
       return 123;
    }
    
-   // Functions may be passed to and returned from other functions.
-   return getMagic;
+   return getMagic; // A function may return another function.
+}
+
+// Functions may be passed as parameters to other functions.
+func doTwice(f, x){
+   f(x);
+   f(x);
+   
+   // Return statements may omit their value. By default this returns 0.
+   return;
+}
+
+func say(message){
+   /*
+   * In the current implementation, 'print' is a keyword, and not the name of
+   * an intrinsic function. The print statement still expects parentheses.
+   * Strings are not yet available.
+   */
+   print(message);
+   
+   // Return statements may be entirely omitted. This also returns 0.
 }
 
 /*
@@ -59,14 +72,8 @@ func getGetMagic(foo, bar){
 * implementation.
 */
 func main(){
-   /*
-   * In the current implementation, 'print' is a keyword, and not the name of a
-   * standard function. The print statement expects parentheses. Strings are
-   * unavailable in the current implementation, so '123' is printed instead of
-   * a hello world message. Function calls are also checked for the correct
-   * parameter count.
-   */
-   print(getGetMagic(1, 2)());
+   // Function calls are checked for parameter count.
+   doTwice(say, getGetMagic(1, 2)());
    
    print(main); // We can use a function's name to get its address.
    
@@ -83,6 +90,12 @@ func main(){
       
       ; // A semicolon on its own marks a no operation statement.
    }
+   
+   /*
+   * Any value returned from 'main' will be used as an exit code. This return
+   * statement may also be omitted.
+   */
+   return 0;
 }
 ```
 
@@ -159,7 +172,7 @@ from funcy import FVM
 def my_function(my_bytecode: bytes) -> int:
    fvm: FVM = FVM()
    
-   # Use `load_flat` to load headerless bytecode.
+   # Use 'load_flat' to load headerless bytecode.
    if not fvm.load(my_bytecode):
       return 1 # Failed to load bytecode.
    

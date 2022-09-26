@@ -6,10 +6,15 @@ from .code import Code, Op, OpType
 class Serializer:
     """ Serializes FVM bytecode from IR code. """
     
+    FRAME_HEADER_SIZE: int = 2
+    """ The size of a stack frame header in elements. """
+    
     def get_op_size(self, op: Op) -> int:
         """ Get the compiled size of an IR operation in bytes. """
         
-        if op.type == OpType.CALL_PARAMC:
+        if op.type in (
+                OpType.CALL_PARAMC, OpType.LOAD_LOCAL_OFFSET,
+                OpType.STORE_LOCAL_OFFSET):
             return 1 + 4 + 1
         elif op.type in (OpType.PUSH_LABEL, OpType.PUSH_INT):
             return 1 + 4
@@ -56,6 +61,16 @@ class Serializer:
                 elif op.type == OpType.PUSH_INT:
                     self.append_opcode(bytecode, Opcode.PUSH_S32)
                     self.append_s32(bytecode, op.int_value)
+                elif op.type == OpType.LOAD_LOCAL_OFFSET:
+                    self.append_opcode(bytecode, Opcode.PUSH_U32)
+                    self.append_u32(
+                            bytecode, op.int_value + self.FRAME_HEADER_SIZE)
+                    self.append_opcode(bytecode, Opcode.LOAD_LOCAL)
+                elif op.type == OpType.STORE_LOCAL_OFFSET:
+                    self.append_opcode(bytecode, Opcode.PUSH_U32)
+                    self.append_u32(
+                            bytecode, op.int_value + self.FRAME_HEADER_SIZE)
+                    self.append_opcode(bytecode, Opcode.STORE_LOCAL)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:

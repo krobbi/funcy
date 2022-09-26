@@ -206,8 +206,7 @@ class Visitor:
         elif symbol.access == SymbolAccess.FUNC:
             code.make_push_label(symbol.str_value)
         elif symbol.access == SymbolAccess.LOCAL:
-            self.log_error("Function parameters are unimplemented!", node)
-            code.make_push_int(0)
+            code.make_load_local_offset(symbol.int_value)
         else:
             self.log_error(
                     "Bug: Unimplemented symbol access "
@@ -238,9 +237,7 @@ class Visitor:
                 is_callable = True
                 expected_params = symbol.int_value
             elif symbol.access == SymbolAccess.LOCAL:
-                self.log_error(
-                        "Function parameters are not yet callable!",
-                        node.callee)
+                is_callable = True # A local may contain a function.
             else:
                 self.log_error(
                         "Bug: Unimplemented callee symbol access "
