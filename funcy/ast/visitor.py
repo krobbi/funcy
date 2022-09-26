@@ -183,7 +183,7 @@ class Visitor:
         """ Visit an expression statement node. """
         
         self.visit(node.expr, code)
-        code.make_discard()
+        code.make_drop()
     
     
     def visit_int_expr(self, node: IntExprNode, code: Code) -> None:
@@ -256,10 +256,10 @@ class Visitor:
         for param in node.params:
             self.visit(param, code)
         
-        # Discard our parameters if we can't make the call.
+        # Drop our parameters if we can't make the call.
         if not is_callable:
             for i in range(len(node.params)):
-                code.make_discard()
+                code.make_drop()
             
             code.make_push_int(0)
             return
@@ -283,9 +283,9 @@ class Visitor:
                 code.make_push_int(0)
                 difference += 1
             
-            # Or discard excess parameters.
+            # Or drop excess parameters.
             while difference > 0:
-                code.make_discard()
+                code.make_drop()
                 difference -= 1
         
         self.visit(node.callee, code)

@@ -18,7 +18,7 @@ class OpType(Enum):
     PUSH_INT = auto()
     """ Push integer value. """
     
-    DISCARD = auto()
+    DROP = auto()
     """ Pop and discard element. """
     
     PRINT = auto()
@@ -156,10 +156,10 @@ class Code:
         self.append_op_int(OpType.PUSH_INT, value)
     
     
-    def make_discard(self) -> None:
-        """ Make a discard IR operation. """
+    def make_drop(self) -> None:
+        """ Make a drop IR operation. """
         
-        self.append_op_standalone(OpType.DISCARD)
+        self.append_op_standalone(OpType.DROP)
     
     
     def make_print(self) -> None:

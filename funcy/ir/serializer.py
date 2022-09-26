@@ -54,8 +54,8 @@ class Serializer:
                 elif op.type == OpType.PUSH_INT:
                     self.append_opcode(bytecode, Opcode.PUSH_S32)
                     self.append_s32(bytecode, op.int_value)
-                elif op.type == OpType.DISCARD:
-                    self.append_opcode(bytecode, Opcode.DISCARD)
+                elif op.type == OpType.DROP:
+                    self.append_opcode(bytecode, Opcode.DROP)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:
