@@ -12,14 +12,14 @@ class OpType(Enum):
     RETURN = auto()
     """ Pop and return element. """
     
+    DROP = auto()
+    """ Pop and discard element. """
+    
     PUSH_LABEL = auto()
     """ Push labeled address. """
     
     PUSH_INT = auto()
     """ Push integer value. """
-    
-    DROP = auto()
-    """ Pop and discard element. """
     
     PRINT = auto()
     """ Pop and print element. """
@@ -144,6 +144,12 @@ class Code:
         self.append_op_standalone(OpType.RETURN)
     
     
+    def make_drop(self) -> None:
+        """ Make a drop IR operation. """
+        
+        self.append_op_standalone(OpType.DROP)
+    
+    
     def make_push_label(self, label: str) -> None:
         """ Make a push label IR operation. """
         
@@ -154,12 +160,6 @@ class Code:
         """ Make a push int IR operation. """
         
         self.append_op_int(OpType.PUSH_INT, value)
-    
-    
-    def make_drop(self) -> None:
-        """ Make a drop IR operation. """
-        
-        self.append_op_standalone(OpType.DROP)
     
     
     def make_print(self) -> None:
