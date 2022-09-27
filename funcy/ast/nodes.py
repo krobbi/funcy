@@ -264,6 +264,37 @@ class IfStmtNode(StmtNode):
         return f"IfStmt @ ({self.span})"
 
 
+class IfElseStmtNode(StmtNode):
+    """ An if else statement node of an abstract syntax tree. """
+    
+    expr: ExprNode
+    """ The if else statement's expression. """
+    
+    then_stmt: StmtNode
+    """ The if else statement's then statement. """
+    
+    else_stmt: StmtNode
+    """ The if else statement's else statement. """
+    
+    def __init__(
+            self, expr: ExprNode,
+            then_stmt: StmtNode, else_stmt: StmtNode) -> None:
+        """
+        Initialize the if else statement's expression and statements.
+        """
+        
+        super().__init__()
+        self.expr = expr
+        self.then_stmt = then_stmt
+        self.else_stmt = else_stmt
+    
+    
+    def __str__(self) -> str:
+        """ Return the if else statement's string. """
+        
+        return f"IfElseStmt @ ({self.span})"
+
+
 class NopStmtNode(StmtNode):
     """ A no operation statement node of an abstract syntax tree. """
     

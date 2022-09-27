@@ -59,6 +59,8 @@ class Visitor:
             self.visit_block_stmt(node, code)
         elif isinstance(node, IfStmtNode):
             self.visit_if_stmt(node, code)
+        elif isinstance(node, IfElseStmtNode):
+            self.visit_if_else_stmt(node, code)
         elif isinstance(node, NopStmtNode):
             self.visit_nop_stmt(node, code)
         elif isinstance(node, ReturnStmtNode):
@@ -163,9 +165,32 @@ class Visitor:
         end_label: str = code.insert_label("if_end")
         self.visit(node.expr, code)
         code.make_jump_zero_label(end_label)
+        
         self.scope_stack.push()
         self.visit(node.stmt, code)
         self.scope_stack.pop()
+        
+        code.set_label(end_label)
+    
+    
+    def visit_if_else_stmt(self, node: IfElseStmtNode, code: Code) -> None:
+        """ Visit an if else statement node. """
+        
+        end_label: str = code.insert_label("if_else_end")
+        else_label: str = code.insert_label("if_else_else")
+        self.visit(node.expr, code)
+        code.make_jump_zero_label(else_label)
+        
+        self.scope_stack.push()
+        self.visit(node.then_stmt, code)
+        code.make_jump_label(end_label)
+        self.scope_stack.pop()
+        
+        code.set_label(else_label)
+        self.scope_stack.push()
+        self.visit(node.else_stmt, code)
+        self.scope_stack.pop()
+        
         code.set_label(end_label)
     
     

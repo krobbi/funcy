@@ -24,6 +24,7 @@ class Lexer:
             + "ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz")
     
     KEYWORDS: dict[str, TokenType] = {
+        "else": TokenType.KEYWORD_ELSE,
         "func": TokenType.KEYWORD_FUNC,
         "if": TokenType.KEYWORD_IF,
         "print": TokenType.KEYWORD_PRINT,

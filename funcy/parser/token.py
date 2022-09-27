@@ -17,6 +17,9 @@ class TokenType(Enum):
     IDENTIFIER = auto()
     """ User-defined name. """
     
+    KEYWORD_ELSE = auto()
+    """ `else`. """
+    
     KEYWORD_FUNC = auto()
     """ `func`. """
     

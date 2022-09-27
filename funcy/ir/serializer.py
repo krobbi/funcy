@@ -13,7 +13,7 @@ class Serializer:
         """ Get the compiled size of an IR operation in bytes. """
         
         if op.type in (
-                OpType.JUMP_ZERO_LABEL, OpType.CALL_PARAMC,
+                OpType.JUMP_LABEL, OpType.JUMP_ZERO_LABEL, OpType.CALL_PARAMC,
                 OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return 1 + 4 + 1
         elif op.type in (OpType.PUSH_LABEL, OpType.PUSH_INT):
@@ -47,6 +47,10 @@ class Serializer:
             for op in block.ops:
                 if op.type == OpType.HALT:
                     self.append_opcode(bytecode, Opcode.HALT)
+                elif op.type == OpType.JUMP_LABEL:
+                    self.append_opcode(bytecode, Opcode.PUSH_U32)
+                    self.append_u32(bytecode, labels.get(op.str_value, 0))
+                    self.append_opcode(bytecode, Opcode.JUMP)
                 elif op.type == OpType.JUMP_ZERO_LABEL:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(bytecode, labels.get(op.str_value, 0))

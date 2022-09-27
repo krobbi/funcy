@@ -6,8 +6,11 @@ class OpType(Enum):
     HALT = auto()
     """ Pop and halt element. """
     
+    JUMP_LABEL = auto()
+    """ Pop and jump element with label. """
+    
     JUMP_ZERO_LABEL = auto()
-    """ Pop and jump if zero with label. """
+    """ Pop and jump element if pop element zero with label. """
     
     CALL_PARAMC = auto()
     """ Call with parameter count. """
@@ -77,7 +80,8 @@ class Op:
                 OpType.CALL_PARAMC, OpType.PUSH_INT,
                 OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return f"{self.type.name} {self.int_value};"
-        elif self.type in (OpType.JUMP_ZERO_LABEL, OpType.PUSH_LABEL):
+        elif self.type in (
+                OpType.JUMP_LABEL, OpType.JUMP_ZERO_LABEL, OpType.PUSH_LABEL):
             return f"{self.type.name} {self.str_value};"
         else:
             return f"{self.type.name};"
@@ -175,6 +179,12 @@ class Code:
         """ Make a halt IR operation. """
         
         self.append_op_standalone(OpType.HALT)
+    
+    
+    def make_jump_label(self, label: str) -> None:
+        """ Make a jump label IR operation. """
+        
+        self.append_op_str(OpType.JUMP_LABEL, label)
     
     
     def make_jump_zero_label(self, label: str) -> None:

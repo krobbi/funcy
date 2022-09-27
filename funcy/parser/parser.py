@@ -169,7 +169,15 @@ class Parser:
             if not isinstance(stmt, StmtNode):
                 return self.abort(stmt)
             
-            return self.end(IfStmtNode(expr, stmt))
+            if not self.accept(TokenType.KEYWORD_ELSE):
+                return self.end(IfStmtNode(expr, stmt))
+            
+            else_stmt: Node = self.parse_stmt()
+            
+            if not isinstance(else_stmt, StmtNode):
+                return self.abort(else_stmt)
+            
+            return self.end(IfElseStmtNode(expr, stmt, else_stmt))
         elif self.accept(TokenType.SEMICOLON):
             return self.end(NopStmtNode())
         elif self.accept(TokenType.KEYWORD_RETURN):
