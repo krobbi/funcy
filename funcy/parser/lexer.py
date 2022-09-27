@@ -25,6 +25,7 @@ class Lexer:
     
     KEYWORDS: dict[str, TokenType] = {
         "func": TokenType.KEYWORD_FUNC,
+        "if": TokenType.KEYWORD_IF,
         "print": TokenType.KEYWORD_PRINT,
         "return": TokenType.KEYWORD_RETURN,
         "%": TokenType.PERCENT,

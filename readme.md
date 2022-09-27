@@ -58,6 +58,7 @@ stmt = stmt_func | stmt_block | stmt_nop | stmt_return | stmt_print | stmt_expr 
 
 stmt_func   = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
 stmt_block  = "{", { stmt }, "}" ;
+stmt_if     = "if", expr_paren, stmt ;
 stmt_nop    = ";" ;
 stmt_return = "return", [ expr ], ";" ;
 stmt_print  = "print", expr_paren, ";" ;

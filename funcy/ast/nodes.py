@@ -241,6 +241,29 @@ class BlockStmtNode(StmtNode):
         return f"BlockStmt @ ({self.span})"
 
 
+class IfStmtNode(StmtNode):
+    """ An if statement node of an abstract syntax tree. """
+    
+    expr: ExprNode
+    """ The if statement's expression. """
+    
+    stmt: StmtNode
+    """ The if statement's statement. """
+    
+    def __init__(self, expr: ExprNode, stmt: StmtNode) -> None:
+        """ Initialize the if statement's expression and statement. """
+        
+        super().__init__()
+        self.expr = expr
+        self.stmt = stmt
+    
+    
+    def __str__(self) -> str:
+        """ Return the if statement's string. """
+        
+        return f"IfStmt @ ({self.span})"
+
+
 class NopStmtNode(StmtNode):
     """ A no operation statement node of an abstract syntax tree. """
     

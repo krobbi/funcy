@@ -20,6 +20,9 @@ class TokenType(Enum):
     KEYWORD_FUNC = auto()
     """ `func`. """
     
+    KEYWORD_IF = auto()
+    """ `if`. """
+    
     KEYWORD_PRINT = auto()
     """ `print`. """
     

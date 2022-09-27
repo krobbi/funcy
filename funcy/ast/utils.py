@@ -12,6 +12,8 @@ def get_node_children(node: Node) -> list[Node]:
         return result
     elif isinstance(node, BlockStmtNode):
         return node.stmts
+    elif isinstance(node, IfStmtNode):
+        return [node.expr, node.stmt]
     elif isinstance(node, ReturnExprStmtNode):
         return [node.expr]
     elif isinstance(node, PrintStmtNode):

@@ -57,6 +57,8 @@ class Visitor:
             self.visit_func_stmt(node, code)
         elif isinstance(node, BlockStmtNode):
             self.visit_block_stmt(node, code)
+        elif isinstance(node, IfStmtNode):
+            self.visit_if_stmt(node, code)
         elif isinstance(node, NopStmtNode):
             self.visit_nop_stmt(node, code)
         elif isinstance(node, ReturnStmtNode):
@@ -153,6 +155,18 @@ class Visitor:
             self.visit(stmt, code)
         
         self.scope_stack.pop()
+    
+    
+    def visit_if_stmt(self, node: IfStmtNode, code: Code) -> None:
+        """ Visit an if statement node. """
+        
+        end_label: str = code.insert_label("if_end")
+        self.visit(node.expr, code)
+        code.make_jump_zero_label(end_label)
+        self.scope_stack.push()
+        self.visit(node.stmt, code)
+        self.scope_stack.pop()
+        code.set_label(end_label)
     
     
     def visit_nop_stmt(self, node: NopStmtNode, code: Code) -> None:

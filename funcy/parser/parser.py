@@ -159,6 +159,17 @@ class Parser:
             return self.end(self.parse_stmt_func())
         elif self.next.type == TokenType.BRACE_OPEN:
             return self.end(self.parse_stmt_block())
+        elif self.accept(TokenType.KEYWORD_IF):
+            expr: Node = self.parse_expr_paren()
+            stmt: Node = self.parse_stmt()
+            
+            if not isinstance(expr, ExprNode):
+                return self.abort(expr)
+            
+            if not isinstance(stmt, StmtNode):
+                return self.abort(stmt)
+            
+            return self.end(IfStmtNode(expr, stmt))
         elif self.accept(TokenType.SEMICOLON):
             return self.end(NopStmtNode())
         elif self.accept(TokenType.KEYWORD_RETURN):
