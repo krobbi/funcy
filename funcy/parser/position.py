@@ -30,21 +30,20 @@ class Position:
         self.column = 1
     
     
-    def advance(self, text: str, tab_size: int) -> None:
-        """ Advance the position by a string of text. """
+    def advance(self, character: str, tab_size: int) -> None:
+        """ Advance the position by a character of text. """
         
-        for character in text:
-            self.offset += 1
-            
-            if character == "\t":
-                self.column += tab_size - (self.column - 1) % tab_size
-            elif character == "\n":
-                self.column = 1
-                self.line += 1
-            elif character == "\r":
-                self.column = 1
-            else:
-                self.column += 1
+        self.offset += 1
+        
+        if character == "\t":
+            self.column += tab_size - (self.column - 1) % tab_size
+        elif character == "\n":
+            self.column = 1
+            self.line += 1
+        elif character == "\r":
+            self.column = 1
+        else:
+            self.column += 1
     
     
     def replicate(self, other) -> None:
@@ -74,18 +73,12 @@ class Span:
     def __str__(self) -> str:
         """ Return the span's string. """
         
-        if len(self) <= 1:
+        if self.end.offset - self.start.offset <= 1:
             return str(self.start)
         elif self.start.line == self.end.line:
             return f"{self.start}-{self.end.column}"
         
         return f"{self.start} - {self.end}"
-    
-    
-    def __len__(self) -> int:
-        """ Return the span's length. """
-        
-        return self.end.offset - self.start.offset
     
     
     def reset(self) -> None:
@@ -101,10 +94,10 @@ class Span:
         self.start.replicate(self.end)
     
     
-    def advance(self, text: str, tab_size: int) -> None:
-        """ Advance the span's end position by a string of text. """
+    def advance(self, character: str, tab_size: int) -> None:
+        """ Advance the span's end position by a character of text. """
         
-        self.end.advance(text, tab_size)
+        self.end.advance(character, tab_size)
     
     
     def include(self, other) -> None:

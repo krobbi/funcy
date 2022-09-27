@@ -23,6 +23,24 @@ class Lexer:
             DEC_DIGITS
             + "ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz")
     
+    KEYWORDS: dict[str, TokenType] = {
+        "func": TokenType.KEYWORD_FUNC,
+        "print": TokenType.KEYWORD_PRINT,
+        "return": TokenType.KEYWORD_RETURN,
+        "%": TokenType.PERCENT,
+        "(": TokenType.PARENTHESIS_OPEN,
+        ")": TokenType.PARENTHESIS_CLOSE,
+        "*": TokenType.STAR,
+        "+": TokenType.PLUS,
+        ",": TokenType.COMMA,
+        "-": TokenType.MINUS,
+        "/": TokenType.SLASH,
+        ";": TokenType.SEMICOLON,
+        "{": TokenType.BRACE_OPEN,
+        "}": TokenType.BRACE_CLOSE,
+    }
+    """ Token types with fixed lexemes and no value. """
+    
     source: str = ""
     """ The source code to read. """
     
@@ -140,36 +158,13 @@ class Lexer:
             
             return self.make_int(TokenType.LITERAL_INT, int(number, base=base))
         elif self.consume(self.IDENTIFIER_CHARS):
-            if self.lexeme == "func":
-                return self.make_token(TokenType.KEYWORD_FUNC)
-            elif self.lexeme == "print":
-                return self.make_token(TokenType.KEYWORD_PRINT)
-            elif self.lexeme == "return":
-                return self.make_token(TokenType.KEYWORD_RETURN)
-            else:
-                return self.make_str(TokenType.IDENTIFIER, self.lexeme)
-        elif self.accept("%"):
-            return self.make_token(TokenType.PERCENT)
-        elif self.accept("("):
-            return self.make_token(TokenType.PARENTHESIS_OPEN)
-        elif self.accept(")"):
-            return self.make_token(TokenType.PARENTHESIS_CLOSE)
-        elif self.accept("*"):
-            return self.make_token(TokenType.STAR)
-        elif self.accept("+"):
-            return self.make_token(TokenType.PLUS)
-        elif self.accept(","):
-            return self.make_token(TokenType.COMMA)
-        elif self.accept("-"):
-            return self.make_token(TokenType.MINUS)
-        elif self.accept("/"):
-            return self.make_token(TokenType.SLASH)
-        elif self.accept(";"):
-            return self.make_token(TokenType.SEMICOLON)
-        elif self.accept("{"):
-            return self.make_token(TokenType.BRACE_OPEN)
-        elif self.accept("}"):
-            return self.make_token(TokenType.BRACE_CLOSE)
+            if self.lexeme in self.KEYWORDS:
+                return self.make_token(self.KEYWORDS[self.lexeme])
+            
+            return self.make_str(TokenType.IDENTIFIER, self.lexeme)
+        elif self.character in self.KEYWORDS:
+            self.advance()
+            return self.make_token(self.KEYWORDS[self.lexeme])
         
         if self.lexeme:
             return self.make_error(
@@ -240,7 +235,7 @@ class Lexer:
     def make_token(self, type: TokenType) -> Token:
         """ Make a token from its type. """
         
-        return Token(type, self.span.copy(), self.lexeme)
+        return Token(type, self.span.copy())
     
     
     def make_error(self, message: str) -> Token:

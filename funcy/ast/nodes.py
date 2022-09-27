@@ -12,12 +12,6 @@ class Node:
         """ Initialize the node's span. """
         
         self.span = Span()
-    
-    
-    def get_children(self) -> list:
-        """ Get the node's children as a list. """
-        
-        return []
 
 
 class ExprNode(Node):
@@ -83,14 +77,6 @@ class CallExprNode(ExprNode):
         """ Return the call expression's string. """
         
         return f"CallExpr @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """ Get the call expression's children as a list. """
-        
-        result: list[ExprNode] = [self.callee]
-        result.extend(self.params)
-        return result
 
 
 class UnOp(Enum):
@@ -126,19 +112,10 @@ class UnExprNode(ExprNode):
         """ Return the unary expression's string. """
         
         return f"UnExpr: {self.op.name} @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """ Get the unary expression's children as a list. """
-        
-        return [self.expr]
 
 
 class BinOp(Enum):
     """ A binary operator. """
-    
-    NONE = auto()
-    """ Not a valid operator. Simplifies parsing. """
     
     ADD = auto()
     """ `x + y`. """
@@ -207,12 +184,6 @@ class BinExprNode(ExprNode):
         """ Return the binary expression's string. """
         
         return f"BinExpr: {self.op.name} @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """ Get the binary expression's children as a list. """
-        
-        return [self.lhs, self.rhs]
 
 
 class StmtNode(Node):
@@ -249,15 +220,6 @@ class FuncStmtNode(StmtNode):
         """ Return the function statement's string. """
         
         return f"FuncStmt @ ({self.span})"
-    
-    
-    def get_children(self) -> list[Node]:
-        """ Get the function statement's children as a list. """
-        
-        result: list[Node] = [self.name]
-        result.extend(self.params)
-        result.append(self.stmt)
-        return result
 
 
 class BlockStmtNode(StmtNode):
@@ -277,12 +239,6 @@ class BlockStmtNode(StmtNode):
         """ Return the block statement's string. """
         
         return f"BlockStmt @ ({self.span})"
-    
-    
-    def get_children(self) -> list[StmtNode]:
-        """ Get the block statement's children as a list. """
-        
-        return self.stmts
 
 
 class NopStmtNode(StmtNode):
@@ -322,14 +278,6 @@ class ReturnExprStmtNode(StmtNode):
         """ Return the return expression statement's string. """
         
         return f"ReturnExprStmt @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """
-        Get the return expression statement's children as a list.
-        """
-        
-        return [self.expr]
 
 
 class PrintStmtNode(StmtNode):
@@ -349,12 +297,6 @@ class PrintStmtNode(StmtNode):
         """ Return the print statement's string. """
         
         return f"PrintStmt @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """ Return the print statement's children as a list. """
-        
-        return [self.expr]
 
 
 class ExprStmtNode(StmtNode):
@@ -374,12 +316,6 @@ class ExprStmtNode(StmtNode):
         """ Return the expression statement's string. """
         
         return f"ExprStmt @ ({self.span})"
-    
-    
-    def get_children(self) -> list[ExprNode]:
-        """ Get the expression statement's children as a list. """
-        
-        return [self.expr]
 
 
 class ErrorNode(Node):
@@ -417,9 +353,3 @@ class RootNode(Node):
         """ Return the root's string. """
         
         return f"Root @ ({self.span})"
-    
-    
-    def get_children(self) -> list[FuncStmtNode]:
-        """ Get the root's children as a list. """
-        
-        return self.stmts

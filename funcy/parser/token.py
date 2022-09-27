@@ -69,21 +69,17 @@ class Token:
     span: Span
     """ The token's span. """
     
-    lexeme: str
-    """ The token's orginal lexeme. """
-    
     int_value: int = 0
     """ The token's integer value. """
     
     str_value: str = ""
     """ The token's string value. """
     
-    def __init__(self, type: TokenType, span: Span, lexeme: str) -> None:
-        """ Initialize the token's type, span, and lexeme. """
+    def __init__(self, type: TokenType, span: Span) -> None:
+        """ Initialize the token's type and span. """
         
         self.type = type
         self.span = span
-        self.lexeme = lexeme
     
     
     def __str__(self) -> str:

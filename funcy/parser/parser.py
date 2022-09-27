@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from ..ast.nodes import *
 from ..io.log import Log
 from .lexer import Lexer
@@ -29,8 +31,8 @@ class Parser:
         
         self.log = log
         self.lexer = Lexer()
-        self.next = Token(TokenType.EOF, Span(), "")
-        self.current = Token(TokenType.EOF, Span(), "")
+        self.next = Token(TokenType.EOF, Span())
+        self.current = Token(TokenType.EOF, Span())
         self.span_stack = []
     
     
@@ -38,7 +40,7 @@ class Parser:
         """ Parse an abstract syntax tree from source code. """
         
         self.lexer.begin(source)
-        self.next = Token(TokenType.EOF, Span(), "")
+        self.next = Token(TokenType.EOF, Span())
         self.advance()
         self.span_stack = []
         
@@ -354,35 +356,27 @@ class Parser:
     def parse_expr(self, is_stmt: bool = False) -> Node:
         """ Parse an expression. """
         
-        self.begin()
-        expr: Node = self.parse_expr_sum(is_stmt)
-        
-        if not isinstance(expr, ExprNode):
-            return self.abort(expr)
-        
-        return self.end(expr)
+        return self.parse_expr_sum(is_stmt)
     
     
-    def parse_expr_sum(self, is_stmt: bool) -> Node:
-        """ Parse a sum expression. """
+    def parse_expr_bin(
+            self, is_stmt: bool, child_parser: Callable[[bool], Node],
+            ops: dict[TokenType, BinOp]) -> Node:
+        """ Parse a generic binary expression. """
         
         self.begin()
-        expr: Node = self.parse_expr_term(is_stmt)
+        expr: Node = child_parser(is_stmt)
         
         if not isinstance(expr, ExprNode):
             return self.abort(expr)
         
         while True:
-            op: BinOp = BinOp.NONE
-            
-            if self.accept(TokenType.PLUS):
-                op = BinOp.ADD
-            elif self.accept(TokenType.MINUS):
-                op = BinOp.SUBTRACT
-            else:
+            if not self.next.type in ops:
                 break
             
-            rhs: Node = self.parse_expr_term()
+            self.advance()
+            op: BinOp = ops[self.current.type]
+            rhs: Node = child_parser(False)
             
             if not isinstance(rhs, ExprNode):
                 return self.abort(rhs)
@@ -391,38 +385,25 @@ class Parser:
             self.apply(expr)
         
         return self.abort(expr)
+    
+    
+    def parse_expr_sum(self, is_stmt: bool = False) -> Node:
+        """ Parse a sum expression. """
+        
+        return self.parse_expr_bin(is_stmt, self.parse_expr_term, {
+            TokenType.PLUS: BinOp.ADD,
+            TokenType.MINUS: BinOp.SUBTRACT,
+        })
     
     
     def parse_expr_term(self, is_stmt: bool = False) -> Node:
         """ Parse a term expression. """
         
-        self.begin()
-        expr: Node = self.parse_expr_sign(is_stmt)
-        
-        if not isinstance(expr, ExprNode):
-            return self.abort(expr)
-        
-        while True:
-            op: BinOp = BinOp.NONE
-            
-            if self.accept(TokenType.PERCENT):
-                op = BinOp.MODULO
-            elif self.accept(TokenType.STAR):
-                op = BinOp.MULTIPLY
-            elif self.accept(TokenType.SLASH):
-                op = BinOp.DIVIDE
-            else:
-                break
-            
-            rhs: Node = self.parse_expr_sign()
-            
-            if not isinstance(rhs, ExprNode):
-                return self.abort(rhs)
-            
-            expr = BinExprNode(expr, op, rhs)
-            self.apply(expr)
-        
-        return self.abort(expr)
+        return self.parse_expr_bin(is_stmt, self.parse_expr_sign, {
+            TokenType.PERCENT: BinOp.MODULO,
+            TokenType.STAR: BinOp.MULTIPLY,
+            TokenType.SLASH: BinOp.DIVIDE,
+        })
     
     
     def parse_expr_sign(self, is_stmt: bool = False) -> Node:
@@ -444,7 +425,7 @@ class Parser:
         return self.abort(self.parse_expr_call(is_stmt))
     
     
-    def parse_expr_call(self, is_stmt: bool) -> Node:
+    def parse_expr_call(self, is_stmt: bool = False) -> Node:
         """ Parse a call expression. """
         
         self.begin()
@@ -495,7 +476,7 @@ class Parser:
         return self.abort(expr)
     
     
-    def parse_expr_primary(self, is_stmt: bool) -> Node:
+    def parse_expr_primary(self, is_stmt: bool = False) -> Node:
         """ Parse a primary expression. """
         
         self.begin()
