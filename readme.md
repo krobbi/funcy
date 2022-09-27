@@ -54,7 +54,7 @@ is as follows:
 
 root = { stmt_func }, EOF ;
 
-stmt = stmt_func | stmt_block | stmt_nop | stmt_return | stmt_print | stmt_expr ;
+stmt = stmt_func | stmt_block | stmt_if | stmt_nop | stmt_return | stmt_print | stmt_expr ;
 
 stmt_func   = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
 stmt_block  = "{", { stmt }, "}" ;
