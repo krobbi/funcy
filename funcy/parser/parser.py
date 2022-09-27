@@ -370,10 +370,7 @@ class Parser:
         if not isinstance(expr, ExprNode):
             return self.abort(expr)
         
-        while True:
-            if not self.next.type in ops:
-                break
-            
+        while self.next.type in ops:
             self.advance()
             op: BinOp = ops[self.current.type]
             rhs: Node = child_parser(False)
