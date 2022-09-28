@@ -51,6 +51,24 @@ class OpType(Enum):
     BINARY_MODULO = auto()
     """ Pop, modulo, and push elements. """
     
+    BINARY_EQUALS = auto()
+    """ Pop, compare equals, and push elements. """
+    
+    BINARY_NOT_EQUALS = auto()
+    """ Pop, compare not equals, and push elements. """
+    
+    BINARY_GREATER = auto()
+    """ Pop, compare greater, and push elements. """
+    
+    BINARY_GREATER_EQUALS = auto()
+    """ Pop, compare greater equals, and push elements. """
+    
+    BINARY_LESS = auto()
+    """ Pop, compare less, and push elements. """
+    
+    BINARY_LESS_EQUALS = auto()
+    """ Pop, compare less equals, and push elements. """
+    
     PRINT = auto()
     """ Pop and print element. """
 
@@ -269,6 +287,42 @@ class Code:
         """ Make a binary modulo IR operation. """
         
         self.append_op_standalone(OpType.BINARY_MODULO)
+    
+    
+    def make_binary_equals(self) -> None:
+        """ Make a binary equals IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_EQUALS)
+    
+    
+    def make_binary_not_equals(self) -> None:
+        """ Make a binary not equals IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_NOT_EQUALS)
+    
+    
+    def make_binary_greater(self) -> None:
+        """ Make a binary greater IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_GREATER)
+    
+    
+    def make_binary_greater_equals(self) -> None:
+        """ Make a binary greater equals IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_GREATER_EQUALS)
+    
+    
+    def make_binary_less(self) -> None:
+        """ Make a binary less IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_LESS)
+    
+    
+    def make_binary_less_equals(self) -> None:
+        """ Make a binary less equals IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_LESS_EQUALS)
     
     
     def make_print(self) -> None:

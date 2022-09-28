@@ -1,6 +1,6 @@
 /*
 * Funcy Test Script - example.fy
-* Calculates the distance squared between (2, 3) and (5, 7)
+* Calculates squared distances between 2D points.
 */
 
 // Calculate the distance squared between (aX, aY) and (bX, bY).
@@ -13,7 +13,22 @@ func distanceSquared2D(aX, aY, bX, bY){
    return sq(bX - aX) + sq(bY - aY);
 }
 
-// Print the distance squared between (2, 3) and (5, 7).
+// Entry point.
 func main(){
-   print(distanceSquared2D(2, 3, 5, 7)); // Should be '25'.
+   // Test the distance function and return whether it failed.
+   func testFailed(aX, aY, bX, bY, result){
+      return distanceSquared2D(aX, aY, bX, bY) != result;
+   }
+   
+   // Run tests on our squared distance function:
+   if(testFailed(0, 0, 0, 0, 0)) return 1;
+   if(testFailed(123, 456, 123, 456, 0)) return 1;
+   if(testFailed(0, 0, 1, 0, 1)) return 1;
+   if(testFailed(0, 0, 1, 1, 2)) return 1;
+   if(testFailed(0, 0, 10, 0, 100)) return 1;
+   if(testFailed(5, 10, 15, 10, 100)) return 1;
+   if(testFailed(2, 3, 5, 7, 25)) return 1;
+   if(testFailed(0, 10, 0, -10, 400)) return 1;
+   
+   print(123); // Print 123 on success!
 }

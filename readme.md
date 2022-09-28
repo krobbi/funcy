@@ -24,7 +24,7 @@ squared between two 2D points:
 ```
 /*
 * Funcy Test Script - example.fy
-* Calculates the distance squared between (2, 3) and (5, 7)
+* Calculates squared distances between 2D points.
 */
 
 // Calculate the distance squared between (aX, aY) and (bX, bY).
@@ -37,14 +37,30 @@ func distanceSquared2D(aX, aY, bX, bY){
    return sq(bX - aX) + sq(bY - aY);
 }
 
-// Print the distance squared between (2, 3) and (5, 7).
+// Entry point.
 func main(){
-   print(distanceSquared2D(2, 3, 5, 7)); // Should be '25'.
+   // Test the distance function and return whether it failed.
+   func testFailed(aX, aY, bX, bY, result){
+      return distanceSquared2D(aX, aY, bX, bY) != result;
+   }
+   
+   // Run tests on our squared distance function:
+   if(testFailed(0, 0, 0, 0, 0)) return 1;
+   if(testFailed(123, 456, 123, 456, 0)) return 1;
+   if(testFailed(0, 0, 1, 0, 1)) return 1;
+   if(testFailed(0, 0, 1, 1, 2)) return 1;
+   if(testFailed(0, 0, 10, 0, 100)) return 1;
+   if(testFailed(5, 10, 15, 10, 100)) return 1;
+   if(testFailed(2, 3, 5, 7, 25)) return 1;
+   if(testFailed(0, 10, 0, -10, 400)) return 1;
+   
+   print(123); // Print 123 on success!
 }
 ```
 
 Other features include nestable comments, and passing and returning functions
-as values.
+as values. `true` and `false` keywords are available, but these are synonyms
+for `1` and `0` as there is no type system.
 
 # Grammar
 The EBNF (Extended Backus-Naur Form) grammar for Funcy's current implementation
@@ -65,14 +81,16 @@ stmt_print  = "print", expr_paren, ";" ;
 stmt_expr   = expr, ";" ;
 
 expr_paren = "(", expr, ")" ;
-expr       = expr_sum ;
+expr       = expr_equality ;
 
 (* Expressions by increasing precedence level. *)
-expr_sum     = expr_term, { ( "+" | "-" ), expr_term } ;
-expr_term    = expr_sign, { ( "%" | "*" | "/" ), expr_sign } ;
-expr_sign    = { "+" }, ( "-", expr_sign | expr_call ) ;
-expr_call    = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
-expr_primary = expr_paren | LITERAL_INT | IDENTIFIER ;
+expr_equality   = expr_comparison, { ( "!=" | "==" ), expr_comparison } ;
+expr_comparison = expr_sum, { ( "<" | "<=" | ">" | ">=" ), expr_sum } ;
+expr_sum        = expr_term, { ( "+" | "-" ), expr_term } ;
+expr_term       = expr_sign, { ( "%" | "*" | "/" ), expr_sign } ;
+expr_sign       = { "+" }, ( "-", expr_sign | expr_call ) ;
+expr_call       = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
+expr_primary    = expr_paren | LITERAL_INT | IDENTIFIER | "false" | "true" ;
 ```
 
 # Runtime

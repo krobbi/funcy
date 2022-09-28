@@ -25,10 +25,13 @@ class Lexer:
     
     KEYWORDS: dict[str, TokenType] = {
         "else": TokenType.KEYWORD_ELSE,
+        "false": TokenType.KEYWORD_FALSE,
         "func": TokenType.KEYWORD_FUNC,
         "if": TokenType.KEYWORD_IF,
         "print": TokenType.KEYWORD_PRINT,
         "return": TokenType.KEYWORD_RETURN,
+        "true": TokenType.KEYWORD_TRUE,
+        "!=": TokenType.BANG_EQUALS,
         "%": TokenType.PERCENT,
         "(": TokenType.PARENTHESIS_OPEN,
         ")": TokenType.PARENTHESIS_CLOSE,
@@ -38,6 +41,11 @@ class Lexer:
         "-": TokenType.MINUS,
         "/": TokenType.SLASH,
         ";": TokenType.SEMICOLON,
+        "<": TokenType.LESS,
+        "<=": TokenType.LESS_EQUALS,
+        "==": TokenType.EQUALS_EQUALS,
+        ">": TokenType.GREATER,
+        ">=": TokenType.GREATER_EQUALS,
         "{": TokenType.BRACE_OPEN,
         "}": TokenType.BRACE_CLOSE,
     }

@@ -375,7 +375,7 @@ class Parser:
     def parse_expr(self, is_stmt: bool = False) -> Node:
         """ Parse an expression. """
         
-        return self.parse_expr_sum(is_stmt)
+        return self.parse_expr_equality(is_stmt)
     
     
     def parse_expr_bin(
@@ -401,6 +401,26 @@ class Parser:
             self.apply(expr)
         
         return self.abort(expr)
+    
+    
+    def parse_expr_equality(self, is_stmt: bool = False) -> Node:
+        """ Parse an equality expression. """
+        
+        return self.parse_expr_bin(is_stmt, self.parse_expr_comparison, {
+            TokenType.BANG_EQUALS: BinOp.NOT_EQUALS,
+            TokenType.EQUALS_EQUALS: BinOp.EQUALS,
+        })
+    
+    
+    def parse_expr_comparison(self, is_stmt: bool = False) -> Node:
+        """ Parse a comparison expression. """
+        
+        return self.parse_expr_bin(is_stmt, self.parse_expr_sum, {
+            TokenType.LESS: BinOp.LESS,
+            TokenType.LESS_EQUALS: BinOp.LESS_EQUALS,
+            TokenType.GREATER: BinOp.GREATER,
+            TokenType.GREATER_EQUALS: BinOp.GREATER_EQUALS,
+        })
     
     
     def parse_expr_sum(self, is_stmt: bool = False) -> Node:
@@ -503,6 +523,10 @@ class Parser:
             return self.end(IntExprNode(self.current.int_value))
         elif self.accept(TokenType.IDENTIFIER):
             return self.end(IdentifierExprNode(self.current.str_value))
+        elif self.accept(TokenType.KEYWORD_FALSE):
+            return self.end(IntExprNode(0))
+        elif self.accept(TokenType.KEYWORD_TRUE):
+            return self.end(IntExprNode(1))
         
         if is_stmt:
             self.advance()

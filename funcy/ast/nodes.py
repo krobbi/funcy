@@ -133,22 +133,22 @@ class BinOp(Enum):
     """ `x % y`. """
     
     EQUALS = auto()
-    """ `x == y`. (Unimplemented.) """
+    """ `x == y`. """
     
     NOT_EQUALS = auto()
-    """ `x != y`. (Unimplemented.) """
+    """ `x != y`. """
     
     GREATER = auto()
-    """ `x > y`. (Unimplemented.) """
+    """ `x > y`. """
     
     GREATER_EQUALS = auto()
-    """ `x >= y`. (Unimplemented.) """
+    """ `x >= y`. """
     
     LESS = auto()
-    """ `x < y`. (Unimplemented.) """
+    """ `x < y`. """
     
     LESS_EQUALS = auto()
-    """ `x <= y`. (Unimplemented.) """
+    """ `x <= y`. """
     
     AND = auto()
     """ `x (eager logical and) y`. (Unimplemented.) """

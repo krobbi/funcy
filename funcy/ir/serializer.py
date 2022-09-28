@@ -91,6 +91,18 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.BINARY_DIVIDE)
                 elif op.type == OpType.BINARY_MODULO:
                     self.append_opcode(bytecode, Opcode.BINARY_MODULO)
+                elif op.type == OpType.BINARY_EQUALS:
+                    self.append_opcode(bytecode, Opcode.BINARY_EQUALS)
+                elif op.type == OpType.BINARY_NOT_EQUALS:
+                    self.append_opcode(bytecode, Opcode.BINARY_NOT_EQUALS)
+                elif op.type == OpType.BINARY_GREATER:
+                    self.append_opcode(bytecode, Opcode.BINARY_GREATER)
+                elif op.type == OpType.BINARY_GREATER_EQUALS:
+                    self.append_opcode(bytecode, Opcode.BINARY_GREATER_EQUALS)
+                elif op.type == OpType.BINARY_LESS:
+                    self.append_opcode(bytecode, Opcode.BINARY_LESS)
+                elif op.type == OpType.BINARY_LESS_EQUALS:
+                    self.append_opcode(bytecode, Opcode.BINARY_LESS_EQUALS)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:

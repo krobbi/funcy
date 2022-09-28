@@ -361,6 +361,18 @@ class Visitor:
             code.make_binary_divide()
         elif node.op == BinOp.MODULO:
             code.make_binary_modulo()
+        elif node.op == BinOp.EQUALS:
+            code.make_binary_equals()
+        elif node.op == BinOp.NOT_EQUALS:
+            code.make_binary_not_equals()
+        elif node.op == BinOp.GREATER:
+            code.make_binary_greater()
+        elif node.op == BinOp.GREATER_EQUALS:
+            code.make_binary_greater_equals()
+        elif node.op == BinOp.LESS:
+            code.make_binary_less()
+        elif node.op == BinOp.LESS_EQUALS:
+            code.make_binary_less_equals()
         else:
             self.log_error(
                     f"Bug: Unimplemented binary operator '{node.op.name}'!",

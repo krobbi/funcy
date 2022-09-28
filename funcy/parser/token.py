@@ -20,6 +20,9 @@ class TokenType(Enum):
     KEYWORD_ELSE = auto()
     """ `else`. """
     
+    KEYWORD_FALSE = auto()
+    """ `false`. """
+    
     KEYWORD_FUNC = auto()
     """ `func`. """
     
@@ -31,6 +34,12 @@ class TokenType(Enum):
     
     KEYWORD_RETURN = auto()
     """ `return`. """
+    
+    KEYWORD_TRUE = auto()
+    """ `true`. """
+    
+    BANG_EQUALS = auto()
+    """ `!=`. """
     
     PERCENT = auto()
     """ `%`. """
@@ -58,6 +67,21 @@ class TokenType(Enum):
     
     SEMICOLON = auto()
     """ `;`. """
+    
+    LESS = auto()
+    """ `<`. """
+    
+    LESS_EQUALS = auto()
+    """ `<=`. """
+    
+    EQUALS_EQUALS = auto()
+    """ `==`. """
+    
+    GREATER = auto()
+    """ `>` """
+    
+    GREATER_EQUALS = auto()
+    """ `>=`. """
     
     BRACE_OPEN = auto()
     """ `{`. """
