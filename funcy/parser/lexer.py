@@ -164,15 +164,46 @@ class Lexer:
                 return self.make_token(self.KEYWORDS[self.lexeme])
             
             return self.make_str(TokenType.IDENTIFIER, self.lexeme)
-        elif self.character in self.KEYWORDS:
-            self.advance()
-            return self.make_token(self.KEYWORDS[self.lexeme])
+        else:
+            position: int = self.span.start.offset
+            max_length: int = max(len(key) for key in self.KEYWORDS)
+            max_length = min(max_length, len(self.source) - position)
+            
+            for length in range(max_length, 0, -1):
+                keyword: str = self.source[position:position + length]
+                
+                if keyword in self.KEYWORDS:
+                    self.advance(length)
+                    return self.make_token(self.KEYWORDS[keyword])
         
         if self.lexeme:
             return self.make_error(
                     f"Bug: Fell through after accepting '{self.lexeme}'!")
         
         self.advance()
+        matches: list[str] = []
+        
+        for keyword in self.KEYWORDS:
+            if keyword.startswith(self.lexeme):
+                matches.append(keyword)
+        
+        if matches:
+            message: str = f"No token named '{self.lexeme}'! Did you mean "
+            
+            for i, v in enumerate(matches):
+                message += f"'{v}'"
+                
+                if i < len(matches) - 1:
+                    if len(matches) > 2:
+                        message += ","
+                    
+                    message += " "
+                
+                if i == len(matches) - 2:
+                    message += "or "
+            
+            return self.make_error(f"{message}?")
+        
         return self.make_error(f"Illegal character '{self.lexeme}'!")
     
     
