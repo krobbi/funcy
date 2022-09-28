@@ -23,7 +23,7 @@ func fizzBuzz(number){
 	}
 	
 	if(
-		tryFactor(number, 3, 300) +
+		tryFactor(number, 3, 300) |
 		tryFactor(number, 5, 500)
 	){
 		// If any test succeeds, print the ending '1000' message and return.

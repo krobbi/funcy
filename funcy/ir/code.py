@@ -9,6 +9,9 @@ class OpType(Enum):
     JUMP_LABEL = auto()
     """ Pop and jump element with label. """
     
+    JUMP_NOT_ZERO_LABEL = auto()
+    """ Pop and jump element if pop element not zero with label. """
+    
     JUMP_ZERO_LABEL = auto()
     """ Pop and jump element if pop element zero with label. """
     
@@ -20,6 +23,9 @@ class OpType(Enum):
     
     DROP = auto()
     """ Pop and discard element. """
+    
+    DUPLICATE = auto()
+    """ Peek and push element. """
     
     PUSH_LABEL = auto()
     """ Push labeled address. """
@@ -35,6 +41,9 @@ class OpType(Enum):
     
     UNARY_NEGATE = auto()
     """ Pop, negate, and push element. """
+    
+    UNARY_NOT = auto()
+    """ Pop, logical not, and push element. """
     
     BINARY_ADD = auto()
     """ Pop, add, and push elements. """
@@ -68,6 +77,12 @@ class OpType(Enum):
     
     BINARY_LESS_EQUALS = auto()
     """ Pop, compare less equals, and push elements. """
+    
+    BINARY_AND = auto()
+    """ Pop, logical and, and push elements. """
+    
+    BINARY_OR = auto()
+    """ Pop, logicl or, and push elements. """
     
     PRINT = auto()
     """ Pop and print element. """
@@ -205,6 +220,12 @@ class Code:
         self.append_op_str(OpType.JUMP_LABEL, label)
     
     
+    def make_jump_not_zero_label(self, label: str) -> None:
+        """ Make a jump not zero label IR operation. """
+        
+        self.append_op_str(OpType.JUMP_NOT_ZERO_LABEL, label)
+    
+    
     def make_jump_zero_label(self, label: str) -> None:
         """ Make a jump zero label IR operation. """
         
@@ -227,6 +248,12 @@ class Code:
         """ Make a drop IR operation. """
         
         self.append_op_standalone(OpType.DROP)
+    
+    
+    def make_duplicate(self) -> None:
+        """ Make a duplicate IR operation. """
+        
+        self.append_op_standalone(OpType.DUPLICATE)
     
     
     def make_push_label(self, label: str) -> None:
@@ -257,6 +284,12 @@ class Code:
         """ Make a unary negate IR operation. """
         
         self.append_op_standalone(OpType.UNARY_NEGATE)
+    
+    
+    def make_unary_not(self) -> None:
+        """ Make a unary not IR operation. """
+        
+        self.append_op_standalone(OpType.UNARY_NOT)
     
     
     def make_binary_add(self) -> None:
@@ -323,6 +356,18 @@ class Code:
         """ Make a binary less equals IR operation. """
         
         self.append_op_standalone(OpType.BINARY_LESS_EQUALS)
+    
+    
+    def make_binary_and(self) -> None:
+        """ Make a binary and IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_AND)
+    
+    
+    def make_binary_or(self) -> None:
+        """ Make a binary or IR operation. """
+        
+        self.append_op_standalone(OpType.BINARY_OR)
     
     
     def make_print(self) -> None:

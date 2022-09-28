@@ -26,10 +26,14 @@ def get_node_children(node: Node) -> list[Node]:
         result: list[ExprNode] = [node.callee]
         result.extend(node.params)
         return result
+    elif isinstance(node, AndExprNode):
+        return [node.lhs_expr, node.rhs_expr]
+    elif isinstance(node, OrExprNode):
+        return [node.lhs_expr, node.rhs_expr]
     elif isinstance(node, UnExprNode):
         return [node.expr]
     elif isinstance(node, BinExprNode):
-        return [node.lhs, node.rhs]
+        return [node.lhs_expr, node.rhs_expr]
     
     return []
 

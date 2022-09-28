@@ -77,6 +77,10 @@ class Visitor:
             self.visit_identifier_expr(node, code)
         elif isinstance(node, CallExprNode):
             self.visit_call_expr(node, code)
+        elif isinstance(node, AndExprNode):
+            self.visit_and_expr(node, code)
+        elif isinstance(node, OrExprNode):
+            self.visit_or_expr(node, code)
         elif isinstance(node, UnExprNode):
             self.visit_un_expr(node, code)
         elif isinstance(node, BinExprNode):
@@ -332,13 +336,45 @@ class Visitor:
         code.make_call_paramc(expected_params)
     
     
+    def visit_and_expr(self, node: AndExprNode, code: Code) -> None:
+        """ Visit an and expression node. """
+        
+        short_label: str = code.insert_label("and_short")
+        self.visit(node.lhs_expr, code)
+        code.make_duplicate()
+        code.make_jump_zero_label(short_label)
+        
+        code.make_drop()
+        self.visit(node.rhs_expr, code)
+        
+        code.set_label(short_label)
+    
+    
+    def visit_or_expr(self, node: OrExprNode, code: Code) -> None:
+        """ Visit an or expression node. """
+        
+        short_label: str = code.insert_label("or_short")
+        self.visit(node.lhs_expr, code)
+        code.make_duplicate()
+        code.make_jump_not_zero_label(short_label)
+        
+        code.make_drop()
+        self.visit(node.rhs_expr, code)
+        
+        code.set_label(short_label)
+    
+    
     def visit_un_expr(self, node: UnExprNode, code: Code) -> None:
         """ Visit a unary expression node. """
         
         self.visit(node.expr, code)
         
-        if node.op == UnOp.NEGATE:
+        if node.op == UnOp.AFFIRM:
+            pass # A prefixed '+' operator should have no effect.
+        elif node.op == UnOp.NEGATE:
             code.make_unary_negate()
+        elif node.op == UnOp.NOT:
+            code.make_unary_not()
         else:
             self.log_error(
                     f"Bug: Unimplemented unary operator '{node.op.name}'!",
@@ -348,8 +384,8 @@ class Visitor:
     def visit_bin_expr(self, node: BinExprNode, code: Code) -> None:
         """ Visit a binary expression node. """
         
-        self.visit(node.lhs, code)
-        self.visit(node.rhs, code)
+        self.visit(node.lhs_expr, code)
+        self.visit(node.rhs_expr, code)
         
         if node.op == BinOp.ADD:
             code.make_binary_add()
@@ -373,6 +409,10 @@ class Visitor:
             code.make_binary_less()
         elif node.op == BinOp.LESS_EQUALS:
             code.make_binary_less_equals()
+        elif node.op == BinOp.AND:
+            code.make_binary_and()
+        elif node.op == BinOp.OR:
+            code.make_binary_or()
         else:
             self.log_error(
                     f"Bug: Unimplemented binary operator '{node.op.name}'!",

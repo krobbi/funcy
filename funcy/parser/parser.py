@@ -375,7 +375,7 @@ class Parser:
     def parse_expr(self, is_stmt: bool = False) -> Node:
         """ Parse an expression. """
         
-        return self.parse_expr_equality(is_stmt)
+        return self.parse_expr_logical_or(is_stmt)
     
     
     def parse_expr_bin(
@@ -392,15 +392,73 @@ class Parser:
         while self.next.type in ops:
             self.advance()
             op: BinOp = ops[self.current.type]
-            rhs: Node = child_parser(False)
+            rhs_expr: Node = child_parser(False)
             
-            if not isinstance(rhs, ExprNode):
-                return self.abort(rhs)
+            if not isinstance(rhs_expr, ExprNode):
+                return self.abort(rhs_expr)
             
-            expr = BinExprNode(expr, op, rhs)
+            expr = BinExprNode(expr, op, rhs_expr)
             self.apply(expr)
         
         return self.abort(expr)
+    
+    
+    def parse_expr_logical_or(self, is_stmt: bool = False) -> Node:
+        """ Parse a logical or expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_logical_and(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        while self.accept(TokenType.PIPE_PIPE):
+            rhs_expr: Node = self.parse_expr_logical_and()
+            
+            if not isinstance(rhs_expr, ExprNode):
+                return self.abort(rhs_expr)
+            
+            expr = OrExprNode(expr, rhs_expr)
+            self.apply(expr)
+        
+        return self.abort(expr)
+    
+    
+    def parse_expr_logical_and(self, is_stmt: bool = False) -> Node:
+        """ Parse a logical and expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_eager_or(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        while self.accept(TokenType.AMPERSAND_AMPERSAND):
+            rhs_expr: Node = self.parse_expr_eager_or()
+            
+            if not isinstance(rhs_expr, ExprNode):
+                return self.abort(rhs_expr)
+            
+            expr = AndExprNode(expr, rhs_expr)
+            self.apply(expr)
+        
+        return self.abort(expr)
+    
+    
+    def parse_expr_eager_or(self, is_stmt: bool = False) -> Node:
+        """ Parse an eager or expression. """
+        
+        return self.parse_expr_bin(is_stmt, self.parse_expr_eager_and, {
+            TokenType.PIPE: BinOp.OR,
+        })
+    
+    
+    def parse_expr_eager_and(self, is_stmt: bool = False) -> Node:
+        """ Parse an eager and expression. """
+        
+        return self.parse_expr_bin(is_stmt, self.parse_expr_equality, {
+            TokenType.AMPERSAND: BinOp.AND,
+        })
     
     
     def parse_expr_equality(self, is_stmt: bool = False) -> Node:
@@ -435,28 +493,33 @@ class Parser:
     def parse_expr_term(self, is_stmt: bool = False) -> Node:
         """ Parse a term expression. """
         
-        return self.parse_expr_bin(is_stmt, self.parse_expr_sign, {
+        return self.parse_expr_bin(is_stmt, self.parse_expr_prefix, {
             TokenType.PERCENT: BinOp.MODULO,
             TokenType.STAR: BinOp.MULTIPLY,
             TokenType.SLASH: BinOp.DIVIDE,
         })
     
     
-    def parse_expr_sign(self, is_stmt: bool = False) -> Node:
-        """ Parse a sign expression. """
-        
-        while self.next.type == TokenType.PLUS:
-            self.advance()
+    def parse_expr_prefix(self, is_stmt: bool = False) -> Node:
+        """ Parse a prefix expression. """
         
         self.begin()
         
-        if self.accept(TokenType.MINUS):
-            expr: Node = self.parse_expr_sign()
+        OPS: dict[TokenType, UnOp] = {
+            TokenType.BANG: UnOp.NOT,
+            TokenType.PLUS: UnOp.AFFIRM,
+            TokenType.MINUS: UnOp.NEGATE,
+        }
+        
+        if self.next.type in OPS:
+            self.advance()
+            op: UnOp = OPS[self.current.type]
+            expr: Node = self.parse_expr_prefix()
             
-            if isinstance(expr, ExprNode):
-                return self.end(UnExprNode(expr, UnOp.NEGATE))
-            else:
+            if not isinstance(expr, ExprNode):
                 return self.abort(expr)
+            
+            return self.end(UnExprNode(expr, op))
         
         return self.abort(self.parse_expr_call(is_stmt))
     

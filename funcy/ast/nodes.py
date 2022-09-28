@@ -79,14 +79,63 @@ class CallExprNode(ExprNode):
         return f"CallExpr @ ({self.span})"
 
 
+class AndExprNode(ExprNode):
+    """ An and expression node of an abstract syntax tree. """
+    
+    lhs_expr: ExprNode
+    """ The and expression's left hand side expression. """
+    
+    rhs_expr: ExprNode
+    """ The and expression's right hand side expression. """
+    
+    def __init__(self, lhs_expr: ExprNode, rhs_expr: ExprNode) -> None:
+        """ Initialize the and expression's expressions. """
+        
+        super().__init__()
+        self.lhs_expr = lhs_expr
+        self.rhs_expr = rhs_expr
+    
+    
+    def __str__(self) -> str:
+        """ Return the and expression's string. """
+        
+        return f"AndExpr @ ({self.span})"
+
+
+class OrExprNode(ExprNode):
+    """ An or expression node of an abstract syntax tree. """
+    
+    lhs_expr: ExprNode
+    """ The or expression's left hand side expression. """
+    
+    rhs_expr: ExprNode
+    """ The or expression's right hand side expression. """
+    
+    def __init__(self, lhs_expr: ExprNode, rhs_expr: ExprNode) -> None:
+        """ Initialize the or expression's expressions. """
+        
+        super().__init__()
+        self.lhs_expr = lhs_expr
+        self.rhs_expr = rhs_expr
+    
+    
+    def __str__(self) -> str:
+        """ Return the and expression's string. """
+        
+        return f"OrExpr @ ({self.span})"
+
+
 class UnOp(Enum):
     """ A unary operator. """
+    
+    AFFIRM = auto()
+    """ `+x`. """
     
     NEGATE = auto()
     """ `-x`. """
     
     NOT = auto()
-    """ `!x`. (Unimplemented.) """
+    """ `!x`. """
 
 
 class UnExprNode(ExprNode):
@@ -151,33 +200,34 @@ class BinOp(Enum):
     """ `x <= y`. """
     
     AND = auto()
-    """ `x (eager logical and) y`. (Unimplemented.) """
+    """ `x & y`. """
     
     OR = auto()
-    """ `x (eager logical or) y`. (Unimplemented.) """
+    """ `x | y`. """
 
 
 class BinExprNode(ExprNode):
     """ A binary expression node of an abstract syntax tree. """
     
-    lhs: ExprNode
+    lhs_expr: ExprNode
     """ The binary expression's left hand side expression. """
     
     op: BinOp
     """ The binary expression's operator. """
     
-    rhs: ExprNode
+    rhs_expr: ExprNode
     """ The binary expression's right hand side expression. """
     
-    def __init__(self, lhs: ExprNode, op: BinOp, rhs: ExprNode) -> None:
+    def __init__(
+            self, lhs_expr: ExprNode, op: BinOp, rhs_expr: ExprNode) -> None:
         """
         Initialize the binary expression's expressions and operator.
         """
         
         super().__init__()
-        self.lhs = lhs
+        self.lhs_expr = lhs_expr
         self.op = op
-        self.rhs = rhs
+        self.rhs_expr = rhs_expr
     
     
     def __str__(self) -> str:

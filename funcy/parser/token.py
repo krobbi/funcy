@@ -38,11 +38,20 @@ class TokenType(Enum):
     KEYWORD_TRUE = auto()
     """ `true`. """
     
+    BANG = auto()
+    """ `!`. """
+    
     BANG_EQUALS = auto()
     """ `!=`. """
     
     PERCENT = auto()
     """ `%`. """
+    
+    AMPERSAND = auto()
+    """ `&`. """
+    
+    AMPERSAND_AMPERSAND = auto()
+    """ `&&`. """
     
     PARENTHESIS_OPEN = auto()
     """ `(`. """
@@ -85,6 +94,12 @@ class TokenType(Enum):
     
     BRACE_OPEN = auto()
     """ `{`. """
+    
+    PIPE = auto()
+    """ `|`. """
+    
+    PIPE_PIPE = auto()
+    """ `||`. """
     
     BRACE_CLOSE = auto()
     """ `}`. """

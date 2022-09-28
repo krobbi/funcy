@@ -31,8 +31,11 @@ class Lexer:
         "print": TokenType.KEYWORD_PRINT,
         "return": TokenType.KEYWORD_RETURN,
         "true": TokenType.KEYWORD_TRUE,
+        "!": TokenType.BANG,
         "!=": TokenType.BANG_EQUALS,
         "%": TokenType.PERCENT,
+        "&": TokenType.AMPERSAND,
+        "&&": TokenType.AMPERSAND_AMPERSAND,
         "(": TokenType.PARENTHESIS_OPEN,
         ")": TokenType.PARENTHESIS_CLOSE,
         "*": TokenType.STAR,
@@ -47,6 +50,8 @@ class Lexer:
         ">": TokenType.GREATER,
         ">=": TokenType.GREATER_EQUALS,
         "{": TokenType.BRACE_OPEN,
+        "|": TokenType.PIPE,
+        "||": TokenType.PIPE_PIPE,
         "}": TokenType.BRACE_CLOSE,
     }
     """ Token types with fixed lexemes and no value. """

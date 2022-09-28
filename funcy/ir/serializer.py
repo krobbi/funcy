@@ -13,7 +13,8 @@ class Serializer:
         """ Get the compiled size of an IR operation in bytes. """
         
         if op.type in (
-                OpType.JUMP_LABEL, OpType.JUMP_ZERO_LABEL, OpType.CALL_PARAMC,
+                OpType.JUMP_LABEL, OpType.JUMP_NOT_ZERO_LABEL,
+                OpType.JUMP_ZERO_LABEL, OpType.CALL_PARAMC,
                 OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return 1 + 4 + 1
         elif op.type in (OpType.PUSH_LABEL, OpType.PUSH_INT):
@@ -51,6 +52,10 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(bytecode, labels.get(op.str_value, 0))
                     self.append_opcode(bytecode, Opcode.JUMP)
+                elif op.type == OpType.JUMP_NOT_ZERO_LABEL:
+                    self.append_opcode(bytecode, Opcode.PUSH_U32)
+                    self.append_u32(bytecode, labels.get(op.str_value, 0))
+                    self.append_opcode(bytecode, Opcode.JUMP_NOT_ZERO)
                 elif op.type == OpType.JUMP_ZERO_LABEL:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(bytecode, labels.get(op.str_value, 0))
@@ -63,6 +68,8 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.RETURN)
                 elif op.type == OpType.DROP:
                     self.append_opcode(bytecode, Opcode.DROP)
+                elif op.type == OpType.DUPLICATE:
+                    self.append_opcode(bytecode, Opcode.DUPLICATE)
                 elif op.type == OpType.PUSH_LABEL:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(bytecode, labels.get(op.str_value, 0))
@@ -81,6 +88,8 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.STORE_LOCAL)
                 elif op.type == OpType.UNARY_NEGATE:
                     self.append_opcode(bytecode, Opcode.UNARY_NEGATE)
+                elif op.type == OpType.UNARY_NOT:
+                    self.append_opcode(bytecode, Opcode.UNARY_NOT)
                 elif op.type == OpType.BINARY_ADD:
                     self.append_opcode(bytecode, Opcode.BINARY_ADD)
                 elif op.type == OpType.BINARY_SUBTRACT:
@@ -103,6 +112,10 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.BINARY_LESS)
                 elif op.type == OpType.BINARY_LESS_EQUALS:
                     self.append_opcode(bytecode, Opcode.BINARY_LESS_EQUALS)
+                elif op.type == OpType.BINARY_AND:
+                    self.append_opcode(bytecode, Opcode.BINARY_AND)
+                elif op.type == OpType.BINARY_OR:
+                    self.append_opcode(bytecode, Opcode.BINARY_OR)
                 elif op.type == OpType.PRINT:
                     self.append_opcode(bytecode, Opcode.PRINT)
                 else:
