@@ -22,16 +22,14 @@ func fizzBuzz(number){
 		}
 	}
 	
-	if(
-		tryFactor(number, 3, 300) |
-		tryFactor(number, 5, 500)
-	){
-		// If any test succeeds, print the ending '1000' message and return.
-		print(1000);
-		return;
-	}
+	let mut hasFactor = tryFactor(number, 3, 300);
+	hasFactor = tryFactor(number, 5, 500) || hasFactor;
 	
-	print(number); // Print the number itself if no tests succeeded.
+	if(hasFactor){
+		print(1000); // Print the ending '1000' message if any factors matched.
+	}else{
+		print(number);
+	}
 }
 
 // FizzBuzz implementation.
@@ -42,9 +40,10 @@ func main(){
 			return; // Stop the loop if we have reached the maximum.
 		}
 		
-		f(min); // The minimum value doubles as the loop counter.
+		let index = min; // The minimum value doubles as the loop counter.
+		f(index);
 		
-		loop(min + 1, max, f); // Run another loop. There is no loop statement.
+		loop(index + 1, max, f); // Run another loop.
 	}
 	
 	loop(1, 100, fizzBuzz); // Play FizzBuzz for (1 ... 100).

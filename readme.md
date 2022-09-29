@@ -70,20 +70,27 @@ is as follows:
 
 root = { stmt_func }, EOF ;
 
-stmt = stmt_func | stmt_block | stmt_if | stmt_nop | stmt_return | stmt_print | stmt_expr ;
+stmt = (
+   stmt_func | stmt_block | stmt_if | stmt_nop |  stmt_let | stmt_return |
+   stmt_print | stmt_expr
+) ;
 
-stmt_func   = "func", IDENTIFIER, "(", [ IDENTIFIER, { ",", IDENTIFIER } ], ")", stmt_block ;
+stmt_func   = "func", IDENTIFIER, "(", [ decl, { ",", decl } ], ")", stmt_block ;
 stmt_block  = "{", { stmt }, "}" ;
 stmt_if     = "if", expr_paren, stmt, [ "else", stmt ] ;
 stmt_nop    = ";" ;
+stmt_let    = "let", decl, [ "=", expr ], ";" ;
 stmt_return = "return", [ expr ], ";" ;
 stmt_print  = "print", expr_paren, ";" ;
 stmt_expr   = expr, ";" ;
 
+decl = [ "mut" ], IDENTIFIER ;
+
 expr_paren = "(", expr, ")" ;
-expr       = expr_logical_or ;
+expr       = expr_assignment ;
 
 (* Expressions by increasing precedence level. *)
+expr_assignment  = expr_logical_or, [ "=", expr_assignment ] ;
 expr_logical_or  = expr_logical_and, { "||", expr_logical_and } ;
 expr_logical_and = expr_eager_or, { "&&", expr_eager_or } ;
 expr_eager_or    = expr_eager_and, { "|", expr_eager_and } ;

@@ -48,6 +48,15 @@ class Visitor:
         self.log.log(message, span)
     
     
+    def pop_scope(self, code: Code) -> None:
+        """ Pop the current scope and discard its locals. """
+        
+        for i in range(self.scope_stack.get_scope_local_count()):
+            code.make_drop()
+        
+        self.scope_stack.pop()
+    
+    
     def visit(self, node: Node, code: Code) -> None:
         """ Visit an abstract syntax tree node. """
         
@@ -63,6 +72,10 @@ class Visitor:
             self.visit_if_else_stmt(node, code)
         elif isinstance(node, NopStmtNode):
             self.visit_nop_stmt(node, code)
+        elif isinstance(node, LetStmtNode):
+            self.visit_let_stmt(node, code)
+        elif isinstance(node, LetExprStmtNode):
+            self.visit_let_expr_stmt(node, code)
         elif isinstance(node, ReturnStmtNode):
             self.visit_return_stmt(node, code)
         elif isinstance(node, ReturnExprStmtNode):
@@ -71,6 +84,8 @@ class Visitor:
             self.visit_print_stmt(node, code)
         elif isinstance(node, ExprStmtNode):
             self.visit_expr_stmt(node, code)
+        elif isinstance(node, DeclNode):
+            self.visit_decl(node, code)
         elif isinstance(node, IntExprNode):
             self.visit_int_expr(node, code)
         elif isinstance(node, IdentifierExprNode):
@@ -81,6 +96,8 @@ class Visitor:
             self.visit_and_expr(node, code)
         elif isinstance(node, OrExprNode):
             self.visit_or_expr(node, code)
+        elif isinstance(node, AssignExprNode):
+            self.visit_assign_expr(node, code)
         elif isinstance(node, UnExprNode):
             self.visit_un_expr(node, code)
         elif isinstance(node, BinExprNode):
@@ -127,20 +144,14 @@ class Visitor:
                     f"Funcion name '{name}' is already defined "
                     "in the current scope!", node.name)
         else:
-            self.scope_stack.define_func(name, func_label, len(node.params))
+            self.scope_stack.define_func(name, func_label, len(node.decls))
         
         self.scope_stack.push()
         self.scope_stack.undefine_locals()
         self.scope_stack.push()
         
-        for param in node.params:
-            if self.scope_stack.has(param.name):
-                self.log_error(
-                        f"Parameter name '{param.name}' is already defined "
-                        f"in {name}'s parameter list!", param)
-                continue
-            
-            self.scope_stack.define_local(param.name)
+        for decl in node.decls:
+            self.visit(decl, code)
         
         self.scope_stack.push()
         self.visit(node.stmt, code)
@@ -160,7 +171,7 @@ class Visitor:
         for stmt in node.stmts:
             self.visit(stmt, code)
         
-        self.scope_stack.pop()
+        self.pop_scope(code)
     
     
     def visit_if_stmt(self, node: IfStmtNode, code: Code) -> None:
@@ -172,7 +183,7 @@ class Visitor:
         
         self.scope_stack.push()
         self.visit(node.stmt, code)
-        self.scope_stack.pop()
+        self.pop_scope(code)
         
         code.set_label(end_label)
     
@@ -188,12 +199,12 @@ class Visitor:
         self.scope_stack.push()
         self.visit(node.then_stmt, code)
         code.make_jump_label(end_label)
-        self.scope_stack.pop()
+        self.pop_scope(code)
         
         code.set_label(else_label)
         self.scope_stack.push()
         self.visit(node.else_stmt, code)
-        self.scope_stack.pop()
+        self.pop_scope(code)
         
         code.set_label(end_label)
     
@@ -202,6 +213,34 @@ class Visitor:
         """ Visit a no operation statement node. """
         
         pass # No operation statements should have no effect.
+    
+    
+    def visit_let_stmt(self, node: LetStmtNode, code: Code) -> None:
+        """ Visit a let statement node. """
+        
+        code.make_push_int(0)
+        
+        if self.scope_stack.has(node.decl.name):
+            code.make_drop()
+        
+        self.visit(node.decl, code)
+        
+        if not node.decl.is_mutable:
+            self.log_error(
+                    "No value assigned "
+                    f"to immutable local '{node.decl.name}'! Assign a value "
+                    "or use the 'mut' keyword.", node.decl)
+    
+    
+    def visit_let_expr_stmt(self, node: LetExprStmtNode, code: Code) -> None:
+        """ Visit a let expression statement node. """
+        
+        self.visit(node.expr, code)
+        
+        if self.scope_stack.has(node.decl.name):
+            code.make_drop()
+        
+        self.visit(node.decl, code)
     
     
     def visit_return_stmt(self, node: ReturnStmtNode, code: Code) -> None:
@@ -233,6 +272,21 @@ class Visitor:
         code.make_drop()
     
     
+    def visit_decl(self, node: DeclNode, code: Code) -> None:
+        """ Visit a declaration node. """
+        
+        if self.scope_stack.has(node.name):
+            self.log_error(
+                    f"Local name '{node.name}' is already defined "
+                    "in the current scope!", node)
+            return
+        
+        if node.is_mutable:
+            self.scope_stack.define_local_mut(node.name)
+        else:
+            self.scope_stack.define_local(node.name)
+    
+    
     def visit_int_expr(self, node: IntExprNode, code: Code) -> None:
         """ Visit an integer expression node. """
         
@@ -253,6 +307,8 @@ class Visitor:
         elif symbol.access == SymbolAccess.FUNC:
             code.make_push_label(symbol.str_value)
         elif symbol.access == SymbolAccess.LOCAL:
+            code.make_load_local_offset(symbol.int_value)
+        elif symbol.access == SymbolAccess.LOCAL_MUT:
             code.make_load_local_offset(symbol.int_value)
         else:
             self.log_error(
@@ -285,6 +341,8 @@ class Visitor:
                 expected_params = symbol.int_value
             elif symbol.access == SymbolAccess.LOCAL:
                 is_callable = True # A local may contain a function.
+            elif symbol.access == SymbolAccess.LOCAL_MUT:
+                is_callable = True
             else:
                 self.log_error(
                         "Bug: Unimplemented callee symbol access "
@@ -362,6 +420,38 @@ class Visitor:
         self.visit(node.rhs_expr, code)
         
         code.set_label(short_label)
+    
+    
+    def visit_assign_expr(self, node: AssignExprNode, code: Code) -> None:
+        """ Visit an assign expression node. """
+        
+        self.visit(node.rhs_expr, code)
+        
+        if not isinstance(node.lhs_expr, IdentifierExprNode):
+            self.log_error("Cannot assign to an expression!", node.lhs_expr)
+            return
+        
+        name: str = node.lhs_expr.name
+        symbol: Symbol = self.scope_stack.get(name)
+        
+        if symbol.access == SymbolAccess.UNDEFINED:
+            self.log_error(
+                    "Cannot assign "
+                    f"to undefined name '{name}'!", node.lhs_expr)
+        elif symbol.access == SymbolAccess.FUNC:
+            self.log_error(
+                    f"Cannot assign to function '{name}'!", node.lhs_expr)
+        elif symbol.access == SymbolAccess.LOCAL:
+            self.log_error(
+                    f"Cannot assign to immutable local '{name}'! "
+                    f"Declare '{name}' with the 'mut' keyword.", node.lhs_expr)
+        elif symbol.access == SymbolAccess.LOCAL_MUT:
+            code.make_store_local_offset(symbol.int_value)
+        else:
+            self.log_error(
+                    "Bug: Unimplemented assignment symbol access "
+                    f"'{symbol.access.name}' at '{node.lhs_expr}'!",
+                    node.lhs_expr)
     
     
     def visit_un_expr(self, node: UnExprNode, code: Code) -> None:

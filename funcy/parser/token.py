@@ -29,6 +29,12 @@ class TokenType(Enum):
     KEYWORD_IF = auto()
     """ `if`. """
     
+    KEYWORD_LET = auto()
+    """ `let`. """
+    
+    KEYWORD_MUT = auto()
+    """ `mut`. """
+    
     KEYWORD_PRINT = auto()
     """ `print`. """
     
@@ -82,6 +88,9 @@ class TokenType(Enum):
     
     LESS_EQUALS = auto()
     """ `<=`. """
+    
+    EQUALS = auto()
+    """ `=`. """
     
     EQUALS_EQUALS = auto()
     """ `==`. """

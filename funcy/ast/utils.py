@@ -7,7 +7,7 @@ def get_node_children(node: Node) -> list[Node]:
         return node.stmts
     elif isinstance(node, FuncStmtNode):
         result: list[Node] = [node.name]
-        result.extend(node.params)
+        result.extend(node.decls)
         result.append(node.stmt)
         return result
     elif isinstance(node, BlockStmtNode):
@@ -16,6 +16,10 @@ def get_node_children(node: Node) -> list[Node]:
         return [node.expr, node.stmt]
     elif isinstance(node, IfElseStmtNode):
         return [node.expr, node.then_stmt, node.else_stmt]
+    elif isinstance(node, LetStmtNode):
+        return [node.decl]
+    elif isinstance(node, LetExprStmtNode):
+        return [node.decl, node.expr]
     elif isinstance(node, ReturnExprStmtNode):
         return [node.expr]
     elif isinstance(node, PrintStmtNode):
@@ -29,6 +33,8 @@ def get_node_children(node: Node) -> list[Node]:
     elif isinstance(node, AndExprNode):
         return [node.lhs_expr, node.rhs_expr]
     elif isinstance(node, OrExprNode):
+        return [node.lhs_expr, node.rhs_expr]
+    elif isinstance(node, AssignExprNode):
         return [node.lhs_expr, node.rhs_expr]
     elif isinstance(node, UnExprNode):
         return [node.expr]

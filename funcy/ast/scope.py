@@ -12,7 +12,10 @@ class SymbolAccess(Enum):
     """ Labeled function address with parameter count. """
     
     LOCAL = auto()
-    """ Local variable or function parameter. """
+    """ Immutable local variable or function parameter. """
+    
+    LOCAL_MUT = auto()
+    """ Mutable local variable or function parameter. """
 
 
 class Symbol:
@@ -42,6 +45,9 @@ class Scope:
     
     local_count: int
     """ The total number of local symbols available to the scope. """
+    
+    scope_local_count: int = 0
+    """ The number of locals pushed at this level of the scope. """
     
     symbols: dict[str, Symbol]
     """ The scope's symbols. """
@@ -79,6 +85,12 @@ class ScopeStack:
                 return scope.symbols[name]
         
         return Symbol(name, SymbolAccess.UNDEFINED)
+    
+    
+    def get_scope_local_count(self) -> int:
+        """ Get the number of locals pushed at the current scope. """
+        
+        return self.scopes[-1].scope_local_count
     
     
     def has(self, name: str) -> bool:
@@ -151,14 +163,32 @@ class ScopeStack:
     
     
     def define_local(self, name: str) -> None:
-        """ Define a local in the current scope. """
+        """ Define an immutable local in the current scope. """
         
         if self.has(name):
-            self.log.log(f"Bug: Local name '{name}' is already defined!")
+            self.log.log(
+                    f"Bug: Local immutable name '{name}' is already defined!")
             return
         
         scope: Scope = self.scopes[-1]
         symbol: Symbol = Symbol(name, SymbolAccess.LOCAL)
         symbol.int_value = scope.local_count
         scope.local_count += 1
+        scope.scope_local_count += 1
+        scope.symbols[name] = symbol
+    
+    
+    def define_local_mut(self, name: str) -> None:
+        """ Define a mutable local in the current scope. """
+        
+        if self.has(name):
+            self.log.log(
+                    f"Bug: Local mutable name '{name}' is already defined!")
+            return
+        
+        scope: Scope = self.scopes[-1]
+        symbol: Symbol = Symbol(name, SymbolAccess.LOCAL_MUT)
+        symbol.int_value = scope.local_count
+        scope.local_count += 1
+        scope.scope_local_count += 1
         scope.symbols[name] = symbol

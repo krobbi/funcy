@@ -125,6 +125,29 @@ class OrExprNode(ExprNode):
         return f"OrExpr @ ({self.span})"
 
 
+class AssignExprNode(ExprNode):
+    """ An assign expression node of an abstract syntax tree. """
+    
+    lhs_expr: ExprNode
+    """ The assign expression's left hand side expression. """
+    
+    rhs_expr: ExprNode
+    """ The assign expression's right hand side expression. """
+    
+    def __init__(self, lhs_expr: ExprNode, rhs_expr: ExprNode) -> None:
+        """ Initialize the assign expression's expressions. """
+        
+        super().__init__()
+        self.lhs_expr = lhs_expr
+        self.rhs_expr = rhs_expr
+    
+    
+    def __str__(self) -> str:
+        """ Return the assign expression's string. """
+        
+        return f"AssignExpr @ ({self.span})"
+
+
 class UnOp(Enum):
     """ A unary operator. """
     
@@ -236,6 +259,34 @@ class BinExprNode(ExprNode):
         return f"BinExpr: {self.op.name} @ ({self.span})"
 
 
+class DeclNode(Node):
+    """ A declaration node of an abstract syntax tree. """
+    
+    is_mutable: bool
+    """ Whether the declaration is mutable. """
+    
+    name: str
+    """ The declaration's name. """
+    
+    def __init__(self, is_mutable: bool, name: str) -> None:
+        """ Initialize the declaration's mutability and name. """
+        
+        super().__init__()
+        self.is_mutable = is_mutable
+        self.name = name
+    
+    
+    def __str__(self) -> str:
+        result: str = "Decl: "
+        
+        if self.is_mutable:
+            result += "Mutable"
+        else:
+            result += "Immutable"
+        
+        return f"{result} {self.name} @ ({self.span})"
+
+
 class StmtNode(Node):
     """ A statement node of an abstract syntax tree. """
 
@@ -246,23 +297,23 @@ class FuncStmtNode(StmtNode):
     name: IdentifierExprNode
     """ The function statement's name. """
     
-    params: list[IdentifierExprNode]
-    """ The function statement's parameters. """
+    decls: list[DeclNode]
+    """ The function statement's declarations. """
     
     stmt: StmtNode
     """ The function statement's statement. """
     
     def __init__(
-            self, name: IdentifierExprNode, params: list[IdentifierExprNode],
+            self, name: IdentifierExprNode, decls: list[DeclNode],
             stmt: StmtNode) -> None:
         """
-        Initialize the function statement's name, parameters and
+        Initialize the function statement's name, declarations and
         statement.
         """
         
         super().__init__()
         self.name = name
-        self.params = params
+        self.decls = decls
         self.stmt = stmt
     
     
@@ -352,6 +403,51 @@ class NopStmtNode(StmtNode):
         """ Return the no operation statement's string. """
         
         return f"NopStmt @ ({self.span})"
+
+
+class LetStmtNode(StmtNode):
+    """ A let statement node of an abstract syntax tree. """
+    
+    decl: DeclNode
+    """ The let statement's declaration. """
+    
+    def __init__(self, decl: DeclNode) -> None:
+        """ Initialize the let statement's declaration. """
+        
+        super().__init__()
+        self.decl = decl
+    
+    
+    def __str__(self) -> str:
+        """ Return the let statement's string. """
+        
+        return f"LetStmt @ ({self.span})"
+
+
+class LetExprStmtNode(StmtNode):
+    """ A let expression statement node of an abstract syntax tree. """
+    
+    decl: DeclNode
+    """ The let expression statement's declaration. """
+    
+    expr: ExprNode
+    """ The let expression statement's expression. """
+    
+    def __init__(self, decl: DeclNode, expr: ExprNode) -> None:
+        """
+        Initialize the let expression statement's declaration and
+        expression.
+        """
+        
+        super().__init__()
+        self.decl = decl
+        self.expr = expr
+    
+    
+    def __str__(self) -> str:
+        """ Return the let expression statement's string. """
+        
+        return f"LetExprStmt @ ({self.span})"
 
 
 class ReturnStmtNode(StmtNode):

@@ -180,6 +180,33 @@ class Parser:
             return self.end(IfElseStmtNode(expr, stmt, else_stmt))
         elif self.accept(TokenType.SEMICOLON):
             return self.end(NopStmtNode())
+        elif self.accept(TokenType.KEYWORD_LET):
+            decl: DeclNode = self.parse_decl()
+            
+            if not isinstance(decl, DeclNode):
+                return self.abort(decl)
+            
+            if self.accept(TokenType.SEMICOLON):
+                return self.end(LetStmtNode(decl))
+            
+            if not self.accept(TokenType.EQUALS):
+                self.log_error(
+                        "Missing ';' or '=' in let statement!",
+                        self.current.span.end)
+            
+            expr: Node = self.parse_expr()
+            has_semicolon: bool = self.accept(TokenType.SEMICOLON)
+            
+            if not isinstance(expr, ExprNode):
+                self.log_error(expr)
+                return self.end(LetStmtNode(decl))
+            
+            if not has_semicolon:
+                self.log_error(
+                        "Missing closing ';' in let statement!",
+                        self.current.span.end)
+            
+            return self.end(LetExprStmtNode(decl, expr))
         elif self.accept(TokenType.KEYWORD_RETURN):
             if self.accept(TokenType.SEMICOLON):
                 return self.end(ReturnStmtNode())
@@ -229,70 +256,51 @@ class Parser:
         """ Parse a function statement. """
         
         self.begin()
-        has_func: bool = self.accept(TokenType.KEYWORD_FUNC)
+        has_advanced: bool = self.accept(TokenType.KEYWORD_FUNC)
         
-        if not has_func:
+        if not has_advanced:
             self.log_error(
                     "Missing 'func' in function statement!",
                     self.next.span.start)
+        
+        if self.accept(TokenType.KEYWORD_MUT):
+            self.log_error("Function names cannot be mutable!", self.current)
+            has_advanced = True
         
         if not self.accept(TokenType.IDENTIFIER):
             node: ErrorNode = ErrorNode(
                     "Expected an identifier for a function name!")
             node.span.replicate(self.next.span)
             
-            if not has_func:
+            if not has_advanced:
                 self.advance()
             
             return self.abort(node)
         
         name: IdentifierExprNode = IdentifierExprNode(self.current.str_value)
         name.span.replicate(self.current.span)
-        params: list[IdentifierExprNode] = []
+        decls: list[DeclNode] = []
         
         if not self.accept(TokenType.PARENTHESIS_OPEN):
             self.log_error(
                     f"Missing opening '(' in {name.name}'s parameter list!",
                     self.current.span.end)
         
-        if self.accept(TokenType.IDENTIFIER):
-            param: IdentifierExprNode = IdentifierExprNode(
-                    self.current.str_value)
-            param.span.replicate(self.current.span)
-            params.append(param)
+        if self.next.type != TokenType.PARENTHESIS_CLOSE:
+            decl: Node = self.parse_decl()
             
-            if self.next.type == TokenType.IDENTIFIER:
-                self.log_error(
-                        f"Missing ',' after {name.name}'s {params[0].name} "
-                        "parameter!", self.current.span.end)
+            if isinstance(decl, DeclNode):
+                decls.append(decl)
+            else:
+                self.log_error(decl)
             
-            while(
-                    self.accept(TokenType.COMMA)
-                    or self.next.type == TokenType.IDENTIFIER):
-                while self.accept(TokenType.COMMA):
-                    self.log_error(
-                            f"Missing parameter in {name.name}'s "
-                            "parameter list!", self.current.span.start)
+            while self.accept(TokenType.COMMA):
+                decl = self.parse_decl()
                 
-                if not self.accept(TokenType.IDENTIFIER):
-                    self.log_error(
-                            f"Trailing ',' in {name.name}'s parameter list!",
-                            self.current)
-                    break
-                
-                param = IdentifierExprNode(self.current.str_value)
-                param.span.replicate(self.current.span)
-                params.append(param)
-                
-                while self.next.type == TokenType.IDENTIFIER:
-                    self.log_error(
-                            f"Missing ',' after {name.name}'s "
-                            f"{params[-1].name} parameter!",
-                            self.current.span.end)
-                    self.advance()
-                    param = IdentifierExprNode(self.current.str_value)
-                    param.span.replicate(self.current.span)
-                    params.append(param)
+                if isinstance(decl, DeclNode):
+                    decls.append(decl)
+                else:
+                    self.log_error(decl)
         
         if not self.accept(TokenType.PARENTHESIS_CLOSE):
             self.log_error(
@@ -308,14 +316,14 @@ class Parser:
             self.log_error(
                     f"Expected a block statement for {name.name}'s body!",
                     stmt)
-            return self.end(FuncStmtNode(name, params, stmt))
+            return self.end(FuncStmtNode(name, decls, stmt))
         
         stmt: Node = self.parse_stmt_block()
         
         if not isinstance(stmt, StmtNode):
             return self.abort(stmt)
         
-        return self.end(FuncStmtNode(name, params, stmt))
+        return self.end(FuncStmtNode(name, decls, stmt))
     
     
     def parse_stmt_block(self) -> Node:
@@ -348,6 +356,22 @@ class Parser:
         return self.end(block_stmt)
     
     
+    def parse_decl(self) -> Node:
+        """ Parse a declaraion. """
+        
+        is_mutable: bool = self.accept(TokenType.KEYWORD_MUT)
+        
+        self.begin()
+        
+        if not self.accept(TokenType.IDENTIFIER):
+            node: ErrorNode = ErrorNode(
+                    "Expected an identifier for a declaration!")
+            node.span.replicate(self.next.span)
+            return self.abort(node)
+        
+        return self.end(DeclNode(is_mutable, self.current.str_value))
+    
+    
     def parse_expr_paren(self) -> Node:
         """ Parse a parenthetical expression. """
         
@@ -375,7 +399,7 @@ class Parser:
     def parse_expr(self, is_stmt: bool = False) -> Node:
         """ Parse an expression. """
         
-        return self.parse_expr_logical_or(is_stmt)
+        return self.parse_expr_assignment(is_stmt)
     
     
     def parse_expr_bin(
@@ -398,6 +422,27 @@ class Parser:
                 return self.abort(rhs_expr)
             
             expr = BinExprNode(expr, op, rhs_expr)
+            self.apply(expr)
+        
+        return self.abort(expr)
+    
+    
+    def parse_expr_assignment(self, is_stmt: bool = False) -> Node:
+        """ Parse an assignment expression. """
+        
+        self.begin()
+        expr: Node = self.parse_expr_logical_or(is_stmt)
+        
+        if not isinstance(expr, ExprNode):
+            return self.abort(expr)
+        
+        if self.accept(TokenType.EQUALS):
+            rhs_expr: Node = self.parse_expr_assignment()
+            
+            if not isinstance(rhs_expr, ExprNode):
+                return self.abort(rhs_expr)
+            
+            expr = AssignExprNode(expr, rhs_expr)
             self.apply(expr)
         
         return self.abort(expr)
