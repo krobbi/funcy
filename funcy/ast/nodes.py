@@ -12,6 +12,24 @@ class Node:
         """ Initialize the node's span. """
         
         self.span = Span()
+    
+    
+    def __str__(self) -> str:
+        """ Return the node's string. """
+        
+        result: str = self.__class__.__name__.removesuffix("Node")
+        info: str = self.get_info()
+        
+        if info:
+            result += f": {info}"
+        
+        return f"{result} @ ({self.span})"
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the node. """
+        
+        return ""
 
 
 class ExprNode(Node):
@@ -31,10 +49,10 @@ class IntExprNode(ExprNode):
         self.value = value
     
     
-    def __str__(self) -> str:
-        """ Return the integer expression's string. """
+    def get_info(self) -> str:
+        """ Get information about the integer expression. """
         
-        return f"IntExpr: {self.value} @ ({self.span})"
+        return str(self.value)
 
 
 class IdentifierExprNode(ExprNode):
@@ -50,10 +68,10 @@ class IdentifierExprNode(ExprNode):
         self.name = name
     
     
-    def __str__(self) -> str:
-        """ Return the identifier expression's string. """
+    def get_info(self) -> str:
+        """ Get information about the identifier expression. """
         
-        return f"IdentifierExpr: {self.name} @ ({self.span})"
+        return self.name
 
 
 class CallExprNode(ExprNode):
@@ -71,12 +89,6 @@ class CallExprNode(ExprNode):
         super().__init__()
         self.callee = callee
         self.params = []
-    
-    
-    def __str__(self) -> str:
-        """ Return the call expression's string. """
-        
-        return f"CallExpr @ ({self.span})"
 
 
 class AndExprNode(ExprNode):
@@ -94,12 +106,6 @@ class AndExprNode(ExprNode):
         super().__init__()
         self.lhs_expr = lhs_expr
         self.rhs_expr = rhs_expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the and expression's string. """
-        
-        return f"AndExpr @ ({self.span})"
 
 
 class OrExprNode(ExprNode):
@@ -117,12 +123,6 @@ class OrExprNode(ExprNode):
         super().__init__()
         self.lhs_expr = lhs_expr
         self.rhs_expr = rhs_expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the and expression's string. """
-        
-        return f"OrExpr @ ({self.span})"
 
 
 class AssignExprNode(ExprNode):
@@ -140,12 +140,6 @@ class AssignExprNode(ExprNode):
         super().__init__()
         self.lhs_expr = lhs_expr
         self.rhs_expr = rhs_expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the assign expression's string. """
-        
-        return f"AssignExpr @ ({self.span})"
 
 
 class UnOp(Enum):
@@ -180,10 +174,10 @@ class UnExprNode(ExprNode):
         self.op = op
     
     
-    def __str__(self) -> str:
-        """ Return the unary expression's string. """
+    def get_info(self) -> str:
+        """ Get information about the unary expression. """
         
-        return f"UnExpr: {self.op.name} @ ({self.span})"
+        return self.op.name
 
 
 class BinOp(Enum):
@@ -253,10 +247,10 @@ class BinExprNode(ExprNode):
         self.rhs_expr = rhs_expr
     
     
-    def __str__(self) -> str:
-        """ Return the binary expression's string. """
+    def get_info(self) -> str:
+        """ Get information about the binary expression. """
         
-        return f"BinExpr: {self.op.name} @ ({self.span})"
+        return self.op.name
 
 
 class DeclNode(Node):
@@ -276,15 +270,11 @@ class DeclNode(Node):
         self.name = name
     
     
-    def __str__(self) -> str:
-        result: str = "Decl: "
+    def get_info(self) -> str:
+        """ Get information about the declaration. """
         
-        if self.is_mutable:
-            result += "Mutable"
-        else:
-            result += "Immutable"
-        
-        return f"{result} {self.name} @ ({self.span})"
+        result: str = "Mutable" if self.is_mutable else "Immutable"
+        return f"{result} {self.name}"
 
 
 class StmtNode(Node):
@@ -315,12 +305,6 @@ class FuncStmtNode(StmtNode):
         self.name = name
         self.decls = decls
         self.stmt = stmt
-    
-    
-    def __str__(self) -> str:
-        """ Return the function statement's string. """
-        
-        return f"FuncStmt @ ({self.span})"
 
 
 class BlockStmtNode(StmtNode):
@@ -334,12 +318,6 @@ class BlockStmtNode(StmtNode):
         
         super().__init__()
         self.stmts = []
-    
-    
-    def __str__(self) -> str:
-        """ Return the block statement's string. """
-        
-        return f"BlockStmt @ ({self.span})"
 
 
 class IfStmtNode(StmtNode):
@@ -357,12 +335,6 @@ class IfStmtNode(StmtNode):
         super().__init__()
         self.expr = expr
         self.stmt = stmt
-    
-    
-    def __str__(self) -> str:
-        """ Return the if statement's string. """
-        
-        return f"IfStmt @ ({self.span})"
 
 
 class IfElseStmtNode(StmtNode):
@@ -388,21 +360,10 @@ class IfElseStmtNode(StmtNode):
         self.expr = expr
         self.then_stmt = then_stmt
         self.else_stmt = else_stmt
-    
-    
-    def __str__(self) -> str:
-        """ Return the if else statement's string. """
-        
-        return f"IfElseStmt @ ({self.span})"
 
 
 class NopStmtNode(StmtNode):
     """ A no operation statement node of an abstract syntax tree. """
-    
-    def __str__(self) -> str:
-        """ Return the no operation statement's string. """
-        
-        return f"NopStmt @ ({self.span})"
 
 
 class LetStmtNode(StmtNode):
@@ -416,12 +377,6 @@ class LetStmtNode(StmtNode):
         
         super().__init__()
         self.decl = decl
-    
-    
-    def __str__(self) -> str:
-        """ Return the let statement's string. """
-        
-        return f"LetStmt @ ({self.span})"
 
 
 class LetExprStmtNode(StmtNode):
@@ -442,21 +397,10 @@ class LetExprStmtNode(StmtNode):
         super().__init__()
         self.decl = decl
         self.expr = expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the let expression statement's string. """
-        
-        return f"LetExprStmt @ ({self.span})"
 
 
 class ReturnStmtNode(StmtNode):
     """ A return statement node of an abstract syntax tree. """
-    
-    def __str__(self) -> str:
-        """ Return the return statement's string. """
-        
-        return f"ReturnStmt @ ({self.span})"
 
 
 class ReturnExprStmtNode(StmtNode):
@@ -472,12 +416,6 @@ class ReturnExprStmtNode(StmtNode):
         
         super().__init__()
         self.expr = expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the return expression statement's string. """
-        
-        return f"ReturnExprStmt @ ({self.span})"
 
 
 class PrintStmtNode(StmtNode):
@@ -491,12 +429,6 @@ class PrintStmtNode(StmtNode):
         
         super().__init__()
         self.expr = expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the print statement's string. """
-        
-        return f"PrintStmt @ ({self.span})"
 
 
 class ExprStmtNode(StmtNode):
@@ -510,12 +442,6 @@ class ExprStmtNode(StmtNode):
         
         super().__init__()
         self.expr = expr
-    
-    
-    def __str__(self) -> str:
-        """ Return the expression statement's string. """
-        
-        return f"ExprStmt @ ({self.span})"
 
 
 class ErrorNode(Node):
@@ -547,9 +473,3 @@ class RootNode(Node):
         
         super().__init__()
         self.stmts = []
-    
-    
-    def __str__(self) -> str:
-        """ Return the root's string. """
-        
-        return f"Root @ ({self.span})"
