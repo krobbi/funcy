@@ -71,13 +71,14 @@ is as follows:
 root = { stmt_func }, EOF ;
 
 stmt = (
-   stmt_func | stmt_block | stmt_if | stmt_nop |  stmt_let | stmt_return |
-   stmt_print | stmt_expr
+   stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |
+   stmt_return | stmt_print | stmt_expr
 ) ;
 
 stmt_func   = "func", IDENTIFIER, "(", [ decl, { ",", decl } ], ")", stmt_block ;
 stmt_block  = "{", { stmt }, "}" ;
 stmt_if     = "if", expr_paren, stmt, [ "else", stmt ] ;
+stmt_while  = "while", expr_paren, stmt ;
 stmt_nop    = ";" ;
 stmt_let    = "let", decl, [ "=", expr ], ";" ;
 stmt_return = "return", [ expr ], ";" ;

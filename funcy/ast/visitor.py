@@ -70,6 +70,8 @@ class Visitor:
             self.visit_if_stmt(node, code)
         elif isinstance(node, IfElseStmtNode):
             self.visit_if_else_stmt(node, code)
+        elif isinstance(node, WhileStmtNode):
+            self.visit_while_stmt(node, code)
         elif isinstance(node, NopStmtNode):
             self.visit_nop_stmt(node, code)
         elif isinstance(node, LetStmtNode):
@@ -103,7 +105,7 @@ class Visitor:
         elif isinstance(node, BinExprNode):
             self.visit_bin_expr(node, code)
         else:
-            self.log_error(f"Unimplemented visitor for '{node}'!", node)
+            self.log_error(f"Bug: Unimplemented visitor for '{node}'!", node)
     
     
     def visit_root(self, node: RootNode, code: Code) -> None:
@@ -204,6 +206,23 @@ class Visitor:
         code.set_label(else_label)
         self.scope_stack.push()
         self.visit(node.else_stmt, code)
+        self.pop_scope(code)
+        
+        code.set_label(end_label)
+    
+    
+    def visit_while_stmt(self, node: WhileStmtNode, code: Code) -> None:
+        """ Visit a while statement node. """
+        
+        end_label: str = code.insert_label("while_end")
+        condition_label: str = code.insert_label("while_condition")
+        code.set_label(condition_label)
+        self.visit(node.expr, code)
+        code.make_jump_zero_label(end_label)
+        
+        self.scope_stack.push()
+        self.visit(node.stmt, code)
+        code.make_jump_label(condition_label)
         self.pop_scope(code)
         
         code.set_label(end_label)

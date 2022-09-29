@@ -34,17 +34,10 @@ func fizzBuzz(number){
 
 // FizzBuzz implementation.
 func main(){
-	// Call a function with a parameter for every number in a range.
-	func loop(min, max, f){
-		if(min > max){
-			return; // Stop the loop if we have reached the maximum.
-		}
-		
-		let index = min; // The minimum value doubles as the loop counter.
-		f(index);
-		
-		loop(index + 1, max, f); // Run another loop.
-	}
+	let mut i = 0;
 	
-	loop(1, 100, fizzBuzz); // Play FizzBuzz for (1 ... 100).
+	while(i < 100){
+		i = i + 1;
+		fizzBuzz(i);
+	}
 }

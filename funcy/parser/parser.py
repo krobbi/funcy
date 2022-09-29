@@ -178,6 +178,17 @@ class Parser:
                 return self.abort(else_stmt)
             
             return self.end(IfElseStmtNode(expr, stmt, else_stmt))
+        elif self.accept(TokenType.KEYWORD_WHILE):
+            expr: Node = self.parse_expr_paren()
+            stmt: Node = self.parse_stmt()
+            
+            if not isinstance(expr, ExprNode):
+                return self.abort(expr)
+            
+            if not isinstance(stmt, StmtNode):
+                return self.abort(stmt)
+            
+            return self.end(WhileStmtNode(expr, stmt))
         elif self.accept(TokenType.SEMICOLON):
             return self.end(NopStmtNode())
         elif self.accept(TokenType.KEYWORD_LET):

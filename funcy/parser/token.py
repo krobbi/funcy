@@ -44,6 +44,9 @@ class TokenType(Enum):
     KEYWORD_TRUE = auto()
     """ `true`. """
     
+    KEYWORD_WHILE = auto()
+    """ `while`. """
+    
     BANG = auto()
     """ `!`. """
     

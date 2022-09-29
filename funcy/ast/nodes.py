@@ -1,3 +1,4 @@
+from cmath import exp
 from enum import Enum, auto
 
 from ..parser.position import Span
@@ -360,6 +361,25 @@ class IfElseStmtNode(StmtNode):
         self.expr = expr
         self.then_stmt = then_stmt
         self.else_stmt = else_stmt
+
+
+class WhileStmtNode(StmtNode):
+    """ A while statement node of an abstract syntax tree. """
+    
+    expr: ExprNode
+    """ The while statement's expression. """
+    
+    stmt: StmtNode
+    """ The while statement's statement. """
+    
+    def __init__(self, expr: ExprNode, stmt: StmtNode) -> None:
+        """
+        Initialize the while statement's expression and statement.
+        """
+        
+        super().__init__()
+        self.expr = expr
+        self.stmt = stmt
 
 
 class NopStmtNode(StmtNode):

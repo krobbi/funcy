@@ -33,6 +33,7 @@ class Lexer:
         "print": TokenType.KEYWORD_PRINT,
         "return": TokenType.KEYWORD_RETURN,
         "true": TokenType.KEYWORD_TRUE,
+        "while": TokenType.KEYWORD_WHILE,
         "!": TokenType.BANG,
         "!=": TokenType.BANG_EQUALS,
         "%": TokenType.PERCENT,
