@@ -4,18 +4,20 @@ root = { stmt_func }, EOF ;
 
 stmt = (
    stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |
-   stmt_return | stmt_print | stmt_expr
+   stmt_return | stmt_print | stmt_break | stmt_continue | stmt_expr
 ) ;
 
-stmt_func   = "func", IDENTIFIER, "(", [ decl, { ",", decl } ], ")", stmt_block ;
-stmt_block  = "{", { stmt }, "}" ;
-stmt_if     = "if", expr_paren, stmt, [ "else", stmt ] ;
-stmt_while  = "while", expr_paren, stmt ;
-stmt_nop    = ";" ;
-stmt_let    = "let", decl, [ "=", expr ], ";" ;
-stmt_return = "return", [ expr ], ";" ;
-stmt_print  = "print", expr_paren, ";" ;
-stmt_expr   = expr, ";" ;
+stmt_func     = "func", IDENTIFIER, "(", [ decl, { ",", decl } ], ")", stmt_block ;
+stmt_block    = "{", { stmt }, "}" ;
+stmt_if       = "if", expr_paren, stmt, [ "else", stmt ] ;
+stmt_while    = "while", expr_paren, stmt ;
+stmt_nop      = ";" ;
+stmt_let      = "let", decl, [ "=", expr ], ";" ;
+stmt_return   = "return", [ expr ], ";" ;
+stmt_print    = "print", expr_paren, ";" ;
+stmt_break    = "break", ";" ;
+stmt_continue = "continue", ";" ;
+stmt_expr     = expr, ";" ;
 
 decl = [ "mut" ], IDENTIFIER ;
 

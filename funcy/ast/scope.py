@@ -52,11 +52,41 @@ class Scope:
     symbols: dict[str, Symbol]
     """ The scope's symbols. """
     
+    labels: dict[str, str]
+    """ The scope's scoped labels. """
+    
     def __init__(self, local_count: int) -> None:
-        """ Initialize the scope's local symbol count and symbols. """
+        """
+        Initialize the scope's local symbol count, symbols, and labels.
+        """
         
         self.local_count = local_count
         self.symbols = {}
+        self.labels = {}
+
+
+class ScopedLabel:
+    """ Information about a scoped label. """
+    
+    label: str
+    """ The scoped label's label. """
+    
+    is_available: bool
+    """ Whether the scoped label is available. """
+    
+    local_count: int
+    """ The number of locals to drop before jumping to the label. """
+    
+    def __init__(
+            self, label: str, is_available: bool, local_count: int) -> None:
+        """
+        Initialize the scoped label's label, availability, and local
+        count.
+        """
+        
+        self.label = label
+        self.is_available = is_available
+        self.local_count = local_count
 
 
 class ScopeStack:
@@ -91,6 +121,26 @@ class ScopeStack:
         """ Get the number of locals pushed at the current scope. """
         
         return self.scopes[-1].scope_local_count
+    
+    
+    def get_scoped_label(self, name: str) -> ScopedLabel:
+        """ Get a scoped label from the scope stack. """
+        
+        label: str = ""
+        local_count: int = 0
+        
+        for i in range(len(self.scopes) - 1, -1, -1):
+            scope: Scope = self.scopes[i]
+            local_count += scope.scope_local_count
+            
+            if name in scope.labels:
+                label = scope.labels[name]
+                break
+        
+        if not label:
+            return ScopedLabel("", False, 0)
+        
+        return ScopedLabel(label, True, local_count)
     
     
     def has(self, name: str) -> bool:
@@ -149,6 +199,12 @@ class ScopeStack:
         scope.local_count = 0
     
     
+    def undefine_scoped_label(self, name: str) -> None:
+        """ Undefine a scoped label in the current scope. """
+        
+        self.scopes[-1].labels[name] = ""
+    
+    
     def define_func(self, name: str, label: str, param_count: int) -> None:
         """ Define a function in the current scope. """
         
@@ -192,3 +248,9 @@ class ScopeStack:
         scope.local_count += 1
         scope.scope_local_count += 1
         scope.symbols[name] = symbol
+    
+    
+    def define_scoped_label(self, name: str, label: str) -> None:
+        """ Define a scoped label in the current scope. """
+        
+        self.scopes[-1].labels[name] = label

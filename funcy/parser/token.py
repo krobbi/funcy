@@ -17,6 +17,12 @@ class TokenType(Enum):
     IDENTIFIER = auto()
     """ User-defined name. """
     
+    KEYWORD_BREAK = auto()
+    """ `break`. """
+    
+    KEYWORD_CONTINUE = auto()
+    """ `continue`. """
+    
     KEYWORD_ELSE = auto()
     """ `else`. """
     

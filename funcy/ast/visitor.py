@@ -2,7 +2,7 @@ from ..io.log import Log
 from ..ir.code import Code
 from ..parser.position import Span
 from .nodes import *
-from .scope import ScopeStack, Symbol, SymbolAccess
+from .scope import ScopeStack, ScopedLabel, Symbol, SymbolAccess
 
 class Visitor:
     """
@@ -84,6 +84,8 @@ class Visitor:
             self.visit_return_expr_stmt(node, code)
         elif isinstance(node, PrintStmtNode):
             self.visit_print_stmt(node, code)
+        elif isinstance(node, ScopedJumpStmt):
+            self.visit_scoped_jump_stmt(node, code)
         elif isinstance(node, ExprStmtNode):
             self.visit_expr_stmt(node, code)
         elif isinstance(node, DeclNode):
@@ -148,20 +150,27 @@ class Visitor:
         else:
             self.scope_stack.define_func(name, func_label, len(node.decls))
         
+        # Buffer scope.
         self.scope_stack.push()
         self.scope_stack.undefine_locals()
+        self.scope_stack.undefine_scoped_label("break")
+        self.scope_stack.undefine_scoped_label("continue")
+        
+        # Parameter scope.
         self.scope_stack.push()
         
         for decl in node.decls:
             self.visit(decl, code)
         
+        # Body scope.
         self.scope_stack.push()
         self.visit(node.stmt, code)
         code.make_push_int(0)
         code.make_return()
         self.scope_stack.pop()
-        self.scope_stack.pop()
-        self.scope_stack.pop()
+        
+        self.scope_stack.pop() # End parameter scope.
+        self.scope_stack.pop() # End body scope.
         code.set_label(parent_label)
     
     
@@ -221,6 +230,8 @@ class Visitor:
         code.make_jump_zero_label(end_label)
         
         self.scope_stack.push()
+        self.scope_stack.define_scoped_label("break", end_label)
+        self.scope_stack.define_scoped_label("continue", condition_label)
         self.visit(node.stmt, code)
         code.make_jump_label(condition_label)
         self.pop_scope(code)
@@ -282,6 +293,33 @@ class Visitor:
         
         self.visit(node.expr, code)
         code.make_print()
+    
+    
+    def visit_scoped_jump_stmt(self, node: ScopedJumpStmt, code: Code) -> None:
+        """ Visit a scoped jump statement node. """
+        
+        label: ScopedLabel = self.scope_stack.get_scoped_label(node.name)
+        
+        if not label.is_available:
+            if node.name == "break":
+                self.log_error(
+                        "Cannot use 'break' outside of a while loop!", node)
+            elif node.name == "continue":
+                self.log_error(
+                        "Cannot use 'continue' outside of a while loop!", node)
+            else:
+                self.log_error(
+                        "Cannot jump to "
+                        f"undefined scoped label '{node.name}'!", node)
+            
+            code.make_push_int(0)
+            code.make_return()
+            return
+        
+        for i in range(label.local_count):
+            code.make_drop()
+        
+        code.make_jump_label(label.label)
     
     
     def visit_expr_stmt(self, node: ExprStmtNode, code: Code) -> None:

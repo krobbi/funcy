@@ -248,6 +248,20 @@ class Parser:
                         self.current.span.end)
             
             return self.end(PrintStmtNode(expr))
+        elif self.accept(TokenType.KEYWORD_BREAK):
+            if not self.accept(TokenType.SEMICOLON):
+                self.log_error(
+                        "Missing closing ';' in break statement!",
+                        self.current.span.end)
+            
+            return self.end(ScopedJumpStmt("break"))
+        elif self.accept(TokenType.KEYWORD_CONTINUE):
+            if not self.accept(TokenType.SEMICOLON):
+                self.log_error(
+                        "Missing closing ';' in continue statement!",
+                        self.current.span.end)
+            
+            return self.end(ScopedJumpStmt("continue"))
         
         expr: Node = self.parse_expr(True)
         has_semicolon: bool = self.accept(TokenType.SEMICOLON)

@@ -489,6 +489,25 @@ class PrintStmtNode(StmtNode):
         self.expr = expr
 
 
+class ScopedJumpStmt(StmtNode):
+    """ A scoped jump statement node of an abstract syntax tree. """
+    
+    name: str
+    """ The scoped jump statement's name. """
+    
+    def __init__(self, name: str) -> None:
+        """ Initialize the scoped jump statement's name. """
+        
+        super().__init__()
+        self.name = name
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the scoped jump statement. """
+        
+        return self.name
+
+
 class ExprStmtNode(StmtNode):
     """ An expression statement node of an abstract syntax tree. """
     
