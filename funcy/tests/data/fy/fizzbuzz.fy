@@ -22,8 +22,9 @@ func fizzBuzz(number){
 		}
 	}
 	
-	let mut hasFactor = tryFactor(number, 3, 300);
-	hasFactor = tryFactor(number, 5, 500) || hasFactor;
+	let mut hasFactor = false;
+	hasFactor |= tryFactor(number, 3, 300);
+	hasFactor |= tryFactor(number, 5, 500);
 	
 	if(hasFactor){
 		print(1000); // Print the ending '1000' message if any factors matched.
@@ -37,7 +38,6 @@ func main(){
 	let mut i = 0;
 	
 	while(i < 100){
-		i = i + 1;
-		fizzBuzz(i);
+		fizzBuzz(i += 1);
 	}
 }

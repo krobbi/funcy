@@ -1,4 +1,3 @@
-from cmath import exp
 from enum import Enum, auto
 
 from ..parser.position import Span
@@ -126,6 +125,34 @@ class OrExprNode(ExprNode):
         self.rhs_expr = rhs_expr
 
 
+class AssignOp(Enum):
+    """ An assignment operator. """
+    
+    SIMPLE = auto()
+    """ `x = y`. """
+    
+    ADD = auto()
+    """ `x += y`. """
+    
+    SUBTRACT = auto()
+    """ `x -= y`. """
+    
+    MULTIPLY = auto()
+    """ `x *= y`. """
+    
+    DIVIDE = auto()
+    """ `x /= y`. """
+    
+    MODULO = auto()
+    """ `x %= y`. """
+    
+    AND = auto()
+    """ `x &= y`. """
+    
+    OR = auto()
+    """ `x |= y`. """
+
+
 class AssignExprNode(ExprNode):
     """ An assign expression node of an abstract syntax tree. """
     
@@ -135,12 +162,23 @@ class AssignExprNode(ExprNode):
     rhs_expr: ExprNode
     """ The assign expression's right hand side expression. """
     
-    def __init__(self, lhs_expr: ExprNode, rhs_expr: ExprNode) -> None:
-        """ Initialize the assign expression's expressions. """
+    def __init__(
+            self, lhs_expr: ExprNode, op: AssignOp,
+            rhs_expr: ExprNode) -> None:
+        """
+        Initialize the assign expression's expressions and operator.
+        """
         
         super().__init__()
         self.lhs_expr = lhs_expr
+        self.op = op
         self.rhs_expr = rhs_expr
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the assign expression. """
+        
+        return self.op.name
 
 
 class UnOp(Enum):

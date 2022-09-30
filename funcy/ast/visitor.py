@@ -444,7 +444,32 @@ class Visitor:
     def visit_assign_expr(self, node: AssignExprNode, code: Code) -> None:
         """ Visit an assign expression node. """
         
+        if node.op != AssignOp.SIMPLE:
+            self.visit(node.lhs_expr, code)
+        
         self.visit(node.rhs_expr, code)
+        
+        if node.op == AssignOp.SIMPLE:
+            pass # Simple assignment should not modify the value.
+        elif node.op == AssignOp.ADD:
+            code.make_binary_add()
+        elif node.op == AssignOp.SUBTRACT:
+            code.make_binary_subtract()
+        elif node.op == AssignOp.MULTIPLY:
+            code.make_binary_multiply()
+        elif node.op == AssignOp.DIVIDE:
+            code.make_binary_divide()
+        elif node.op == AssignOp.MODULO:
+            code.make_binary_modulo()
+        elif node.op == AssignOp.AND:
+            code.make_binary_and()
+        elif node.op == AssignOp.OR:
+            code.make_binary_or()
+        else:
+            self.log_error(
+                    "Bug: Unimplemented "
+                    f"assignment operator '{node.op.name}'!", node)
+            code.make_drop() # Preserve stack size.
         
         if not isinstance(node.lhs_expr, IdentifierExprNode):
             self.log_error("Cannot assign to an expression!", node.lhs_expr)

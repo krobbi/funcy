@@ -447,13 +447,26 @@ class Parser:
         if not isinstance(expr, ExprNode):
             return self.abort(expr)
         
-        if self.accept(TokenType.EQUALS):
+        OPS: dict[TokenType, AssignOp] = {
+            TokenType.PERCENT_EQUALS: AssignOp.MODULO,
+            TokenType.AMPERSAND_EQUALS: AssignOp.AND,
+            TokenType.STAR_EQUALS: AssignOp.MULTIPLY,
+            TokenType.PLUS_EQUALS: AssignOp.ADD,
+            TokenType.MINUS_EQUALS: AssignOp.SUBTRACT,
+            TokenType.SLASH_EQUALS: AssignOp.DIVIDE,
+            TokenType.EQUALS: AssignOp.SIMPLE,
+            TokenType.PIPE_EQUALS: AssignOp.OR,
+        }
+        
+        if self.next.type in OPS:
+            self.advance()
+            op: AssignOp = OPS[self.current.type]
             rhs_expr: Node = self.parse_expr_assignment()
             
             if not isinstance(rhs_expr, ExprNode):
                 return self.abort(rhs_expr)
             
-            expr = AssignExprNode(expr, rhs_expr)
+            expr = AssignExprNode(expr, op, rhs_expr)
             self.apply(expr)
         
         return self.abort(expr)

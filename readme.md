@@ -91,7 +91,7 @@ expr_paren = "(", expr, ")" ;
 expr       = expr_assignment ;
 
 (* Expressions by increasing precedence level. *)
-expr_assignment  = expr_logical_or, [ "=", expr_assignment ] ;
+expr_assignment  = expr_logical_or, [ ( "%=" | "&=" | "*=" | "+=" | "-=" | "/=" | "=" | "|=" ), expr_assignment ] ;
 expr_logical_or  = expr_logical_and, { "||", expr_logical_and } ;
 expr_logical_and = expr_eager_or, { "&&", expr_eager_or } ;
 expr_eager_or    = expr_eager_and, { "|", expr_eager_and } ;

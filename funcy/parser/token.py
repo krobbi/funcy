@@ -56,11 +56,17 @@ class TokenType(Enum):
     PERCENT = auto()
     """ `%`. """
     
+    PERCENT_EQUALS = auto()
+    """ `%=`. """
+    
     AMPERSAND = auto()
     """ `&`. """
     
     AMPERSAND_AMPERSAND = auto()
     """ `&&`. """
+    
+    AMPERSAND_EQUALS = auto()
+    """ `&=`. """
     
     PARENTHESIS_OPEN = auto()
     """ `(`. """
@@ -71,8 +77,14 @@ class TokenType(Enum):
     STAR = auto()
     """ `*`. """
     
+    STAR_EQUALS = auto()
+    """ `*=`. """
+    
     PLUS = auto()
     """ `+`. """
+    
+    PLUS_EQUALS  = auto()
+    """ `+=`. """
     
     COMMA = auto()
     """ `,`. """
@@ -80,8 +92,14 @@ class TokenType(Enum):
     MINUS = auto()
     """ `-`. """
     
+    MINUS_EQUALS = auto()
+    """ `-=`. """
+    
     SLASH = auto()
     """ `/`. """
+    
+    SLASH_EQUALS = auto()
+    """ `/=`. """
     
     SEMICOLON = auto()
     """ `;`. """
@@ -109,6 +127,9 @@ class TokenType(Enum):
     
     PIPE = auto()
     """ `|`. """
+    
+    PIPE_EQUALS = auto()
+    """ `|=`. """
     
     PIPE_PIPE = auto()
     """ `||`. """
