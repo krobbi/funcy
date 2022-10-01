@@ -7,7 +7,7 @@ class Serializer:
     """ Serializes FVM bytecode from IR code. """
     
     FRAME_HEADER_SIZE: int = 2
-    """ The size of a stack frame header in elements. """
+    """ The size of a stack frame header in words. """
     
     def get_op_size(self, op: Op) -> int:
         """ Get the compiled size of an IR operation in bytes. """
@@ -86,6 +86,8 @@ class Serializer:
                     self.append_u32(
                             bytecode, op.int_value + self.FRAME_HEADER_SIZE)
                     self.append_opcode(bytecode, Opcode.STORE_LOCAL)
+                elif op.type == OpType.UNARY_DEREFERENCE:
+                    self.append_opcode(bytecode, Opcode.UNARY_DEREFERENCE)
                 elif op.type == OpType.UNARY_NEGATE:
                     self.append_opcode(bytecode, Opcode.UNARY_NEGATE)
                 elif op.type == OpType.UNARY_NOT:
@@ -116,8 +118,8 @@ class Serializer:
                     self.append_opcode(bytecode, Opcode.BINARY_AND)
                 elif op.type == OpType.BINARY_OR:
                     self.append_opcode(bytecode, Opcode.BINARY_OR)
-                elif op.type == OpType.PRINT:
-                    self.append_opcode(bytecode, Opcode.PRINT)
+                elif op.type == OpType.PUT_CHR:
+                    self.append_opcode(bytecode, Opcode.PUT_CHR)
                 else:
                     print(f"Unimplemented IR op type '{op}'!")
                     self.append_opcode(bytecode, Opcode.NO_OPERATION)

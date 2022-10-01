@@ -5,5 +5,5 @@
 
 // Print "123".
 func main(){
-	print(123);
+	printIntLn(123);
 }

@@ -4,28 +4,28 @@ class OpType(Enum):
     """ The type of an IR operation. """
     
     HALT = auto()
-    """ Pop and halt element. """
+    """ Pop and halt with exit code word. """
     
     JUMP_LABEL = auto()
-    """ Pop and jump element with label. """
+    """ Pop and jump to word with label. """
     
     JUMP_NOT_ZERO_LABEL = auto()
-    """ Pop and jump element if pop element not zero with label. """
+    """ Pop and jump to word if popped word is not zero with label. """
     
     JUMP_ZERO_LABEL = auto()
-    """ Pop and jump element if pop element zero with label. """
+    """ Pop and jump to word if popped word is zero with label. """
     
     CALL_PARAMC = auto()
     """ Call with parameter count. """
     
     RETURN = auto()
-    """ Pop and return element. """
+    """ Pop and return word. """
     
     DROP = auto()
-    """ Pop and discard element. """
+    """ Pop and discard word. """
     
     DUPLICATE = auto()
-    """ Peek and push element. """
+    """ Peek and push word. """
     
     PUSH_LABEL = auto()
     """ Push labeled address. """
@@ -39,53 +39,56 @@ class OpType(Enum):
     STORE_LOCAL_OFFSET = auto()
     """ Store local with offset. """
     
+    UNARY_DEREFERENCE = auto()
+    """ Pop, dereference, and push word. """ 
+    
     UNARY_NEGATE = auto()
-    """ Pop, negate, and push element. """
+    """ Pop, negate, and push word. """
     
     UNARY_NOT = auto()
-    """ Pop, logical not, and push element. """
+    """ Pop, logical not, and push word. """
     
     BINARY_ADD = auto()
-    """ Pop, add, and push elements. """
+    """ Pop, add, and push words. """
     
     BINARY_SUBTRACT = auto()
-    """ Pop, subtract, and push elements. """
+    """ Pop, subtract, and push words. """
     
     BINARY_MULTIPLY = auto()
-    """ Pop, multiply, and push elements. """
+    """ Pop, multiply, and push words. """
     
     BINARY_DIVIDE = auto()
-    """ Pop, divide, and push elements. """
+    """ Pop, divide, and push words. """
     
     BINARY_MODULO = auto()
-    """ Pop, modulo, and push elements. """
+    """ Pop, modulo, and push words. """
     
     BINARY_EQUALS = auto()
-    """ Pop, compare equals, and push elements. """
+    """ Pop, compare equals, and push words. """
     
     BINARY_NOT_EQUALS = auto()
-    """ Pop, compare not equals, and push elements. """
+    """ Pop, compare not equals, and push words. """
     
     BINARY_GREATER = auto()
-    """ Pop, compare greater, and push elements. """
+    """ Pop, compare greater, and push words. """
     
     BINARY_GREATER_EQUALS = auto()
-    """ Pop, compare greater equals, and push elements. """
+    """ Pop, compare greater equals, and push words. """
     
     BINARY_LESS = auto()
-    """ Pop, compare less, and push elements. """
+    """ Pop, compare less, and push words. """
     
     BINARY_LESS_EQUALS = auto()
-    """ Pop, compare less equals, and push elements. """
+    """ Pop, compare less equals, and push words. """
     
     BINARY_AND = auto()
-    """ Pop, logical and, and push elements. """
+    """ Pop, logical and, and push words. """
     
     BINARY_OR = auto()
-    """ Pop, logicl or, and push elements. """
+    """ Pop, logical or, and push words. """
     
-    PRINT = auto()
-    """ Pop and print element. """
+    PUT_CHR = auto()
+    """ Peek and put character with value of word. """
 
 
 class Op:
@@ -280,6 +283,12 @@ class Code:
         self.append_op_int(OpType.STORE_LOCAL_OFFSET, offset)
     
     
+    def make_unary_dereference(self) -> None:
+        """ Make a unary dereference IR operation. """
+        
+        self.append_op_standalone(OpType.UNARY_DEREFERENCE)
+    
+    
     def make_unary_negate(self) -> None:
         """ Make a unary negate IR operation. """
         
@@ -370,10 +379,10 @@ class Code:
         self.append_op_standalone(OpType.BINARY_OR)
     
     
-    def make_print(self) -> None:
-        """ Make a print IR operation. """
+    def make_put_chr(self) -> None:
+        """ Make a put chr IR operation. """
         
-        self.append_op_standalone(OpType.PRINT)
+        self.append_op_standalone(OpType.PUT_CHR)
     
     
     def append_op(self, op: Op) -> None:

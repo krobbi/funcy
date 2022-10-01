@@ -41,9 +41,6 @@ class TokenType(Enum):
     KEYWORD_MUT = auto()
     """ `mut`. """
     
-    KEYWORD_PRINT = auto()
-    """ `print`. """
-    
     KEYWORD_RETURN = auto()
     """ `return`. """
     
@@ -58,6 +55,9 @@ class TokenType(Enum):
     
     BANG_EQUALS = auto()
     """ `!=`. """
+    
+    DOLLAR_PARENTHESIS_OPEN = auto()
+    """ `$(`. """
     
     PERCENT = auto()
     """ `%`. """

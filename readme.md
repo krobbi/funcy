@@ -5,6 +5,7 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 # Contents
 1. [About](#about)
 2. [Example](#example)
+   1. [Standard Library](#standard-library)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
 5. [Python SDK](#python-sdk)
@@ -54,13 +55,27 @@ func main(){
    if(testFailed(2, 3, 5, 7, 25)) return 1;
    if(testFailed(0, 10, 0, -10, 400)) return 1;
    
-   print(123); // Print 123 on success!
+   printIntLn(123); // Print 123 on success!
 }
 ```
 
 Other features include nestable comments, and passing and returning functions
 as values. `true` and `false` keywords are available, but these are synonyms
 for `1` and `0` as there is no type system.
+
+## Standard Library
+The following functions are available to all Funcy programs:
+
+| Function                      | Description                                                                                                       |
+| :---------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| `putChr(character)`           | Put and return a character.                                                                                       |
+| `putLn()`                     | Put and return a line break.                                                                                      |
+| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                        |
+| `printIntBase(value, base)`   | Print an integer value with a base between 2 and 36 and return the number of printed characters.                  |
+| `printIntBaseLn(value, base)` | Print an integer value with a base between 2 and 36 and a line break and return the number of printed characters. |
+| `printInt(value)`             | Print an integer value and return the number of printed characters.                                               |
+| `printIntLn(value)`           | Print an integer value with a line break and return the number of printed characters.                             |
+| `print(value)`                | Deprecated. Use `printIntLn` instead.                                                                             |
 
 # Grammar
 The EBNF (Extended Backus-Naur Form) grammar for Funcy's current implementation
@@ -72,7 +87,7 @@ root = { stmt_func }, EOF ;
 
 stmt = (
    stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |
-   stmt_return | stmt_print | stmt_break | stmt_continue | stmt_expr
+   stmt_return | stmt_break | stmt_continue | stmt_expr
 ) ;
 
 stmt_func     = "func", IDENTIFIER, "(", [ decl, { ",", decl } ], ")", stmt_block ;
@@ -82,7 +97,6 @@ stmt_while    = "while", expr_paren, stmt ;
 stmt_nop      = ";" ;
 stmt_let      = "let", decl, [ "=", expr ], ";" ;
 stmt_return   = "return", [ expr ], ";" ;
-stmt_print    = "print", expr_paren, ";" ;
 stmt_break    = "break", ";" ;
 stmt_continue = "continue", ";" ;
 stmt_expr     = expr, ";" ;
@@ -104,7 +118,10 @@ expr_sum         = expr_term, { ( "+" | "-" ), expr_term } ;
 expr_term        = expr_prefix, { ( "%" | "*" | "/" ), expr_prefix } ;
 expr_prefix      = ( "!" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
-expr_primary     = expr_paren | LITERAL_INT | IDENTIFIER | "false" | "true" ;
+expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | IDENTIFIER | "false" | "true" ;
+
+(* Secret expression type limited to the standard library. *)
+expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;
 ```
 
 # Runtime

@@ -1,3 +1,5 @@
+import sys
+
 from enum import Enum
 
 class Opcode(Enum):
@@ -20,22 +22,23 @@ class Opcode(Enum):
     PUSH_S32 = 0x0e
     LOAD_LOCAL = 0x0f
     STORE_LOCAL = 0x10
-    UNARY_NEGATE = 0x11
-    UNARY_NOT = 0x12
-    BINARY_ADD = 0x13
-    BINARY_SUBTRACT = 0x14
-    BINARY_MULTIPLY = 0x15
-    BINARY_DIVIDE = 0x16
-    BINARY_MODULO = 0x17
-    BINARY_EQUALS = 0x18
-    BINARY_NOT_EQUALS = 0x19
-    BINARY_GREATER = 0x1a
-    BINARY_GREATER_EQUALS = 0x1b
-    BINARY_LESS = 0x1c
-    BINARY_LESS_EQUALS = 0x1d
-    BINARY_AND = 0x1e
-    BINARY_OR = 0x1f
-    PRINT = 0x20
+    UNARY_DEREFERENCE = 0x11
+    UNARY_NEGATE = 0x12
+    UNARY_NOT = 0x13
+    BINARY_ADD = 0x14
+    BINARY_SUBTRACT = 0x15
+    BINARY_MULTIPLY = 0x16
+    BINARY_DIVIDE = 0x17
+    BINARY_MODULO = 0x18
+    BINARY_EQUALS = 0x19
+    BINARY_NOT_EQUALS = 0x1a
+    BINARY_GREATER = 0x1b
+    BINARY_GREATER_EQUALS = 0x1c
+    BINARY_LESS = 0x1d
+    BINARY_LESS_EQUALS = 0x1e
+    BINARY_AND = 0x1f
+    BINARY_OR = 0x20
+    PUT_CHR = 0x21
 
 
 class FVM:
@@ -44,7 +47,7 @@ class FVM:
     HEADER: bytes = bytes([0x83, 0x46, 0x56, 0x4d, 0x0d, 0x0a, 0x1a, 0x0a])
     """ An FVM bytecode file's header. """
     
-    FORMAT_VERSION: int = 1
+    FORMAT_VERSION: int = 2
     """ The FVM's format version. """
     
     LEGAL_OPCODES: set[int] = set(opcode.value for opcode in Opcode)
@@ -195,6 +198,14 @@ class FVM:
         elif opcode == Opcode.STORE_LOCAL and self.validate_pop(2):
             store_offset: int = self.sm.pop()
             self.sm[self.fp + store_offset] = self.sm[-1]
+        elif opcode == Opcode.UNARY_DEREFERENCE and self.validate_pop(1):
+            address: int = self.sm.pop()
+            
+            if address < 0 or address >= len(self.pm):
+                self.crash()
+                return
+            
+            self.sm.append(self.pm[address])
         elif opcode == Opcode.UNARY_NEGATE and self.validate_pop(1):
             self.sm.append(-self.sm.pop())
         elif opcode == Opcode.UNARY_NOT and self.validate_pop(1):
@@ -261,8 +272,8 @@ class FVM:
             y: int = self.sm.pop()
             x: int = self.sm.pop()
             self.sm.append(int(x != 0 or y != 0))
-        elif opcode == Opcode.PRINT and self.validate_pop(1):
-            print(self.sm.pop())
+        elif opcode == Opcode.PUT_CHR and self.validate_pop(1):
+            sys.stdout.write(chr(self.sm[-1]))
         else:
             self.crash()
     

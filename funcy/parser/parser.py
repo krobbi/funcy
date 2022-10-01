@@ -4,10 +4,14 @@ from ..ast.nodes import *
 from ..io.log import Log
 from .lexer import Lexer
 from .position import Position, Span
+from .std import FUNCY_STANDARD_LIBRARY
 from .token import Token, TokenType
 
 class Parser:
     """ Parses an abstract syntax tree from source code. """
+    
+    is_parsing_std: bool = False
+    """ Whether the parser is parsing the standard library. """
     
     log: Log
     """ The parser's log. """
@@ -39,13 +43,32 @@ class Parser:
     def parse(self, source: str) -> RootNode:
         """ Parse an abstract syntax tree from source code. """
         
-        self.lexer.begin(source)
+        self.lexer.begin(FUNCY_STANDARD_LIBRARY)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
         self.span_stack = []
         
-        self.begin()
         root: RootNode = RootNode()
+        
+        self.is_parsing_std = True
+        
+        while self.next.type != TokenType.EOF:
+            stmt: Node = self.parse_stmt_func()
+            
+            if not isinstance(stmt, FuncStmtNode):
+                self.log_error(
+                        f"Bug: Bug in standard library at '{stmt}'!", stmt)
+                continue
+            
+            root.stmts.append(stmt)
+        
+        self.is_parsing_std = False
+        
+        self.lexer.begin(source)
+        self.next = Token(TokenType.EOF, Span())
+        self.advance()
+        self.span_stack = []
+        self.begin()
         
         while self.next.type != TokenType.EOF:
             stmt: Node = self.parse_stmt_func()
@@ -235,19 +258,6 @@ class Parser:
                         self.current.span.end)
             
             return self.end(ReturnExprStmtNode(expr))
-        elif self.accept(TokenType.KEYWORD_PRINT):
-            expr: Node = self.parse_expr_paren()
-            has_semicolon: bool = self.accept(TokenType.SEMICOLON)
-            
-            if not isinstance(expr, ExprNode):
-                return self.abort(expr)
-            
-            if not has_semicolon:
-                self.log_error(
-                        "Missing closing ';' in print statement!",
-                        self.current.span.end)
-            
-            return self.end(PrintStmtNode(expr))
         elif self.accept(TokenType.KEYWORD_BREAK):
             if not self.accept(TokenType.SEMICOLON):
                 self.log_error(
@@ -665,6 +675,10 @@ class Parser:
         
         if self.next.type == TokenType.PARENTHESIS_OPEN:
             return self.abort(self.parse_expr_paren())
+        elif(
+                self.is_parsing_std
+                and self.next.type == TokenType.DOLLAR_PARENTHESIS_OPEN):
+            return self.abort(self.parse_expr_intrinsic())
         elif self.accept(TokenType.LITERAL_INT):
             return self.end(IntExprNode(self.current.int_value))
         elif self.accept(TokenType.IDENTIFIER):
@@ -682,3 +696,40 @@ class Parser:
         node.span.replicate(self.current.span)
         node.span.start.replicate(node.span.end)
         return self.abort(node)
+    
+    
+    def parse_expr_intrinsic(self) -> Node:
+        """ Parse an intrinsic expression. """
+        
+        self.begin()
+        
+        if not self.accept(TokenType.DOLLAR_PARENTHESIS_OPEN):
+            self.log_error(
+                    "Missing opening '$(' in intrinsic expression!",
+                    self.current.span.end)
+        
+        if not self.accept(TokenType.IDENTIFIER):
+            node: ErrorNode = ErrorNode(
+                    "Expected an identifier for an intrinsic name!")
+            node.span.replicate(self.next.span)
+            return self.abort(node)
+        
+        name: IdentifierExprNode = IdentifierExprNode(self.current.str_value)
+        name.span.replicate(self.current.span)
+        expr: IntrinsicExprNode = IntrinsicExprNode(name)
+        
+        while self.accept(TokenType.COMMA):
+            param: Node = self.parse_expr()
+            
+            if not isinstance(param, ExprNode):
+                self.log_error(param)
+                continue
+            
+            expr.exprs.append(param)
+        
+        if not self.accept(TokenType.PARENTHESIS_CLOSE):
+            self.log_error(
+                    "Missing closing ')' in intrinsic expression!",
+                    self.current.span.end)
+        
+        return self.end(expr)

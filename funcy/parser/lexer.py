@@ -32,7 +32,6 @@ class Lexer:
         "if": TokenType.KEYWORD_IF,
         "let": TokenType.KEYWORD_LET,
         "mut": TokenType.KEYWORD_MUT,
-        "print": TokenType.KEYWORD_PRINT,
         "return": TokenType.KEYWORD_RETURN,
         "true": TokenType.KEYWORD_TRUE,
         "while": TokenType.KEYWORD_WHILE,
@@ -190,6 +189,9 @@ class Lexer:
                 return self.make_token(self.KEYWORDS[self.lexeme])
             
             return self.make_str(TokenType.IDENTIFIER, self.lexeme)
+        elif self.character == "$" and self.peek(1) == "(":
+            self.advance(2)
+            return self.make_token(TokenType.DOLLAR_PARENTHESIS_OPEN)
         else:
             position: int = self.span.start.offset
             max_length: int = max(len(key) for key in self.KEYWORDS)

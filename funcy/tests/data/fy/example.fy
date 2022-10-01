@@ -30,5 +30,5 @@ func main(){
    if(testFailed(2, 3, 5, 7, 25)) return 1;
    if(testFailed(0, 10, 0, -10, 400)) return 1;
    
-   print(123); // Print 123 on success!
+   printIntLn(123); // Print 123 on success!
 }

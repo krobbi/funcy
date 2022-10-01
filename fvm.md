@@ -1,7 +1,7 @@
 # Funcy Virtual Machine
 _Specification for the Funcy Virtual Machine (FVM), a stack-based bytecode
 interpreter for Funcy._  
-__Format version `1`.__  
+__Format version `2`.__  
 __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 
 [Go back](./readme.md).
@@ -29,22 +29,23 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
    * [PUSH_S32 (`0x0e`)](#push_s32-0x0e)
    * [LOAD_LOCAL (`0x0f`)](#load_local-0x0f)
    * [STORE_LOCAL (`0x10`)](#store_local-0x10)
-   * [UNARY_NEGATE (`0x11`)](#unary_negate-0x11)
-   * [UNARY_NOT (`0x12`)](#unary_not-0x12)
-   * [BINARY_ADD (`0x13`)](#binary_add-0x13)
-   * [BINARY_SUBTRACT (`0x14`)](#binary_subtract-0x14)
-   * [BINARY_MULTIPLY (`0x15`)](#binary_multiply-0x15)
-   * [BINARY_DIVIDE (`0x16`)](#binary_divide-0x16)
-   * [BINARY_MODULO (`0x17`)](#binary_modulo-0x17)
-   * [BINARY_EQUALS (`0x18`)](#binary_equals-0x18)
-   * [BINARY_NOT_EQUALS (`0x19`)](#binary_not_equals-0x19)
-   * [BINARY_GREATER (`0x1a`)](#binary_greater-0x1a)
-   * [BINARY_GREATER_EQUALS (`0x1b`)](#binary_greater_equals-0x1b)
-   * [BINARY_LESS (`0x1c`)](#binary_less-0x1c)
-   * [BINARY_LESS_EQUALS (`0x1d`)](#binary_less_equals-0x1d)
-   * [BINARY_AND (`0x1e`)](#binary_and-0x1e)
-   * [BINARY_OR (`0x1f`)](#binary_or-0x1f)
-   * [PRINT (`0x20`)](#print-0x20)
+   * [UNARY_DEREFERENCE (`0x11`)](#unary_dereference-0x11)
+   * [UNARY_NEGATE (`0x12`)](#unary_negate-0x12)
+   * [UNARY_NOT (`0x13`)](#unary_not-0x13)
+   * [BINARY_ADD (`0x14`)](#binary_add-0x14)
+   * [BINARY_SUBTRACT (`0x15`)](#binary_subtract-0x15)
+   * [BINARY_MULTIPLY (`0x16`)](#binary_multiply-0x16)
+   * [BINARY_DIVIDE (`0x17`)](#binary_divide-0x17)
+   * [BINARY_MODULO (`0x18`)](#binary_modulo-0x18)
+   * [BINARY_EQUALS (`0x19`)](#binary_equals-0x19)
+   * [BINARY_NOT_EQUALS (`0x1a`)](#binary_not_equals-0x1a)
+   * [BINARY_GREATER (`0x1b`)](#binary_greater-0x1b)
+   * [BINARY_GREATER_EQUALS (`0x1c`)](#binary_greater_equals-0x1c)
+   * [BINARY_LESS (`0x1d`)](#binary_less-0x1d)
+   * [BINARY_LESS_EQUALS (`0x1e`)](#binary_less_equals-0x1e)
+   * [BINARY_AND (`0x1f`)](#binary_and-0x1f)
+   * [BINARY_OR (`0x20`)](#binary_or-0x20)
+   * [PUT_CHR (`0x21`)](#put_chr-0x21)
 
 # Architecture
 The FVM uses several regions of memory to execute FVM bytecode:
@@ -55,14 +56,13 @@ at least the size of the currently executed program. The program must originate
 at index `0`.
 * The instruction pointer, or `ip` is an integer that stores an index of `pm`.
 It is used for fetching FVM opcodes and program data.
-* Stack memory, or `sm` is a stack of variable-type stack elements that stores
-local variables and the inputs and outputs of most operations. Although `sm`
-should support variable type elements, currently only signed integers are used.
-There is no defined limit for the size of `sm`. The index of the top element of
-`sm` increases as elements are pushed to it.
+* Stack memory, or `sm` is a stack of signed integer words that stores locals
+and the inputs and outputs of most operations. The size of a stack word is
+undefined, but 32 bits is recommended. There is no defined limit for the size
+of `sm`. The index of the top word of `sm` increases as words are pushed to it.
 * The frame pointer, or `fp` is an integer that stores an index of `sm` and
-defines the base of the current call frame. Offsets from `fp` in `sm` are used
-to access local variables.
+defines the base of the current call frame. `fp` stores the index of a word in
+`sm`, _not_ a byte. Offsets from `fp` in `sm` are used to access locals.
 * The execution flag, or `ef` is a boolean value that stores whether the FVM is
 executing a program.
 * The exit code, or `ec` is an integer that stores an exit code for when
@@ -98,7 +98,7 @@ of data:
 | `2 * u8`    | `0x0d 0x0a`: `\r\n`, tests for line ending conversion.      |
 | `u8`        | `0x1a`: Stops file display on some systems.                 |
 | `u8`        | `0x0a`: `\n`, tests for reverse line ending conversion.     |
-| `u32`       | Format version. `0x01 0x00 0x00 0x00 (1)` for this version. |
+| `u32`       | Format version. `0x02 0x00 0x00 0x00 (2)` for this version. |
 | `u32`       | `size` value. The number of bytes of FVM bytecode.          |
 | `size * u8` | The FVM bytecode to load into `pm`.                         |
 
@@ -135,8 +135,8 @@ These are undefined and depend on the FVM's implementation:
 * Data is fetched from out of bounds of `pm`.
 * An undefined opcode is fetched.
 * `sm` grows to an unsupported size.
-* An element is popped from `sm` while it is empty.
-* An element is accessed from out of bounds of `sm`.
+* A word is popped from `sm` while it is empty.
+* A word is accessed from out of bounds of `sm`.
 * A modulo or divide by `0` operation is performed.
 
 # Opcodes
@@ -145,7 +145,7 @@ opcode executes a sequence of operations. Opcodes have defined values, but may
 change between format versions:
 
 ## HALT (`0x00`)
-1. Pop an element, `exitCode` from `sm`.
+1. Pop a word, `exitCode` from `sm`.
 2. Set `ec` to `exitCode`.
 3. Set `ef` to `false`.
 
@@ -153,23 +153,23 @@ change between format versions:
 1. Do nothing.
 
 ## JUMP (`0x02`)
-1. Pop an element, `jumpAddress` from `sm`.
+1. Pop a word, `jumpAddress` from `sm`.
 2. Set `ip` to `branchAddress`.
 
 ## JUMP_NOT_ZERO (`0x03`)
-1. Pop an element `jumpAddress` from `sm`.
-2. Pop an element `compareValue` from `sm`.
+1. Pop a word `jumpAddress` from `sm`.
+2. Pop a word `compareValue` from `sm`.
 3. Set `ip` to `jumpAddress` if `compareValue` is not equal to `0`.
 
 ## JUMP_ZERO (`0x04`)
-1. Pop an element `jumpAddress` from `sm`.
-2. Pop an element `compareValue` from `sm`.
+1. Pop a word `jumpAddress` from `sm`.
+2. Pop a word `compareValue` from `sm`.
 3. Set `ip` to `jumpAddress` if `compareValue` is equal to `0`.
 
 ## CALL (`0x05`)
-1. Pop an element, `argCount` from `sm`.
-2. Pop an element, `callAddress` from `sm`.
-3. Pop the top `argCount` elements from `sm` in order as `args`.
+1. Pop a word, `argCount` from `sm`.
+2. Pop a word, `callAddress` from `sm`.
+3. Pop the top `argCount` words from `sm` in order as `args`.
 4. Push the value of `fp` to `sm`.
 5. Set `fp` to the top index of `sm`.
 6. Push the value of `ip` to `sm`.
@@ -180,13 +180,12 @@ change between format versions:
 1. Read a value, `oldFP` from `fp`'s value.
 2. Set `ip` to `sm[oldFP + 1]`.
 3. Set `fp` to `sm[oldFP]`.
-4. Pop an element, `returnValue` from `sm`.
-5. Discard all elements from `sm` with an index greater than or equal to
-`oldFP`.
+4. Pop a word, `returnValue` from `sm`.
+5. Discard all words from `sm` with an index greater than or equal to `oldFP`.
 6. Push `returnValue` to `sm`.
 
 ## DROP (`0x07`)
-1. Pop and discard an element from `sm`.
+1. Pop and discard a word from `sm`.
 
 ## DUPLICATE (`0x08`)
 1. Peek a value, `value` from the top of `sm`.
@@ -217,87 +216,91 @@ change between format versions:
 2. Push the value to `sm`.
 
 ## LOAD_LOCAL (`0x0f`)
-1. Pop an element, `offset` from `sm`.
+1. Pop a word, `offset` from `sm`.
 2. Push `sm[fp + offset]` to `sm`.
 
 ## STORE_LOCAL (`0x10`)
-1. Pop an element, `offset` from `sm`.
+1. Pop a word, `offset` from `sm`.
 2. Peek a value, `value` from the top of `sm`.
 3. Set `sm[fp + offset]` to `value`.
 
-## UNARY_NEGATE (`0x11`)
-1. Pop an element, `value` from `sm`.
+## UNARY_DEREFERENCE (`0x11`)
+1. Pop a word, `address` from `sm`.
+2. Push `pm[address]` to `sm`.
+
+## UNARY_NEGATE (`0x12`)
+1. Pop a word, `value` from `sm`.
 2. Push `-value` to `sm`.
 
-## UNARY_NOT (`0x12`)
-1. Pop an element, `value` from `sm`.
+## UNARY_NOT (`0x13`)
+1. Pop a word, `value` from `sm`.
 2. Push `int(value == 0)` to `sm`.
 
-## BINARY_ADD (`0x13`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_ADD (`0x14`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `x + y` to `sm`.
 
-## BINARY_SUBTRACT (`0x14`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_SUBTRACT (`0x15`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `x - y` to `sm`.
 
-## BINARY_MULTIPLY (`0x15`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_MULTIPLY (`0x16`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `x * y` to `sm`.
 
-## BINARY_DIVIDE (`0x16`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_DIVIDE (`0x17`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `x // y` to `sm`.
 
-## BINARY_MODULO (`0x17`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_MODULO (`0x18`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `x % y` to `sm`.
 
-## BINARY_EQUALS (`0x18`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_EQUALS (`0x19`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x == y)` to `sm`.
 
-## BINARY_NOT_EQUALS (`0x19`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_NOT_EQUALS (`0x1a`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x != y)` to `sm`.
 
-## BINARY_GREATER (`0x1a`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_GREATER (`0x1b`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x > y)` to `sm`.
 
-## BINARY_GREATER_EQUALS (`0x1b`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_GREATER_EQUALS (`0x1c`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x >= y)` to `sm`.
 
-## BINARY_LESS (`0x1c`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_LESS (`0x1d`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x < y)` to `sm`.
 
-## BINARY_LESS_EQUALS (`0x1d`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_LESS_EQUALS (`0x1e`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x <= y)` to `sm`.
 
-## BINARY_AND (`0x1e`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_AND (`0x1f`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x != 0 and y != 0)` to `sm`.
 
-## BINARY_OR (`0x1f`)
-1. Pop an element, `y` from `sm`.
-2. Pop an element, `x` from `sm`.
+## BINARY_OR (`0x20`)
+1. Pop a word, `y` from `sm`.
+2. Pop a word, `x` from `sm`.
 3. Push `int(x != 0 or y != 0)` to `sm`.
 
-## PRINT (`0x20`)
-1. Pop an element, `value` from `sm`.
-2. Print `value` with a line break.
+## PUT_CHR (`0x21`)
+1. Peek a value, `value` from the top of `sm`.
+2. Put the character with the value `value` to standard output.
