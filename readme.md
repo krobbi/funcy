@@ -21,7 +21,7 @@ suitable as a practical language, or as a guide for creating a programming
 language.
 
 # Example
-Below is a FizzBuzz program written in Funcy.
+Below is a FizzBuzz program written in Funcy:
 ```
 /*
 * Funcy Test Script - fizzbuzz.fy
@@ -81,9 +81,9 @@ The following functions are available to all Funcy programs:
 | `printChrLn(value)`           | Print a character with a line break and return the number of printed characters.                            |
 | `printStr(value)`             | Print a string and return the number of printed characters.                                                 |
 | `printStrLn(value)`           | Print a string with a line break and return the number of printed characters.                               |
-| `lenStr(value)`               | Return the length of a string excluding the null terminator.                                                |
-| `cmpStr(value)`               | Compare two strings as greater, lesser, or equal.                                                           |
-| `eqStr(value)`                | Return whether two strings are equal.                                                                       |
+| `lenStr(string)`              | Return the length of a string excluding the null terminator.                                                |
+| `cmpStr(x, y)`                | Compare two strings as greater, lesser, or equal.                                                           |
+| `eqStr(x, y)`                 | Return whether two strings are equal.                                                                       |
 | `print(value)`                | Deprecated. Use `printIntLn` instead.                                                                       |
 
 ## About Strings

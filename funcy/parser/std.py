@@ -162,15 +162,15 @@ func printStrLn(value){
 }
 
 // Return the length of a string excluding the null terminator.
-func lenStr(value){
-    let mut position = value;
+func lenStr(string){
+    let mut position = string;
     let mut character = *position;
     
     while(character){
         character = *(position += 1);
     }
     
-    return position - value;
+    return position - string;
 }
 
 // Compare two strings as greater, lesser or equal.
