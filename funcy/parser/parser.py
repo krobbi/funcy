@@ -600,6 +600,7 @@ class Parser:
         
         OPS: dict[TokenType, UnOp] = {
             TokenType.BANG: UnOp.NOT,
+            TokenType.STAR: UnOp.DEREFERENCE,
             TokenType.PLUS: UnOp.AFFIRM,
             TokenType.MINUS: UnOp.NEGATE,
         }
@@ -681,6 +682,10 @@ class Parser:
             return self.abort(self.parse_expr_intrinsic())
         elif self.accept(TokenType.LITERAL_INT):
             return self.end(IntExprNode(self.current.int_value))
+        elif self.accept(TokenType.LITERAL_CHR):
+            return self.end(ChrExprNode(self.current.str_value))
+        elif self.accept(TokenType.LITERAL_STR):
+            return self.end(StrExprNode(self.current.str_value))
         elif self.accept(TokenType.IDENTIFIER):
             return self.end(IdentifierExprNode(self.current.str_value))
         elif self.accept(TokenType.KEYWORD_FALSE):

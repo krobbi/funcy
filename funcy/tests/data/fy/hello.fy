@@ -1,9 +1,9 @@
 /*
 * Funcy Test Script - hello.fy
-* Prints "123".
+* Prints 'Hello, Funcy!'.
 */
 
-// Print "123".
+// Print 'Hello, Funcy!'.
 func main(){
-	printIntLn(123);
+	printStrLn("Hello, Funcy!");
 }

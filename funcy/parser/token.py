@@ -14,6 +14,12 @@ class TokenType(Enum):
     LITERAL_INT = auto()
     """ Integer value. """
     
+    LITERAL_CHR = auto()
+    """ Character value. """
+    
+    LITERAL_STR = auto()
+    """ String value. """
+    
     IDENTIFIER = auto()
     """ User-defined name. """
     
@@ -171,7 +177,9 @@ class Token:
         
         result: str = f"{self.span}: {self.type.name}"
         
-        if self.type == TokenType.ERROR or self.type == TokenType.IDENTIFIER:
+        if self.type in (
+                TokenType.ERROR, TokenType.LITERAL_CHR,
+                TokenType.LITERAL_STR, TokenType.IDENTIFIER):
             result += f": {self.str_value}"
         elif self.type == TokenType.LITERAL_INT:
             result += f": {self.int_value}"

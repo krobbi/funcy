@@ -33,6 +33,12 @@ class OpType(Enum):
     PUSH_INT = auto()
     """ Push integer value. """
     
+    PUSH_CHR = auto()
+    """ Push character value. """
+    
+    PUSH_STR = auto()
+    """ Push string value. """
+    
     LOAD_LOCAL_OFFSET = auto()
     """ Load local with offset. """
     
@@ -117,7 +123,8 @@ class Op:
                 OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return f"{self.type.name} {self.int_value};"
         elif self.type in (
-                OpType.JUMP_LABEL, OpType.JUMP_ZERO_LABEL, OpType.PUSH_LABEL):
+                OpType.JUMP_LABEL, OpType.JUMP_ZERO_LABEL,
+                OpType.PUSH_LABEL, OpType.PUSH_CHR, OpType.PUSH_STR):
             return f"{self.type.name} {self.str_value};"
         else:
             return f"{self.type.name};"
@@ -269,6 +276,18 @@ class Code:
         """ Make a push int IR operation. """
         
         self.append_op_int(OpType.PUSH_INT, value)
+    
+    
+    def make_push_chr(self, value: str) -> None:
+        """ Make a push chr IR operation. """
+        
+        self.append_op_str(OpType.PUSH_CHR, value)
+    
+    
+    def make_push_str(self, value: str) -> None:
+        """ Make a push str IR operation. """
+        
+        self.append_op_str(OpType.PUSH_STR, value)
     
     
     def make_load_local_offset(self, offset: int) -> None:

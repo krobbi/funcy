@@ -90,6 +90,10 @@ class Visitor:
             self.visit_decl(node, code)
         elif isinstance(node, IntExprNode):
             self.visit_int_expr(node, code)
+        elif isinstance(node, ChrExprNode):
+            self.visit_chr_expr(node, code)
+        elif isinstance(node, StrExprNode):
+            self.visit_str_expr(node, code)
         elif isinstance(node, IdentifierExprNode):
             self.visit_identifier_expr(node, code)
         elif isinstance(node, CallExprNode):
@@ -343,6 +347,28 @@ class Visitor:
         code.make_push_int(node.value)
     
     
+    def visit_chr_expr(self, node: ChrExprNode, code: Code) -> None:
+        """ Visit a character expression node. """
+        
+        if len(node.value) != 1:
+            if node.value:
+                self.log_error(
+                        "Multiple characters in character literal!", node)
+            else:
+                self.log_error("Empty character literal!", node)
+            
+            code.make_push_int(0)
+            return
+        
+        code.make_push_chr(node.value)
+    
+    
+    def visit_str_expr(self, node: StrExprNode, code: Code) -> None:
+        """ Visit a string expression node. """
+        
+        code.make_push_str(node.value)
+    
+    
     def visit_identifier_expr(
             self, node: IdentifierExprNode, code: Code) -> None:
         """ Visit an identifier expression node. """
@@ -534,7 +560,9 @@ class Visitor:
         
         self.visit(node.expr, code)
         
-        if node.op == UnOp.AFFIRM:
+        if node.op == UnOp.DEREFERENCE:
+            code.make_unary_dereference()
+        elif node.op == UnOp.AFFIRM:
             pass # A prefixed '+' operator should have no effect.
         elif node.op == UnOp.NEGATE:
             code.make_unary_negate()

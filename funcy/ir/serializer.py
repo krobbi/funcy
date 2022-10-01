@@ -17,8 +17,10 @@ class Serializer:
                 OpType.JUMP_ZERO_LABEL, OpType.CALL_PARAMC,
                 OpType.LOAD_LOCAL_OFFSET, OpType.STORE_LOCAL_OFFSET):
             return 1 + 4 + 1
-        elif op.type in (OpType.PUSH_LABEL, OpType.PUSH_INT):
+        elif op.type in (OpType.PUSH_LABEL, OpType.PUSH_INT, OpType.PUSH_STR):
             return 1 + 4
+        elif op.type == OpType.PUSH_CHR:
+            return 1 + 1
         
         return 1
     
@@ -35,6 +37,7 @@ class Serializer:
             for op in block.ops:
                 size += self.get_op_size(op)
         
+        labels[".end"] = size
         return labels
     
     
@@ -42,6 +45,8 @@ class Serializer:
         """ Serialize FVM bytecode from IR code. """
         
         labels: dict[str, int] = self.get_labels(code)
+        string_pos: int = labels.get(".end", 0)
+        strings: list[str] = []
         bytecode: bytearray = bytearray()
         
         for block in code.blocks:
@@ -76,6 +81,14 @@ class Serializer:
                 elif op.type == OpType.PUSH_INT:
                     self.append_opcode(bytecode, Opcode.PUSH_S32)
                     self.append_s32(bytecode, op.int_value)
+                elif op.type == OpType.PUSH_CHR:
+                    self.append_opcode(bytecode, Opcode.PUSH_U8)
+                    self.append_u8(bytecode, ord(op.str_value) % 0xff)
+                elif op.type == OpType.PUSH_STR:
+                    self.append_opcode(bytecode, Opcode.PUSH_U32)
+                    self.append_u32(bytecode, string_pos)
+                    strings.append(op.str_value)
+                    string_pos += len(op.str_value) + 1
                 elif op.type == OpType.LOAD_LOCAL_OFFSET:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(
@@ -123,6 +136,12 @@ class Serializer:
                 else:
                     print(f"Unimplemented IR op type '{op}'!")
                     self.append_opcode(bytecode, Opcode.NO_OPERATION)
+        
+        for string in strings:
+            for character in string:
+                self.append_u8(bytecode, ord(character) % 0xff)
+            
+            self.append_u8(bytecode, 0x00)
         
         if is_flat:
             return bytes(bytecode)

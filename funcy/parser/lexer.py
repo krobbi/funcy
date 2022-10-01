@@ -1,3 +1,4 @@
+from msilib.schema import AdvtExecuteSequence
 from .position import Span
 from .token import Token, TokenType
 
@@ -114,6 +115,62 @@ class Lexer:
         
         if not self.character:
             return self.make_token(TokenType.EOF)
+        elif self.accept("\"'"):
+            terminator: str = self.lexeme
+            is_chr: bool = terminator == "'"
+            has_seen_terminator: bool = False
+            value: str = ""
+            
+            while self.character:
+                if self.accept(terminator):
+                    has_seen_terminator = True
+                    break
+                elif self.accept("\n\r"):
+                    break
+                elif self.accept("\\"):
+                    if self.character == "\r":
+                        self.advance() # Allow '\r\n' sequences.
+                    
+                    if self.accept("Aa"):
+                        value += "\a"
+                    elif self.accept("Bb"):
+                        value += "\b"
+                    elif self.accept("Ff"):
+                        value += "\f"
+                    elif self.accept("Nn"):
+                        value += "\n"
+                    elif self.accept("Rr"):
+                        value += "\r"
+                    elif self.accept("Vv"):
+                        value += "\v"
+                    elif self.accept("Xx"):
+                        if(
+                                not self.character in self.HEX_DIGITS
+                                or not self.peek(1) in self.HEX_DIGITS):
+                            return self.make_error(
+                                    "Missing 2 digit hexadecimal "
+                                    "number in \\x escape sequence!")
+                        
+                        number: str = self.character + self.peek(1)
+                        self.advance(2)
+                        value += chr(int(number, base=16))
+                    elif not self.accept("\n"):
+                        value += self.character
+                        self.advance()
+                else:
+                    value += self.character
+                    self.advance()
+            
+            if not has_seen_terminator:
+                if is_chr:
+                    return self.make_error("Unterminated character literal!")
+                
+                return self.make_error("Unterminated string literal!")
+            
+            if is_chr:
+                return self.make_str(TokenType.LITERAL_CHR, value)
+            
+            return self.make_str(TokenType.LITERAL_STR, value)
         elif self.consume(self.DEC_DIGITS):
             number: str = self.lexeme
             base: int = 10

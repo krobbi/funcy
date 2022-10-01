@@ -55,6 +55,44 @@ class IntExprNode(ExprNode):
         return str(self.value)
 
 
+class ChrExprNode(ExprNode):
+    """ A character expression node of an abstract syntax tree. """
+    
+    value: str
+    """ The character expression's value. """
+    
+    def __init__(self, value: str) -> None:
+        """ Initialize the character expression's value. """
+        
+        super().__init__()
+        self.value = value
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the character expression. """
+        
+        return self.value
+
+
+class StrExprNode(ExprNode):
+    """ A string expression node of an abstract syntax tree. """
+    
+    value: str
+    """ The string expression's value. """
+    
+    def __init__(self, value: str) -> None:
+        """ Initialize the string expression's value. """
+        
+        super().__init__()
+        self.value = value
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the string expression. """
+        
+        return self.value
+
+
 class IdentifierExprNode(ExprNode):
     """ An identifier expression node of an abstract syntax tree. """
     
@@ -183,6 +221,9 @@ class AssignExprNode(ExprNode):
 
 class UnOp(Enum):
     """ A unary operator. """
+    
+    DEREFERENCE = auto()
+    """ `*x`. """
     
     AFFIRM = auto()
     """ `+x`. """

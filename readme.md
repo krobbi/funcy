@@ -6,6 +6,7 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
    1. [Standard Library](#standard-library)
+   2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
 5. [Python SDK](#python-sdk)
@@ -20,62 +21,79 @@ suitable as a practical language, or as a guide for creating a programming
 language.
 
 # Example
-Below is an example program written in Funcy for calculating the distance
-squared between two 2D points:
+Below is a FizzBuzz program written in Funcy.
 ```
 /*
-* Funcy Test Script - example.fy
-* Calculates squared distances between 2D points.
+* Funcy Test Script - fizzbuzz.fy
+* The classic FizzBuzz program.
 */
 
-// Calculate the distance squared between (aX, aY) and (bX, bY).
-func distanceSquared2D(aX, aY, bX, bY){
-   // Return x squared.
-   func sq(x){
-      return x * x;
-   }
-   
-   return sq(bX - aX) + sq(bY - aY);
-}
-
-// Entry point.
+// Play FizzBuzz for (1 ... 100).
 func main(){
-   // Test the distance function and return whether it failed.
-   func testFailed(aX, aY, bX, bY, result){
-      return distanceSquared2D(aX, aY, bX, bY) != result;
-   }
-   
-   // Run tests on our squared distance function:
-   if(testFailed(0, 0, 0, 0, 0)) return 1;
-   if(testFailed(123, 456, 123, 456, 0)) return 1;
-   if(testFailed(0, 0, 1, 0, 1)) return 1;
-   if(testFailed(0, 0, 1, 1, 2)) return 1;
-   if(testFailed(0, 0, 10, 0, 100)) return 1;
-   if(testFailed(5, 10, 15, 10, 100)) return 1;
-   if(testFailed(2, 3, 5, 7, 25)) return 1;
-   if(testFailed(0, 10, 0, -10, 400)) return 1;
-   
-   printIntLn(123); // Print 123 on success!
+	// Return whether a number has a factor and print a message if it does.
+	func hasFactor(number, factor, message){
+		if(number % factor){
+			return false;
+		}
+		
+		printStr(message);
+		return true;
+	}
+	
+	let mut i = 0;
+	
+	while(i < 100){
+		i += 1;
+		
+		let mut hasFactors = false;
+		hasFactors |= hasFactor(i, 3, "Fizz");
+		hasFactors |= hasFactor(i, 5, "Buzz");
+		
+		if(hasFactors){
+			printChrLn('!');
+		} else {
+			printIntLn(i);
+		}
+	}
 }
 ```
 
-Other features include nestable comments, and passing and returning functions
-as values. `true` and `false` keywords are available, but these are synonyms
-for `1` and `0` as there is no type system.
+Please note that Funcy does not yet have a type system. All values are handled
+as integers.
 
 ## Standard Library
 The following functions are available to all Funcy programs:
 
-| Function                      | Description                                                                                                       |
-| :---------------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| `putChr(character)`           | Put and return a character.                                                                                       |
-| `putLn()`                     | Put and return a line break.                                                                                      |
-| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                        |
-| `printIntBase(value, base)`   | Print an integer value with a base between 2 and 36 and return the number of printed characters.                  |
-| `printIntBaseLn(value, base)` | Print an integer value with a base between 2 and 36 and a line break and return the number of printed characters. |
-| `printInt(value)`             | Print an integer value and return the number of printed characters.                                               |
-| `printIntLn(value)`           | Print an integer value with a line break and return the number of printed characters.                             |
-| `print(value)`                | Deprecated. Use `printIntLn` instead.                                                                             |
+| Function                      | Description                                                                                                 |
+| :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| `abs(value)`                  | Return an integer's absolute value.                                                                         |
+| `sign(value)`                 | Return an integer's sign.                                                                                   |
+| `min(x, y)`                   | Return the smallest of two integers.                                                                        |
+| `max(x, y)`                   | Return the largest of two integers.                                                                         |
+| `putChr(character)`           | Put and return a character.                                                                                 |
+| `putLn()`                     | Put and return a line break.                                                                                |
+| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                  |
+| `printIntBase(value, base)`   | Print an integer with a base between 2 and 36 and return the number of printed characters.                  |
+| `printIntBaseLn(value, base)` | Print an integer with a base between 2 and 36 and a line break and return the number of printed characters. |
+| `printInt(value)`             | Print an integer and return the number of printed characters.                                               |
+| `printIntLn(value)`           | Print an integer with a line break and return the number of printed characters.                             |
+| `printChr(value)`             | Print a character and return the number of printed characters.                                              |
+| `printChrLn(value)`           | Print a character with a line break and return the number of printed characters.                            |
+| `printStr(value)`             | Print a string and return the number of printed characters.                                                 |
+| `printStrLn(value)`           | Print a string with a line break and return the number of printed characters.                               |
+| `lenStr(value)`               | Return the length of a string excluding the null terminator.                                                |
+| `cmpStr(value)`               | Compare two strings as greater, lesser, or equal.                                                           |
+| `eqStr(value)`                | Return whether two strings are equal.                                                                       |
+| `print(value)`                | Deprecated. Use `printIntLn` instead.                                                                       |
+
+## About Strings
+Strings in Funcy are much like strings in C as in they don't really exist. A
+string is just a pointer to its first character. Working with strings may give
+you unexpected results. Two strings with the same content may not have the same
+address, and thus may not be equal. Due to the lack of typing, adding two
+strings will give you the sum of their addresses, and not a concatenated
+string. The lack of writable memory in the FVM outside of the stack means that
+string manipulation features are not yet feasible.
 
 # Grammar
 The EBNF (Extended Backus-Naur Form) grammar for Funcy's current implementation
@@ -116,9 +134,9 @@ expr_equality    = expr_comparison, { ( "!=" | "==" ), expr_comparison } ;
 expr_comparison  = expr_sum, { ( "<" | "<=" | ">" | ">=" ), expr_sum } ;
 expr_sum         = expr_term, { ( "+" | "-" ), expr_term } ;
 expr_term        = expr_prefix, { ( "%" | "*" | "/" ), expr_prefix } ;
-expr_prefix      = ( "!" | "+" | "-" ), expr_prefix | expr_call ;
+expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
-expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | IDENTIFIER | "false" | "true" ;
+expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 
 (* Secret expression type limited to the standard library. *)
 expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;
