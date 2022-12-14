@@ -71,7 +71,20 @@ class ChrExprNode(ExprNode):
     def get_info(self) -> str:
         """ Get information about the character expression. """
         
-        return self.value
+        result: str = "'"
+        
+        if self.value == "\t":
+            result += "\\t"
+        elif self.value == "\n":
+            result += "\\n"
+        elif self.value == "\r":
+            result += "\\r"
+        elif self.value == "'":
+            result += "\\'"
+        else:
+            result += self.value
+        
+        return result + "'"
 
 
 class StrExprNode(ExprNode):
@@ -90,7 +103,21 @@ class StrExprNode(ExprNode):
     def get_info(self) -> str:
         """ Get information about the string expression. """
         
-        return self.value
+        result: str = '"'
+        
+        for character in self.value:
+            if character == "\t":
+                result += "\\t"
+            elif character == "\n":
+                result += "\\n"
+            elif character == "\r":
+                result += "\\r"
+            elif character == '"':
+                result += '\\"'
+            else:
+                result += character
+        
+        return result + '"'
 
 
 class IdentifierExprNode(ExprNode):
