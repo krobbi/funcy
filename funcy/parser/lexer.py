@@ -1,4 +1,3 @@
-from msilib.schema import AdvtExecuteSequence
 from .position import Span
 from .token import Token, TokenType
 
