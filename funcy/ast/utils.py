@@ -4,6 +4,8 @@ def get_node_children(node: Node) -> list[Node]:
     """ Get a node's children as a list. """
     
     if isinstance(node, RootNode):
+        return node.modules
+    elif isinstance(node, ModuleNode):
         return node.stmts
     elif isinstance(node, FuncStmtNode):
         result: list[Node] = [node.name]

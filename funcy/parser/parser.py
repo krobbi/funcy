@@ -50,6 +50,9 @@ class Parser:
         
         root: RootNode = RootNode()
         
+        std_module: ModuleNode = ModuleNode()
+        self.begin()
+        
         self.is_parsing_std = True
         
         while self.next.type != TokenType.EOF:
@@ -60,14 +63,17 @@ class Parser:
                         f"Bug: Bug in standard library at '{stmt}'!", stmt)
                 continue
             
-            root.stmts.append(stmt)
+            std_module.stmts.append(stmt)
         
+        root.modules.append(self.end(std_module))
         self.is_parsing_std = False
         
         self.lexer.begin(source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
         self.span_stack = []
+        
+        main_module: ModuleNode = ModuleNode()
         self.begin()
         
         while self.next.type != TokenType.EOF:
@@ -77,9 +83,10 @@ class Parser:
                 self.log_error(stmt)
                 continue
             
-            root.stmts.append(stmt)
+            main_module.stmts.append(stmt)
         
-        return self.end(root)
+        root.modules.append(self.end(main_module))
+        return root
     
     
     def log_error(

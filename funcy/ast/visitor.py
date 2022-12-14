@@ -62,6 +62,8 @@ class Visitor:
         
         if isinstance(node, RootNode):
             self.visit_root(node, code)
+        elif isinstance(node, ModuleNode):
+            self.visit_module(node, code)
         elif isinstance(node, FuncStmtNode):
             self.visit_func_stmt(node, code)
         elif isinstance(node, BlockStmtNode):
@@ -120,8 +122,8 @@ class Visitor:
         self.scope_stack.push()
         main_label: str = code.get_label()
         
-        for stmt in node.stmts:
-            self.visit(stmt, code)
+        for module in node.modules:
+            self.visit(module, code)
         
         code.set_label(main_label)
         main_symbol: Symbol = self.scope_stack.get("main")
@@ -137,6 +139,13 @@ class Visitor:
         
         code.make_halt()
         self.scope_stack.pop()
+    
+    
+    def visit_module(self, node: ModuleNode, code: Code) -> None:
+        """ Visit a module node. """
+        
+        for stmt in node.stmts:
+            self.visit(stmt, code)
     
     
     def visit_func_stmt(self, node: FuncStmtNode, code: Code) -> None:

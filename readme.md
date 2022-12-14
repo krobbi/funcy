@@ -101,7 +101,7 @@ is as follows:
 ```EBNF
 (* Funcy Reference Grammar *)
 
-root = { stmt_func }, EOF ;
+module = { stmt_func }, EOF ;
 
 stmt = (
    stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |

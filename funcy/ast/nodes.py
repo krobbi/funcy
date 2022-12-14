@@ -613,14 +613,27 @@ class ErrorNode(Node):
         self.message = message
 
 
+class ModuleNode(Node):
+    """ A module node of an abstract syntax tree. """
+    
+    stmts: list[FuncStmtNode]
+    """ The module's statements. """
+    
+    def __init__(self) -> None:
+        """ Initialize the module's statements. """
+        
+        super().__init__()
+        self.stmts = []
+
+
 class RootNode(Node):
     """ A root node of an abstract syntax tree. """
     
-    stmts: list[FuncStmtNode]
-    """ The root's statements. """
+    modules: list[ModuleNode]
+    """ The root's modules. """
     
     def __init__(self) -> None:
         """ Initialize the root's statements. """
         
         super().__init__()
-        self.stmts = []
+        self.modules = []
