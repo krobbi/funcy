@@ -43,50 +43,37 @@ class Parser:
     def parse(self, source: str) -> RootNode:
         """ Parse an abstract syntax tree from source code. """
         
-        self.lexer.begin(FUNCY_STANDARD_LIBRARY)
-        self.next = Token(TokenType.EOF, Span())
-        self.advance()
-        self.span_stack = []
-        
         root: RootNode = RootNode()
+        root.modules.append(self.parse_module("std", FUNCY_STANDARD_LIBRARY))
+        root.modules.append(self.parse_module("main", source))
+        return root
+    
+    
+    def parse_module(self, name: str, source: str) -> ModuleNode:
+        """ Parse a module from a name and source code. """
         
-        std_module: ModuleNode = ModuleNode()
-        self.begin()
-        
-        self.is_parsing_std = True
-        
-        while self.next.type != TokenType.EOF:
-            stmt: Node = self.parse_stmt_func()
-            
-            if not isinstance(stmt, FuncStmtNode):
-                self.log_error(
-                        f"Bug: Bug in standard library at '{stmt}'!", stmt)
-                continue
-            
-            std_module.stmts.append(stmt)
-        
-        root.modules.append(self.end(std_module))
-        self.is_parsing_std = False
-        
+        self.is_parsing_std = name == "std"
         self.lexer.begin(source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
         self.span_stack = []
-        
-        main_module: ModuleNode = ModuleNode()
         self.begin()
+        module: ModuleNode = ModuleNode()
         
         while self.next.type != TokenType.EOF:
             stmt: Node = self.parse_stmt_func()
             
             if not isinstance(stmt, FuncStmtNode):
+                if self.is_parsing_std:
+                    self.log_error(
+                            f"Bug: Bug in standard library at '{stmt}'!", stmt)
+                
                 self.log_error(stmt)
                 continue
             
-            main_module.stmts.append(stmt)
+            module.stmts.append(stmt)
         
-        root.modules.append(self.end(main_module))
-        return root
+        return self.end(module)
     
     
     def log_error(
