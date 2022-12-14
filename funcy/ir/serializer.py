@@ -1,7 +1,7 @@
 import struct
 
 from ..fvm import FVM, Opcode
-from .ircode import Code, Op, OpType
+from .code import Code, Op, OpType
 
 class Serializer:
     """ Serializes FVM bytecode from IR code. """

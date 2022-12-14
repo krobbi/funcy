@@ -1,5 +1,5 @@
 from ..io.log import Log
-from ..ir.ircode import Code
+from ..ir.code import Code
 from ..parser.position import Span
 from .nodes import *
 from .scope import ScopeStack, ScopedLabel, Symbol, SymbolAccess

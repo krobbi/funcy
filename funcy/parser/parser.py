@@ -2,9 +2,10 @@ from collections.abc import Callable
 
 from ..ast.nodes import *
 from ..io.log import Log
-from .lexer import Lexer, Token, TokenType
+from .lexer import Lexer
 from .position import Position, Span
 from .std import FUNCY_STANDARD_LIBRARY
+from .token import Token, TokenType
 
 class Parser:
     """ Parses an abstract syntax tree from source code. """
