@@ -1,4 +1,4 @@
-from .code import Code
+from .ircode import Code
 
 def print_code(code: Code) -> None:
     """ Print an IR code program. """

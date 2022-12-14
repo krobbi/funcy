@@ -2,7 +2,7 @@ from .ast.visitor import Visitor
 from .fvm import FVM
 from .io.input_wrapper import InputWrapper
 from .io.log import Log
-from .ir.code import Code
+from .ir.ircode import Code
 from .ir.serializer import Serializer
 from .parser.parser import Parser
 

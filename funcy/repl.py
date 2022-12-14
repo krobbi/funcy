@@ -5,8 +5,8 @@ from .io.input_wrapper import InputWrapper
 from .io.log import Log
 from .ir.serializer import Serializer
 from .ir.utils import print_code
+from .parser.lexer import Token, TokenType
 from .parser.parser import Parser
-from .parser.token import Token, TokenType
 
 def repl() -> None:
     """ Run the Funcy REPL (Read-Evaluate-Print Loop). """
