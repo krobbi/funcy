@@ -41,6 +41,9 @@ class TokenType(Enum):
     KEYWORD_IF = auto()
     """ `if`. """
     
+    KEYWORD_INCLUDE = auto()
+    """ `include`. """
+    
     KEYWORD_LET = auto()
     """ `let`. """
     

@@ -613,8 +613,30 @@ class ErrorNode(Node):
         self.message = message
 
 
+class InclNode(Node):
+    """ An inclusion node of an abstract syntax tree. """
+    
+    name: str
+    """ The inclusion's name. """
+    
+    def __init__(self, name: str) -> None:
+        """ Initialize the inclusion's name. """
+        
+        super().__init__()
+        self.name = name
+    
+    
+    def get_info(self) -> str:
+        """ Get information about the inclusion. """
+        
+        return self.name
+
+
 class ModuleNode(Node):
     """ A module node of an abstract syntax tree. """
+    
+    incls: list[InclNode]
+    """ The module's inclusions. """
     
     stmts: list[FuncStmtNode]
     """ The module's statements. """
@@ -623,6 +645,7 @@ class ModuleNode(Node):
         """ Initialize the module's statements. """
         
         super().__init__()
+        self.incls = []
         self.stmts = []
 
 

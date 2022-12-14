@@ -28,6 +28,8 @@ Below is a FizzBuzz program written in Funcy:
 * The classic FizzBuzz program.
 */
 
+include "//std.fy"; // Include standard library. (Not yet implemented.)
+
 // Play FizzBuzz for (1 ... 100).
 func main(){
 	// Return whether a number has a factor and print a message if it does.
@@ -62,7 +64,11 @@ Please note that Funcy does not yet have a type system. All values are handled
 as integers.
 
 ## Standard Library
-The following functions are available to all Funcy programs:
+The following functions are available to all Funcy programs. In a future
+version the standard library will need to be explicitly included.
+
+You can make existing Funcy programs forward compatible by adding
+`include "//std.fy";` before the first function of the program.
 
 | Function                      | Description                                                                                                 |
 | :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
@@ -101,7 +107,10 @@ is as follows:
 ```EBNF
 (* Funcy Reference Grammar *)
 
-module = { stmt_func }, EOF ;
+module = { incl }, { stmt_func }, EOF ;
+
+(* Module inclusion, currently unused and reserved. *)
+incl = "include", LITERAL_STR, ";" ;
 
 stmt = (
    stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |

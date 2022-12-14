@@ -1,6 +1,9 @@
 (* Funcy Reference Grammar *)
 
-module = { stmt_func }, EOF ;
+module = { incl }, { stmt_func }, EOF ;
+
+(* Module inclusion, currently unused and reserved. *)
+incl = "include", LITERAL_STR, ";" ;
 
 stmt = (
    stmt_func | stmt_block | stmt_if | stmt_while | stmt_nop |  stmt_let |

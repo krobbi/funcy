@@ -3,6 +3,8 @@
 * The classic FizzBuzz program.
 */
 
+include "//std.fy"; // Include standard library. (Not yet implemented.)
+
 // Play FizzBuzz for (1 ... 100).
 func main(){
 	// Return whether a number has a factor and print a message if it does.

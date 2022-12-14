@@ -31,6 +31,7 @@ class Lexer:
         "false": TokenType.KEYWORD_FALSE,
         "func": TokenType.KEYWORD_FUNC,
         "if": TokenType.KEYWORD_IF,
+        "include": TokenType.KEYWORD_INCLUDE,
         "let": TokenType.KEYWORD_LET,
         "mut": TokenType.KEYWORD_MUT,
         "return": TokenType.KEYWORD_RETURN,

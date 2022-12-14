@@ -6,7 +6,10 @@ def get_node_children(node: Node) -> list[Node]:
     if isinstance(node, RootNode):
         return node.modules
     elif isinstance(node, ModuleNode):
-        return node.stmts
+        result: list[Node] = []
+        result.extend(node.incls)
+        result.extend(node.stmts)
+        return result
     elif isinstance(node, FuncStmtNode):
         result: list[Node] = [node.name]
         result.extend(node.decls)

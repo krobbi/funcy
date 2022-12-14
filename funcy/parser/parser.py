@@ -61,6 +61,21 @@ class Parser:
         module: ModuleNode = ModuleNode()
         
         while self.next.type != TokenType.EOF:
+            if self.next.type == TokenType.KEYWORD_INCLUDE:
+                if module.stmts:
+                    self.log_error(
+                            "Cannot use 'include' "
+                            "after the first function of a module!", self.next)
+                
+                incl: Node = self.parse_incl()
+                
+                if isinstance(incl, InclNode):
+                    module.incls.append(incl)
+                else:
+                    self.log_error(incl)
+                
+                continue
+            
             stmt: Node = self.parse_stmt_func()
             
             if not isinstance(stmt, FuncStmtNode):
@@ -74,6 +89,31 @@ class Parser:
             module.stmts.append(stmt)
         
         return self.end(module)
+    
+    
+    def parse_incl(self):
+        """ Parse an inclusion. """
+        
+        self.begin()
+        
+        if not self.accept(TokenType.KEYWORD_INCLUDE):
+            node: ErrorNode = ErrorNode("Expected 'include'!")
+            node.span.replicate(self.next.span)
+            return self.abort(node)
+        
+        if not self.accept(TokenType.LITERAL_STR):
+            node: ErrorNode = ErrorNode(
+                    "Expected a string literal for an inclusion!")
+            node.span.replicate(self.next.span)
+            return self.abort(node)
+        
+        node: InclNode = InclNode(self.current.str_value)
+        
+        if not self.accept(TokenType.SEMICOLON):
+            self.log_error(
+                    "Missing closing ';' in inclusion!", self.current.span.end)
+        
+        return self.end(node)
     
     
     def log_error(
