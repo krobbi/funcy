@@ -141,17 +141,23 @@ class Resolver:
         return self.modules[name].state
     
     
-    def get_module_children(self, name: str) -> list[str]:
-        """ Get a module's child module names from its name. """
+    def get_module_ast(self, name) -> ModuleNode:
+        """ Get a module's AST from its name. """
         
         # Return early if the module does not exist.
         if not name in self.modules:
-            return []
+            return ModuleNode()
         
-        module: ResolverModule = self.modules[name]
+        return self.modules[name].ast
+    
+    
+    def get_module_children(self, name: str) -> list[str]:
+        """ Get a module's child module names from its name. """
+        
+        ast: ModuleNode = self.get_module_ast(name)
         children: list[str] = []
         
-        for include_node in module.ast.incls:
+        for include_node in ast.incls:
             child: str = self.get_module_name(name, include_node.name)
             
             if not child:
@@ -165,6 +171,10 @@ class Resolver:
                 self.log.log(
                         f"Module '{name}' already includes "
                         f"module '{child}'!", include_node.span)
+            elif self.get_module_state(child) == ResolverModuleState.VISITED:
+                self.log.log(
+                        f"Module '{name}' including module '{child}' "
+                        "creates a circular dependency!", include_node.span)
             else:
                 children.append(child)
         
@@ -243,6 +253,7 @@ class Resolver:
         """ Resolve a Funcy program's AST from its source code. """
         
         root_node: RootNode = RootNode()
+        self.root_dir = str(Path().resolve())
         self.modules = {}
         self.declare_module_source("<source>", source)
         self.visit_module("<source>", root_node)
@@ -254,13 +265,14 @@ class Resolver:
         
         self.declare_module(name)
         
-        if self.get_module_state(name) == ResolverModuleState.PARSED:
-            self.set_module_state(name, ResolverModuleState.VISITED)
-            
-            for child in self.get_module_children(name):
-                self.visit_module(child, root_node)
-            
-            root_node.modules.append(self.modules[name].ast)
-            self.set_module_state(name, ResolverModuleState.RESOLVED)
-        elif self.get_module_state(name) == ResolverModuleState.VISITED:
-            self.log.log(f"Module '{name}' is cyclically included!")
+        # Return early if the module has already been visited.
+        if self.get_module_state(name) != ResolverModuleState.PARSED:
+            return
+        
+        self.set_module_state(name, ResolverModuleState.VISITED)
+        
+        for child in self.get_module_children(name):
+            self.visit_module(child, root_node)
+        
+        root_node.modules.append(self.get_module_ast(name))
+        self.set_module_state(name, ResolverModuleState.RESOLVED)
