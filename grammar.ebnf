@@ -2,7 +2,6 @@
 
 module = { incl }, { stmt_func }, EOF ;
 
-(* Module inclusion, currently unused and reserved. *)
 incl = "include", LITERAL_STR, ";" ;
 
 stmt = (
@@ -40,5 +39,5 @@ expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 
-(* Secret expression type limited to the standard library. *)
+(* Secret expression type limited to the intrinsics library. *)
 expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;

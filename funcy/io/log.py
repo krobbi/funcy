@@ -73,5 +73,9 @@ class Log:
     def print_records(self) -> None:
         """ Print the log's records. """
         
+        print("--------- Error Log ---------")
+        
         for record in self.records:
             print(record)
+        
+        print("-----------------------------")

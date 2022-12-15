@@ -6,6 +6,8 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
    1. [Standard Library](#standard-library)
+		1. [`//intrinsics.fy`](#intrinsicsfy)
+		2. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
@@ -28,7 +30,7 @@ Below is a FizzBuzz program written in Funcy:
 * The classic FizzBuzz program.
 */
 
-include "//std.fy"; // Include standard library. (Not yet implemented.)
+include "//std.fy"; // Include standard library for printing.
 
 // Play FizzBuzz for (1 ... 100).
 func main(){
@@ -64,11 +66,26 @@ Please note that Funcy does not yet have a type system. All values are handled
 as integers.
 
 ## Standard Library
-The following functions are available to all Funcy programs. In a future
-version the standard library will need to be explicitly included.
+The following functions are available to all Funcy programs. To include a
+library, use a path starting with a double slash, e.g. `include "//std.fy";`.
 
-You can make existing Funcy programs forward compatible by adding
-`include "//std.fy";` before the first function of the program.
+### `//intrinsics.fy`
+The intrinsics library is a library of wrapper functions for intrinsic
+expressions that are otherwise inaccessible.
+
+Includes:
+* __None__
+
+| Function            | Description                                           |
+| :------------------ | :---------------------------------------------------- |
+| `putChr(character)` | Put a character to the standard output and return it. |
+
+### `//std.fy`
+The standard library is an all-in-one library of simple, commonly used
+functions.
+
+Includes:
+* `//intrinsics.fy`
 
 | Function                      | Description                                                                                                 |
 | :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
@@ -76,7 +93,6 @@ You can make existing Funcy programs forward compatible by adding
 | `sign(value)`                 | Return an integer's sign.                                                                                   |
 | `min(x, y)`                   | Return the smallest of two integers.                                                                        |
 | `max(x, y)`                   | Return the largest of two integers.                                                                         |
-| `putChr(character)`           | Put and return a character.                                                                                 |
 | `putLn()`                     | Put and return a line break.                                                                                |
 | `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                  |
 | `printIntBase(value, base)`   | Print an integer with a base between 2 and 36 and return the number of printed characters.                  |
@@ -88,9 +104,8 @@ You can make existing Funcy programs forward compatible by adding
 | `printStr(value)`             | Print a string and return the number of printed characters.                                                 |
 | `printStrLn(value)`           | Print a string with a line break and return the number of printed characters.                               |
 | `lenStr(string)`              | Return the length of a string excluding the null terminator.                                                |
-| `cmpStr(x, y)`                | Compare two strings as greater, lesser, or equal.                                                           |
+| `cmpStr(x, y)`                | Compare two strings as greater (`1`), lesser (`-1`), or equal (`0`) when sorted lexically.                  |
 | `eqStr(x, y)`                 | Return whether two strings are equal.                                                                       |
-| `print(value)`                | Deprecated. Use `printIntLn` instead.                                                                       |
 
 ## About Strings
 Strings in Funcy are much like strings in C as in they don't really exist. A
@@ -109,7 +124,6 @@ is as follows:
 
 module = { incl }, { stmt_func }, EOF ;
 
-(* Module inclusion, currently unused and reserved. *)
 incl = "include", LITERAL_STR, ";" ;
 
 stmt = (
@@ -147,7 +161,7 @@ expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 
-(* Secret expression type limited to the standard library. *)
+(* Secret expression type limited to the intrinsics library. *)
 expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;
 ```
 

@@ -5,7 +5,7 @@ from .io.input_wrapper import InputWrapper
 from .io.log import Log
 from .ir.serializer import Serializer
 from .ir.utils import print_code
-from .parser.parser import Parser
+from .parser.resolver import Resolver
 from .parser.token import Token, TokenType
 
 def repl() -> None:
@@ -20,13 +20,15 @@ def repl() -> None:
     mode: str = "I"
     input_wrapper: InputWrapper = InputWrapper()
     log: Log = Log()
-    parser: Parser = Parser(log)
+    resolver: Resolver = Resolver(log)
     visitor: Visitor = Visitor(log)
     serializer: Serializer = Serializer()
     fvm: FVM = FVM()
     
     while True:
         source: str = input(f"Funcy:{mode}> ")
+        is_path: bool = False
+        path: str = ""
         
         if source == "exit":
             break
@@ -50,7 +52,9 @@ def repl() -> None:
             
             continue
         elif source.startswith("read "):
-            input_wrapper.from_path(source[5:])
+            is_path = True
+            path = source[5:]
+            input_wrapper.from_path(path)
         else:
             input_wrapper.from_source(source)
         
@@ -65,8 +69,8 @@ def repl() -> None:
                 print("Lexer mode expects source code!\n")
                 continue
             
-            parser.lexer.begin(input_wrapper.source)
-            token: Token = parser.lexer.get_token()
+            resolver.parser.lexer.begin(input_wrapper.source)
+            token: Token = resolver.parser.lexer.get_token()
             tokens: list[Token] = []
             
             if token.type == TokenType.ERROR:
@@ -75,7 +79,7 @@ def repl() -> None:
                 tokens.append(token)
             
             while token.type != TokenType.EOF:
-                token = parser.lexer.get_token()
+                token = resolver.parser.lexer.get_token()
                 
                 if token.type == TokenType.ERROR:
                     log.log(token.str_value, token.span)
@@ -89,21 +93,32 @@ def repl() -> None:
                 print("Parser mode expects source code!\n")
                 continue
             
-            print_ast(parser.parse(input_wrapper.source))
+            if is_path:
+                print_ast(resolver.resolve_path(path))
+            else:
+                print_ast(resolver.resolve_source(input_wrapper.source))
         elif mode == "G":
             if input_wrapper.is_binary:
                 print("Generator mode expects source code!\n")
                 continue
             
-            print_code(visitor.generate(parser.parse(input_wrapper.source)))
+            if is_path:
+                print_code(visitor.generate(resolver.resolve_path(path)))
+            else:
+                print_code(visitor.generate(resolver.resolve_source(
+                        input_wrapper.source)))
         elif mode == "I":
             if not input_wrapper.is_binary:
-                input_wrapper.bytecode = serializer.serialize(visitor.generate(
-                        parser.parse(input_wrapper.source)), False)
+                if is_path:
+                    input_wrapper.bytecode = serializer.serialize(
+                            visitor.generate(resolver.resolve_path(path)),
+                            False)
+                else:
+                    input_wrapper.bytecode = serializer.serialize(
+                            visitor.generate(resolver.resolve_source(
+                                    input_wrapper.source)), False)
             
-            if log.has_records():
-                print("Refused to run FVM! Fix errors first:")
-            else:
+            if not log.has_records():
                 if not fvm.load(input_wrapper.bytecode):
                     print("Failed to load FVM bytecode!\n")
                     continue
@@ -117,9 +132,7 @@ def repl() -> None:
                 
                 print(f"FVM finished with exit code '{fvm.ec}'!")
         
-        print("")
-        
         if log.has_records():
-            print("--------- Error Log ---------")
             log.print_records()
-            print("-----------------------------\n")
+        
+        print("")

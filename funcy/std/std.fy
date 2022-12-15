@@ -1,7 +1,9 @@
-FUNCY_STANDARD_LIBRARY: str = """/*
+/*
 * Funcy Standard Library
-* A library of functions intrinsic to all Funcy programs.
+* A library of standard functions for Funcy programs.
 */
+
+include "//intrinsics.fy";
 
 // Return an integer's absolute value.
 func abs(value){
@@ -35,14 +37,9 @@ func max(x, y){
     }
 }
 
-// Put and return a character.
-func putChr(character){
-    return $(putChr, character);
-}
-
 // Put and return a line break.
 func putLn(){
-    return $(putChr, '\\n');
+    return putChr('\n');
 }
 
 // Get a digit's character. E.g. 5 -> '5', 10 -> 'a'.
@@ -67,7 +64,7 @@ func printIntBase(mut value, base){
     
     if(value < 0){
         value = -value;
-        $(putChr, '-');
+        putChr('-');
         chrCount = 1;
     }
     
@@ -81,7 +78,7 @@ func printIntBase(mut value, base){
         magnitude /= base;
         let digit = value / magnitude;
         value -= digit * magnitude;
-        $(putChr, getDigitChr(digit));
+        putChr(getDigitChr(digit));
         chrCount += 1;
     }
     
@@ -94,7 +91,7 @@ func printIntBase(mut value, base){
 */
 func printIntBaseLn(value, base){
     let chrCount = printIntBase(value, base) + 1;
-    $(putChr, '\\n');
+    putLn();
     return chrCount;
 }
 
@@ -109,14 +106,14 @@ func printInt(value){
 */
 func printIntLn(value){
     let chrCount = printIntBase(value, 10) + 1;
-    $(putChr, '\\n');
+    putLn();
     return chrCount;
 }
 
 // Print a character and return the number of printed characters.
 func printChr(value){
     if(value){
-        $(putChr, value);
+        putChr(value);
         return 1;
     }
     
@@ -129,12 +126,12 @@ func printChr(value){
 */
 func printChrLn(value){
     if(value){
-        $(putChr, value);
-        $(putChr, '\\n');
+        putChr(value);
+        putLn();
         return 2;
     }
     
-    $(putChr, '\\n');
+    putLn();
     return 1;
 }
 
@@ -144,7 +141,7 @@ func printStr(value){
     let mut character = *position;
     
     while(character){
-        $(putChr, character);
+        putChr(character);
         character = *(position += 1);
     }
     
@@ -157,7 +154,7 @@ func printStr(value){
 */
 func printStrLn(value){
     let chrCount = printStr(value) + 1;
-    $(putChr, '\\n');
+    putLn();
     return chrCount;
 }
 
@@ -173,7 +170,10 @@ func lenStr(string){
     return position - string;
 }
 
-// Compare two strings as greater, lesser or equal.
+/*
+* Compare two strings as greater (> 0), lesser (< 0), or equal (== 0) when
+* sorted lexically.
+*/
 func cmpStr(mut x, mut y){
     let mut chrX = *x;
     let mut chrY = *y;
@@ -190,11 +190,3 @@ func cmpStr(mut x, mut y){
 func eqStr(x, y){
     return !cmpStr(x, y);
 }
-
-// DEPRECATED: Use 'printIntLn' instead!
-func print(value){
-    printStrLn("Function 'print' is deprecated! Use 'printIntLn' instead.");
-    return printIntLn(value);
-}
-"""
-""" The Funcy Standard Library's source code. """

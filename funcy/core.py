@@ -4,7 +4,7 @@ from .io.input_wrapper import InputWrapper
 from .io.log import Log
 from .ir.code import Code
 from .ir.serializer import Serializer
-from .parser.parser import Parser
+from .parser.resolver import Resolver
 
 def get_error_bytecode() -> bytes:
     """ Builds error FVM bytecode. """
@@ -34,7 +34,7 @@ def compile(source: str) -> bytes:
     """ Compile Funcy source code to FVM bytecode. """
     
     log: Log = Log()
-    code: Code = Visitor(log).generate(Parser(log).parse(source))
+    code: Code = Visitor(log).generate(Resolver(log).resolve_source(source))
     
     if log.has_records():
         log.print_records()
@@ -46,17 +46,14 @@ def compile(source: str) -> bytes:
 def compile_path(path: str) -> bytes:
     """ Compile Funcy source code to FVM bytecode from a path. """
     
-    input_wrapper: InputWrapper = InputWrapper()
-    input_wrapper.from_path(path)
+    log: Log = Log()
+    code: Code = Visitor(log).generate(Resolver(log).resolve_path(path))
     
-    if not input_wrapper.is_ok:
-        print(f"Failed to build from '{path}'!")
+    if log.has_records():
+        log.print_records()
         return get_error_bytecode()
     
-    if input_wrapper.is_binary:
-        return input_wrapper.bytecode
-    
-    return compile(input_wrapper.source)
+    return Serializer().serialize(code, False)
 
 
 def exec(source: str | bytes) -> int:
@@ -101,4 +98,4 @@ def exec_path(path: str) -> int:
     if input_wrapper.is_binary:
         return exec(input_wrapper.bytecode)
     else:
-        return exec(input_wrapper.source)
+        return exec(compile_path(path))

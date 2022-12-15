@@ -4,14 +4,13 @@ from ..ast.nodes import *
 from ..io.log import Log
 from .lexer import Lexer
 from .position import Position, Span
-from .std import FUNCY_STANDARD_LIBRARY
 from .token import Token, TokenType
 
 class Parser:
     """ Parses an abstract syntax tree from source code. """
     
-    is_parsing_std: bool = False
-    """ Whether the parser is parsing the standard library. """
+    is_parsing_intrinsics: bool = False
+    """ Whether the parser is parsing the intrinsics. """
     
     log: Log
     """ The parser's log. """
@@ -40,19 +39,10 @@ class Parser:
         self.span_stack = []
     
     
-    def parse(self, source: str) -> RootNode:
-        """ Parse an abstract syntax tree from source code. """
-        
-        root: RootNode = RootNode()
-        root.modules.append(self.parse_module("std", FUNCY_STANDARD_LIBRARY))
-        root.modules.append(self.parse_module("main", source))
-        return root
-    
-    
     def parse_module(self, name: str, source: str) -> ModuleNode:
         """ Parse a module from a name and source code. """
         
-        self.is_parsing_std = name == "std"
+        self.is_parsing_intrinsics = name == "//intrinsics.fy"
         self.lexer.begin(source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
@@ -79,10 +69,6 @@ class Parser:
             stmt: Node = self.parse_stmt_func()
             
             if not isinstance(stmt, FuncStmtNode):
-                if self.is_parsing_std:
-                    self.log_error(
-                            f"Bug: Bug in standard library at '{stmt}'!", stmt)
-                
                 self.log_error(stmt)
                 continue
             
@@ -711,7 +697,7 @@ class Parser:
         if self.next.type == TokenType.PARENTHESIS_OPEN:
             return self.abort(self.parse_expr_paren())
         elif(
-                self.is_parsing_std
+                self.is_parsing_intrinsics
                 and self.next.type == TokenType.DOLLAR_PARENTHESIS_OPEN):
             return self.abort(self.parse_expr_intrinsic())
         elif self.accept(TokenType.LITERAL_INT):
