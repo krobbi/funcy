@@ -162,19 +162,18 @@ class Resolver:
             
             if not child:
                 self.log.log(
-                        f"Module '{name}' has an illegal include path "
-                        f"'{include_node.name}'!", include_node.span)
+                        f"Illegal include path '{include_node.name}'!",
+                        include_node.span)
             elif child == name:
-                self.log.log(
-                        f"Module '{name}' includes itself!", include_node.span)
+                self.log.log("Module includes itself!", include_node.span)
             elif child in children:
                 self.log.log(
-                        f"Module '{name}' already includes "
-                        f"module '{child}'!", include_node.span)
+                        f"Module '{child}' is already included!",
+                        include_node.span)
             elif self.get_module_state(child) == ResolverModuleState.VISITED:
                 self.log.log(
-                        f"Module '{name}' including module '{child}' "
-                        "creates a circular dependency!", include_node.span)
+                        f"Including module '{child}' creates "
+                        "a circular dependency!", include_node.span)
             else:
                 children.append(child)
         

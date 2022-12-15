@@ -43,7 +43,7 @@ class Parser:
         """ Parse a module from a name and source code. """
         
         self.is_parsing_intrinsics = name == "//intrinsics.fy"
-        self.lexer.begin(source)
+        self.lexer.begin(name, source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
         self.span_stack = []

@@ -292,11 +292,11 @@ class Lexer:
         return self.make_error(f"Illegal character '{self.lexeme}'!")
     
     
-    def begin(self, source: str) -> None:
-        """ Begin the lexer from source code. """
+    def begin(self, name: str, source: str) -> None:
+        """ Begin the lexer from a module name and source code. """
         
         self.source = source
-        self.span.reset()
+        self.span.reset(name)
         self.begin_token()
         self.character = self.peek(0)
     

@@ -69,7 +69,7 @@ def repl() -> None:
                 print("Lexer mode expects source code!\n")
                 continue
             
-            resolver.parser.lexer.begin(input_wrapper.source)
+            resolver.parser.lexer.begin("", input_wrapper.source)
             token: Token = resolver.parser.lexer.get_token()
             tokens: list[Token] = []
             

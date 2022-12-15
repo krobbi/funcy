@@ -3,7 +3,7 @@ from ..parser.position import Span
 class LogRecord:
     """ A record of a log. """
     
-    message: str
+    message: str = ""
     """ The record's message. """
     
     span: Span
@@ -12,8 +12,17 @@ class LogRecord:
     def __init__(self, message: str, span: Span) -> None:
         """ Initialize the record's message and span. """
         
-        self.message = message
-        self.span = span
+        for character in message:
+            if character == "\t":
+                self.message += "\\t"
+            elif character == "\n":
+                self.message += "\\n"
+            elif character == "\r":
+                self.message += "\\r"
+            else:
+                self.message += character
+        
+        self.span = span.copy()
     
     
     def __str__(self) -> str:
@@ -23,6 +32,20 @@ class LogRecord:
             return self.message
         
         return f"{self.span}: {self.message}"
+    
+    
+    def comes_after(self, other) -> bool:
+        """ Return whether the record comes after another record. """
+        
+        if self.span.start.name > other.span.start.name:
+            return True
+        elif self.span.start.name < other.span.start.name:
+            return False
+        elif self.span.start.offset == other.span.start.offset:
+            # Put most specific errors last.
+            return self.span.end.offset <= other.span.end.offset
+        else:
+            return self.span.start.offset >= other.span.start.offset
 
 
 class Log:
@@ -62,7 +85,7 @@ class Log:
         while index > 0:
             previous: LogRecord = self.records[index - 1]
             
-            if record.span.start.offset >= previous.span.start.offset:
+            if record.comes_after(previous):
                 break
             
             index -= 1

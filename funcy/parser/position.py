@@ -1,6 +1,9 @@
 class Position:
     """ A position in text. """
     
+    name: str = ""
+    """ The position's module name. """
+    
     offset: int
     """ The position's offset in characters into the text. """
     
@@ -18,6 +21,9 @@ class Position:
     
     def __str__(self) -> str:
         """ Return the position's string. """
+        
+        if self.name:
+            return f"{self.name} {self.line}:{self.column}"
         
         return f"{self.line}:{self.column}"
     
@@ -49,6 +55,7 @@ class Position:
     def replicate(self, other) -> None:
         """ Replicate another position by value. """
         
+        self.name = other.name
         self.offset = other.offset
         self.line = other.line
         self.column = other.column
@@ -78,14 +85,17 @@ class Span:
         elif self.start.line == self.end.line:
             return f"{self.start}-{self.end.column}"
         
-        return f"{self.start} - {self.end}"
+        return f"{self.start} - {self.end.line}:{self.end.column}"
     
     
-    def reset(self) -> None:
-        """ Reset the span to the start of the text. """
+    def reset(self, name: str) -> None:
+        """
+        Reset the span to the start of the text with a module name.
+        """
         
         self.start.reset()
-        self.end.reset()
+        self.start.name = name
+        self.end.replicate(self.start)
     
     
     def begin(self) -> None:

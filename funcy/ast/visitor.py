@@ -414,6 +414,14 @@ class Visitor:
             self.log_error(
                     f"Called the integer value '{node.callee.value}' "
                     "as a function!", node.callee)
+        elif isinstance(node.callee, ChrExprNode):
+            self.log_error(
+                    f"Called the character value '{node.callee.value}' "
+                    "as a function!", node.callee)
+        elif isinstance(node.callee, StrExprNode):
+            self.log_error(
+                    f"Called the string value '{node.callee.value}' "
+                    "as a function!", node.callee)
         elif isinstance(node.callee, IdentifierExprNode):
             symbol: Symbol = self.scope_stack.get(node.callee.name)
             
@@ -436,9 +444,7 @@ class Visitor:
         elif isinstance(node.callee, CallExprNode):
             is_callable = True # A call may return a function.
         else:
-            self.log_error(
-                    "Bug: Unimplemented callee expression type "
-                    f"for '{node.callee}'!", node.callee)
+            self.log_error("Cannot call an expression!", node.callee)
         
         for param in node.params:
             self.visit(param, code)

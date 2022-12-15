@@ -23,7 +23,7 @@ class Node:
         if info:
             result += f": {info}"
         
-        return f"{result} @ ({self.span})"
+        return f"{result} ({self.span})"
     
     
     def get_info(self) -> str:
@@ -656,7 +656,7 @@ class RootNode(Node):
     """ The root's modules. """
     
     def __init__(self) -> None:
-        """ Initialize the root's statements. """
+        """ Initialize the root's modules. """
         
         super().__init__()
         self.modules = []
