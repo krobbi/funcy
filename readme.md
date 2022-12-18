@@ -71,7 +71,7 @@ include a standard library, include a path starting with a double slash, e.g.
 `include "//std.fy";`.
 
 ### `//math.fy`
-The math library is a library of mathematical functions.
+A library of functions for mathematical operations.
 
 | Function      | Description                                                                 |
 | :------------ | :-------------------------------------------------------------------------- |
@@ -81,7 +81,7 @@ The math library is a library of mathematical functions.
 | `max(x, y)`   | Return the maximum of two integers.                                         |
 
 ### `//std.fy`
-The standard library is a library that includes all standard libraries.
+A library of all available standard functions.
 
 Includes:
 * `//math.fy`

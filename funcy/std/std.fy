@@ -1,6 +1,6 @@
 /*
 * Funcy Standard Library
-* A library of standard functions for Funcy programs.
+* A library of all available standard functions.
 */
 
 include "//math.fy";

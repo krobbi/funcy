@@ -1,6 +1,6 @@
 /*
 * Funcy Math Library
-* A library of mathematical functions for Funcy programs.
+* A library of functions for mathematical operations.
 */
 
 // Return an integer's absolute value.
