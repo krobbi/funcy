@@ -1,5 +1,6 @@
 from ..io.log import Log
 from ..ir.code import Code
+from ..ir.optimizer import optimize_code
 from ..parser.position import Span
 from .nodes import *
 from .scope import ScopeStack, ScopedLabel, Symbol, SymbolAccess
@@ -30,6 +31,7 @@ class Visitor:
         
         code: Code = Code()
         self.visit(ast, code)
+        optimize_code(code)
         
         return code
     
