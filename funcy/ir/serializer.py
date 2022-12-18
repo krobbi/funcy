@@ -41,12 +41,67 @@ class Serializer:
         return labels
     
     
+    def get_string_table(self, code: Code) -> list[str]:
+        """ Get a string table from IR code. """
+        
+        # Sort strings by length.
+        sorted_strings: list[str] = []
+        
+        for block in code.blocks:
+            for op in block.ops:
+                if op.type == OpType.PUSH_STR:
+                    index: int = len(sorted_strings)
+                    
+                    while index > 0:
+                        previous: str = sorted_strings[index - 1]
+                        
+                        if len(op.str_value) <= len(previous):
+                            break
+                        
+                        index -= 1
+                    
+                    sorted_strings.insert(index, op.str_value)
+        
+        string_table: list[str] = []
+        
+        for string in sorted_strings:
+            has_found_string: bool = False
+            
+            for i in range(len(string_table)):
+                if string_table[i].endswith(string):
+                    has_found_string = True
+                    break
+                elif string.endswith(string_table[i]):
+                    string_table[i] = string
+                    has_found_string = True
+                    break
+            
+            if not has_found_string:
+                string_table.append(string)
+        
+        return string_table
+    
+    
+    def get_string_offset(self, string: str, string_table: list[str]) -> int:
+        """ Get a string's offset into a string table. """
+        
+        offset: int = 0
+        
+        for table_string in string_table:
+            if table_string.endswith(string):
+                return len(table_string) - len(string) + offset
+            
+            offset += len(table_string) + 1
+        
+        return 0
+    
+    
     def serialize(self, code: Code, is_flat: bool) -> bytes:
         """ Serialize FVM bytecode from IR code. """
         
         labels: dict[str, int] = self.get_labels(code)
-        string_pos: int = labels.get(".end", 0)
-        strings: list[str] = []
+        strings: list[str] = self.get_string_table(code)
+        strings_pos: int = labels.get(".end", 0)
         bytecode: bytearray = bytearray()
         
         for block in code.blocks:
@@ -86,9 +141,10 @@ class Serializer:
                     self.append_u8(bytecode, ord(op.str_value) % 0xff)
                 elif op.type == OpType.PUSH_STR:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
-                    self.append_u32(bytecode, string_pos)
-                    strings.append(op.str_value)
-                    string_pos += len(op.str_value) + 1
+                    self.append_u32(
+                            bytecode,
+                            self.get_string_offset(op.str_value, strings)
+                            + strings_pos)
                 elif op.type == OpType.LOAD_LOCAL_OFFSET:
                     self.append_opcode(bytecode, Opcode.PUSH_U32)
                     self.append_u32(
