@@ -66,26 +66,16 @@ Please note that Funcy does not yet have a type system. All values are handled
 as integers.
 
 ## Standard Library
-The following functions are available to all Funcy programs. To include a
-library, use a path starting with a double slash, e.g. `include "//std.fy";`.
-
-### `//intrinsics.fy`
-The intrinsics library is a library of wrapper functions for intrinsic
-expressions that are otherwise inaccessible.
-
-Includes:
-* __None__
-
-| Function            | Description                                           |
-| :------------------ | :---------------------------------------------------- |
-| `putChr(character)` | Put a character to the standard output and return it. |
+The following standard libraries are available to all Funcy programs. To
+include a standard library, include a path starting with a double slash, e.g.
+`include "//std.fy";`.
 
 ### `//std.fy`
 The standard library is an all-in-one library of simple, commonly used
 functions.
 
 Includes:
-* `//intrinsics.fy`
+* __None__
 
 | Function                      | Description                                                                                                 |
 | :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
@@ -93,6 +83,7 @@ Includes:
 | `sign(value)`                 | Return an integer's sign.                                                                                   |
 | `min(x, y)`                   | Return the smallest of two integers.                                                                        |
 | `max(x, y)`                   | Return the largest of two integers.                                                                         |
+| `putChr(character)`           | Put a character to the standard output and return it.                                                       |
 | `putLn()`                     | Put and return a line break.                                                                                |
 | `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                  |
 | `printIntBase(value, base)`   | Print an integer with a base between 2 and 36 and return the number of printed characters.                  |
@@ -161,7 +152,7 @@ expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 
-(* Secret expression type limited to the intrinsics library. *)
+(* Secret expression type limited to the standard library. *)
 expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;
 ```
 

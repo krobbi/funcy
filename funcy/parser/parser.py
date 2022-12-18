@@ -42,7 +42,7 @@ class Parser:
     def parse_module(self, name: str, source: str) -> ModuleNode:
         """ Parse a module from a name and source code. """
         
-        self.is_parsing_intrinsics = name == "//intrinsics.fy"
+        self.is_parsing_intrinsics = name.startswith("//")
         self.lexer.begin(name, source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
