@@ -1,4 +1,4 @@
-include "//std.fy";
+include "//print.fy";
 
 include "foo.fy";
 include "bar.fy";

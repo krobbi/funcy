@@ -3,7 +3,7 @@
 * Prints 'Hello, Funcy!'.
 */
 
-include "//std.fy";
+include "//print.fy";
 
 // Print 'Hello, Funcy!'.
 func main(){

@@ -7,7 +7,8 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 2. [Example](#example)
    1. [Standard Library](#standard-library)
 		1. [`//math.fy`](#mathfy)
-		2. [`//std.fy`](#stdfy)
+		2. [`//print.fy`](#printfy)
+		3. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
@@ -30,7 +31,7 @@ Below is a FizzBuzz program written in Funcy:
 * The classic FizzBuzz program.
 */
 
-include "//std.fy"; // Include standard library for printing.
+include "//print.fy"; // Include standard print library.
 
 // Play FizzBuzz for (1 ... 100).
 func main(){
@@ -80,28 +81,36 @@ A library of functions for mathematical operations.
 | `min(x, y)`   | Return the minimum of two integers.                                         |
 | `max(x, y)`   | Return the maximum of two integers.                                         |
 
+### `//print.fy`
+A library of functions for printing values.
+
+| Function                      | Description                                                                                                     |
+| :---------------------------- | :-------------------------------------------------------------------------------------------------------------- |
+| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                      |
+| `putChr(character)`           | Put a character to the standard output and return it.                                                           |
+| `putLn()`                     | Put a line break to the standard output and return it.                                                          |
+| `printLn()`                   | Print a line break and return the number of printed characters.                                                 |
+| `printChr(character)`         | Print a character and return the number of printed characters.                                                  |
+| `printChrLn(character)`       | Print a character with a line break and return the number of printed characters.                                |
+| `printStr(string)`            | Print a string and return the number of printed characters.                                                     |
+| `printStrLn(string)`          | Print a string with a line break and return the number of printed characters.                                   |
+| `printIntBase(value, base)`   | Print an integer with a base between `2` and `36` and return the number of printed characters.                  |
+| `printIntBaseLn(value, base)` | Print an integer with a base between `2` and `36` and a line break and return the number of printed characters. |
+| `printInt(value)`             | Print an integer and return the number of printed characters.                                                   |
+| `printIntLn(value)`           | Print an integer with a line break and return the number of printed characters.                                 |
+
 ### `//std.fy`
 A library of all available standard functions.
 
 Includes:
 * `//math.fy`
+* `//print.fy`
 
-| Function                      | Description                                                                                                 |
-| :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| `putChr(character)`           | Put a character to the standard output and return it.                                                       |
-| `putLn()`                     | Put and return a line break.                                                                                |
-| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                  |
-| `printIntBase(value, base)`   | Print an integer with a base between 2 and 36 and return the number of printed characters.                  |
-| `printIntBaseLn(value, base)` | Print an integer with a base between 2 and 36 and a line break and return the number of printed characters. |
-| `printInt(value)`             | Print an integer and return the number of printed characters.                                               |
-| `printIntLn(value)`           | Print an integer with a line break and return the number of printed characters.                             |
-| `printChr(value)`             | Print a character and return the number of printed characters.                                              |
-| `printChrLn(value)`           | Print a character with a line break and return the number of printed characters.                            |
-| `printStr(value)`             | Print a string and return the number of printed characters.                                                 |
-| `printStrLn(value)`           | Print a string with a line break and return the number of printed characters.                               |
-| `lenStr(string)`              | Return the length of a string excluding the null terminator.                                                |
-| `cmpStr(x, y)`                | Compare two strings as greater (`> 0`), lesser (`< 0`), or equal (`== 0`) when sorted lexically.            |
-| `eqStr(x, y)`                 | Return whether two strings are equal.                                                                       |
+| Function         | Description                                                                                      |
+| :--------------- | :----------------------------------------------------------------------------------------------- |
+| `lenStr(string)` | Return the length of a string excluding the null terminator.                                     |
+| `cmpStr(x, y)`   | Compare two strings as greater (`> 0`), lesser (`< 0`), or equal (`== 0`) when sorted lexically. |
+| `eqStr(x, y)`    | Return whether two strings are equal.                                                            |
 
 ## About Strings
 Strings in Funcy are much like strings in C as in they don't really exist. A

@@ -3,7 +3,7 @@
 * The classic FizzBuzz program.
 */
 
-include "//std.fy"; // Include standard library for printing.
+include "//print.fy"; // Include standard print library.
 
 // Play FizzBuzz for (1 ... 100).
 func main(){
