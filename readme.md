@@ -8,7 +8,8 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
    1. [Standard Library](#standard-library)
 		1. [`//math.fy`](#mathfy)
 		2. [`//print.fy`](#printfy)
-		3. [`//std.fy`](#stdfy)
+		3. [`//string.fy`](#stringfy)
+		4. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
@@ -99,18 +100,22 @@ A library of functions for printing values.
 | `printInt(value)`             | Print an integer and return the number of printed characters.                                                   |
 | `printIntLn(value)`           | Print an integer with a line break and return the number of printed characters.                                 |
 
+### `//string.fy`
+A library of functions for string manipulation.
+
+| Function         | Description                                                                                |
+| :--------------- | :----------------------------------------------------------------------------------------- |
+| `strLen(string)` | Return the length of a string excluding its null terminator.                               |
+| `strCmp(x, y)`   | Compare two strings as greater (`1`), lesser (`-1`), or equal (`0`) when sorted lexically. |
+| `strEq(x, y)`    | Return whether two strings are equal by value.                                             |
+
 ### `//std.fy`
 A library of all available standard functions.
 
 Includes:
 * `//math.fy`
 * `//print.fy`
-
-| Function         | Description                                                                                      |
-| :--------------- | :----------------------------------------------------------------------------------------------- |
-| `lenStr(string)` | Return the length of a string excluding the null terminator.                                     |
-| `cmpStr(x, y)`   | Compare two strings as greater (`> 0`), lesser (`< 0`), or equal (`== 0`) when sorted lexically. |
-| `eqStr(x, y)`    | Return whether two strings are equal.                                                            |
+* `//string.fy`
 
 ## About Strings
 Strings in Funcy are much like strings in C as in they don't really exist. A
