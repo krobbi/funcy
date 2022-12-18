@@ -3,37 +3,7 @@
 * A library of standard functions for Funcy programs.
 */
 
-// Return an integer's absolute value.
-func abs(value){
-	if(value < 0){
-		return -value;
-	} else {
-		return value;
-	}
-}
-
-// Return an integer's sign.
-func sign(value){
-	return (value > 0) - (value < 0);
-}
-
-// Return the smallest of two integers.
-func min(x, y){
-	if(x < y){
-		return x;
-	} else {
-		return y;
-	}
-}
-
-// Return the largest of two integers.
-func max(x, y){
-	if(x > y){
-		return x;
-	} else {
-		return y;
-	}
-}
+include "//math.fy";
 
 // Put a character to the standard output and return it.
 func putChr(character){

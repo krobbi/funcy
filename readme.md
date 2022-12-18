@@ -6,7 +6,7 @@ __Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
    1. [Standard Library](#standard-library)
-		1. [`//intrinsics.fy`](#intrinsicsfy)
+		1. [`//math.fy`](#mathfy)
 		2. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
@@ -70,19 +70,24 @@ The following standard libraries are available to all Funcy programs. To
 include a standard library, include a path starting with a double slash, e.g.
 `include "//std.fy";`.
 
+### `//math.fy`
+The math library is a library of mathematical functions.
+
+| Function      | Description                                                                 |
+| :------------ | :-------------------------------------------------------------------------- |
+| `abs(value)`  | Return an integer's absolute value.                                         |
+| `sign(value)` | Return an integer's sign as zero (`0`), positive (`1`), or negative (`-1`). |
+| `min(x, y)`   | Return the minimum of two integers.                                         |
+| `max(x, y)`   | Return the maximum of two integers.                                         |
+
 ### `//std.fy`
-The standard library is an all-in-one library of simple, commonly used
-functions.
+The standard library is a library that includes all standard libraries.
 
 Includes:
-* __None__
+* `//math.fy`
 
 | Function                      | Description                                                                                                 |
 | :---------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| `abs(value)`                  | Return an integer's absolute value.                                                                         |
-| `sign(value)`                 | Return an integer's sign.                                                                                   |
-| `min(x, y)`                   | Return the smallest of two integers.                                                                        |
-| `max(x, y)`                   | Return the largest of two integers.                                                                         |
 | `putChr(character)`           | Put a character to the standard output and return it.                                                       |
 | `putLn()`                     | Put and return a line break.                                                                                |
 | `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                  |
@@ -95,7 +100,7 @@ Includes:
 | `printStr(value)`             | Print a string and return the number of printed characters.                                                 |
 | `printStrLn(value)`           | Print a string with a line break and return the number of printed characters.                               |
 | `lenStr(string)`              | Return the length of a string excluding the null terminator.                                                |
-| `cmpStr(x, y)`                | Compare two strings as greater (`1`), lesser (`-1`), or equal (`0`) when sorted lexically.                  |
+| `cmpStr(x, y)`                | Compare two strings as greater (`> 0`), lesser (`< 0`), or equal (`== 0`) when sorted lexically.            |
 | `eqStr(x, y)`                 | Return whether two strings are equal.                                                                       |
 
 ## About Strings
