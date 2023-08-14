@@ -22,7 +22,6 @@ def generate_put_chr(code: Code) -> None:
     """ Generate a putChr intrinsic. """
     
     code.make_put_chr()
-    code.make_return()
 
 
 def get_intrinsics() -> dict[str, Intrinsic]:

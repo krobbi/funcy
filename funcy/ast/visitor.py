@@ -175,9 +175,10 @@ class Visitor:
             
             intrinsic: Intrinsic = self.intrinsics[name]
             intrinsic.generator(code)
+            code.make_return()
             
             code.set_label(parent_label)
-            self.scope_stack.define_func(
+            self.scope_stack.define_intrinsic(
                     name, intrinsic_label, intrinsic.arity)
         else:
             self.log_error(f"Intrinsic '{name}' does not exist!", node.name)
@@ -424,7 +425,7 @@ class Visitor:
                     f"Identifier '{node.name}' is undefined "
                     "in the current scope!", node)
             code.make_push_int(0)
-        elif symbol.access == SymbolAccess.FUNC:
+        elif symbol.access in (SymbolAccess.INTRINSIC, SymbolAccess.FUNC):
             code.make_push_label(symbol.str_value)
         elif symbol.access == SymbolAccess.LOCAL:
             code.make_load_local_offset(symbol.int_value)
@@ -440,10 +441,14 @@ class Visitor:
     def visit_call_expr(self, node: CallExprNode, code: Code) -> None:
         """ Visit a call expression node. """
         
+        # Whether the callee can be called.
         is_callable: bool = False
         
         # Number of parameters expected. -1 for any number.
         expected_params: int = -1
+        
+        # Intrinsic name. Empty for non-intrinsic.
+        intrinsic_name: str = ""
         
         if isinstance(node.callee, IntExprNode):
             self.log_error(
@@ -464,6 +469,10 @@ class Visitor:
                 self.log_error(
                         f"Called function name '{symbol.name}' is undefined "
                         "in the current scope!", node.callee)
+            elif symbol.access == SymbolAccess.INTRINSIC:
+                is_callable = True
+                expected_params = symbol.int_value
+                intrinsic_name = symbol.name
             elif symbol.access == SymbolAccess.FUNC:
                 is_callable = True
                 expected_params = symbol.int_value
@@ -516,8 +525,11 @@ class Visitor:
                 code.make_drop()
                 difference -= 1
         
-        self.visit(node.callee, code)
-        code.make_call_paramc(expected_params)
+        if intrinsic_name:
+            self.intrinsics[intrinsic_name].generator(code)
+        else:
+            self.visit(node.callee, code)
+            code.make_call_paramc(expected_params)
     
     
     def visit_and_expr(self, node: AndExprNode, code: Code) -> None:
@@ -589,7 +601,7 @@ class Visitor:
             self.log_error(
                     "Cannot assign "
                     f"to undefined name '{name}'!", node.lhs_expr)
-        elif symbol.access == SymbolAccess.FUNC:
+        elif symbol.access in (SymbolAccess.INTRINSIC, SymbolAccess.FUNC):
             self.log_error(
                     f"Cannot assign to function '{name}'!", node.lhs_expr)
         elif symbol.access == SymbolAccess.LOCAL:

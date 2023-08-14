@@ -6,10 +6,11 @@ __Copyright &copy; 2022-2023 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
    1. [Standard Library](#standard-library)
-		1. [`//math.fy`](#mathfy)
-		2. [`//print.fy`](#printfy)
-		3. [`//string.fy`](#stringfy)
-		4. [`//std.fy`](#stdfy)
+		1. [`intrinsics:putChr`](#intrinsicsputchr)
+		2. [`//math.fy`](#mathfy)
+		3. [`//print.fy`](#printfy)
+		4. [`//string.fy`](#stringfy)
+		5. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
@@ -76,6 +77,9 @@ the name shown in the heading, e.g. `include "//std.fy";` or
 Intrinsic functions are low-level functions that cannot be implemented in
 Funcy. Instead, these functions are written in the implementation language
 (Python) where they generate code directly.
+
+When called directly, intrinsic functions are inlined, eliminating the overhead
+that a function call normally causes.
 
 ### `intrinsics:putChr`
 The `putChr(character)` intrinsic function. Put `character` to the standard

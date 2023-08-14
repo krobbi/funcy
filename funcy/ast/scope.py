@@ -8,6 +8,9 @@ class SymbolAccess(Enum):
     UNDEFINED = auto()
     """ Undeclared or unavailable name. """
     
+    INTRINSIC = auto()
+    """ Intrinsic function address with arity. """
+    
     FUNC = auto()
     """ Labeled function address with parameter count. """
     
@@ -203,6 +206,19 @@ class ScopeStack:
         """ Undefine a scoped label in the current scope. """
         
         self.scopes[-1].labels[name] = ""
+    
+    
+    def define_intrinsic(self, name: str, label: str, arity: int) -> None:
+        """ Define an intrinsic function in the current scope. """
+        
+        if self.has(name):
+            self.log.log(f"Bug: Intrinsic name '{name}' is already defined!")
+            return
+        
+        symbol: Symbol = Symbol(name, SymbolAccess.INTRINSIC)
+        symbol.str_value = label
+        symbol.int_value = arity
+        self.scopes[-1].symbols[name] = symbol
     
     
     def define_func(self, name: str, label: str, param_count: int) -> None:
