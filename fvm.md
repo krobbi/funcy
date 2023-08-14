@@ -2,7 +2,7 @@
 _Specification for the Funcy Virtual Machine (FVM), a stack-based bytecode
 interpreter for Funcy._  
 __Format version `2`.__  
-__Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
+__Copyright &copy; 2022-2023 Chris Roberts__ (Krobbizoid).
 
 [Go back](./readme.md).
 

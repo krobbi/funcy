@@ -1,6 +1,6 @@
 # Funcy
 _A toy functional language written in Python._  
-__Copyright &copy; 2022 Chris Roberts__ (Krobbizoid).
+__Copyright &copy; 2022-2023 Chris Roberts__ (Krobbizoid).
 
 # Contents
 1. [About](#about)
@@ -256,6 +256,6 @@ interface.
 
 # License
 Funcy is released under the MIT License:  
-https://krobbi.github.io/license/2022/mit.txt
+https://krobbi.github.io/license/2022/2023/mit.txt
 
 See [license.txt](./license.txt) for a full copy of the license text.
