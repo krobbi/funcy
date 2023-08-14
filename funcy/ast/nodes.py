@@ -360,25 +360,6 @@ class BinExprNode(ExprNode):
         return self.op.name
 
 
-class IntrinsicExprNode(ExprNode):
-    """ An intrinsic expression node of an abstract syntax tree. """
-    
-    name: IdentifierExprNode
-    """ The intrinsic expression's name. """
-    
-    exprs: list[ExprNode]
-    """ The intrinsic expression's expressions. """
-    
-    def __init__(self, name: IdentifierExprNode) -> None:
-        """
-        Initialize the intrinsic expression's name and expressions.
-        """
-        
-        super().__init__()
-        self.name = name
-        self.exprs = []
-
-
 class DeclNode(Node):
     """ A declaration node of an abstract syntax tree. """
     

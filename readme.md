@@ -68,9 +68,18 @@ Please note that Funcy does not yet have a type system. All values are handled
 as integers.
 
 ## Standard Library
-The following standard libraries are available to all Funcy programs. To
-include a standard library, include a path starting with a double slash, e.g.
-`include "//std.fy";`.
+The following standard libraries and intrinsic functions are available to all
+Funcy programs. To include a standard library or intrinsic function, include
+the name shown in the heading, e.g. `include "//std.fy";` or
+`include "intrinsics:putChr";`.
+
+Intrinsic functions are low-level functions that cannot be implemented in
+Funcy. Instead, these functions are written in the implementation language
+(Python) where they generate code directly.
+
+### `intrinsics:putChr`
+The `putChr(character)` intrinsic function. Put `character` to the standard
+output and return it.
 
 ### `//math.fy`
 A library of functions for mathematical operations.
@@ -85,10 +94,12 @@ A library of functions for mathematical operations.
 ### `//print.fy`
 A library of functions for printing values.
 
+Includes:
+* `intrinsics:putChr`
+
 | Function                      | Description                                                                                                     |
 | :---------------------------- | :-------------------------------------------------------------------------------------------------------------- |
 | `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                      |
-| `putChr(character)`           | Put a character to the standard output and return it.                                                           |
 | `putLn()`                     | Put a line break to the standard output and return it.                                                          |
 | `printLn()`                   | Print a line break and return the number of printed characters.                                                 |
 | `printChr(character)`         | Print a character and return the number of printed characters.                                                  |
@@ -169,10 +180,7 @@ expr_sum         = expr_term, { ( "+" | "-" ), expr_term } ;
 expr_term        = expr_prefix, { ( "%" | "*" | "/" ), expr_prefix } ;
 expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
-expr_primary     = expr_paren | expr_intrinsic | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
-
-(* Secret expression type limited to the standard library. *)
-expr_intrinsic = "$(", IDENTIFIER, { ",", expr }, ")" ;
+expr_primary     = expr_paren | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 ```
 
 # Runtime

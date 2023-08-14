@@ -246,9 +246,6 @@ class Lexer:
                 return self.make_token(self.KEYWORDS[self.lexeme])
             
             return self.make_str(TokenType.IDENTIFIER, self.lexeme)
-        elif self.character == "$" and self.peek(1) == "(":
-            self.advance(2)
-            return self.make_token(TokenType.DOLLAR_PARENTHESIS_OPEN)
         else:
             position: int = self.span.start.offset
             max_length: int = max(len(key) for key in self.KEYWORDS)

@@ -47,10 +47,6 @@ def get_node_children(node: Node) -> list[Node]:
         return [node.expr]
     elif isinstance(node, BinExprNode):
         return [node.lhs_expr, node.rhs_expr]
-    elif isinstance(node, IntrinsicExprNode):
-        result: list[ExprNode] = [node.name]
-        result.extend(node.exprs)
-        return result
     
     return []
 

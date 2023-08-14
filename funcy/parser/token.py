@@ -65,9 +65,6 @@ class TokenType(Enum):
     BANG_EQUALS = auto()
     """ `!=`. """
     
-    DOLLAR_PARENTHESIS_OPEN = auto()
-    """ `$(`. """
-    
     PERCENT = auto()
     """ `%`. """
     

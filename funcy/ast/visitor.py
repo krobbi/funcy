@@ -119,8 +119,6 @@ class Visitor:
             self.visit_un_expr(node, code)
         elif isinstance(node, BinExprNode):
             self.visit_bin_expr(node, code)
-        elif isinstance(node, IntrinsicExprNode):
-            self.visit_intrinsic_expr(node, code)
         else:
             self.log_error(f"Bug: Unimplemented visitor for '{node}'!", node)
     
@@ -663,21 +661,3 @@ class Visitor:
                     f"Bug: Unimplemented binary operator '{node.op.name}'!",
                     node)
             code.make_drop() # Preserve stack size.
-    
-    
-    def visit_intrinsic_expr(
-            self, node: IntrinsicExprNode, code: Code) -> None:
-        """ Visit an intrinsic expression node. """
-        
-        if node.name.name == "putChr":
-            if len(node.exprs) != 1:
-                self.log_error("Intrinsic 'putChr' expects 1 argument!", node)
-                code.make_push_int(0)
-                return
-            
-            self.visit(node.exprs[0], code)
-            code.make_put_chr()
-        else:
-            self.log_error(
-                    f"Intrinsic '{node.name.name}' does not exist!", node.name)
-            code.make_push_int(0)

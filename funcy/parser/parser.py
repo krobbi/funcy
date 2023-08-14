@@ -9,9 +9,6 @@ from .token import Token, TokenType
 class Parser:
     """ Parses an abstract syntax tree from source code. """
     
-    is_parsing_intrinsics: bool = False
-    """ Whether the parser is parsing the intrinsics. """
-    
     log: Log
     """ The parser's log. """
     
@@ -42,7 +39,6 @@ class Parser:
     def parse_module(self, name: str, source: str) -> ModuleNode:
         """ Parse a module from a name and source code. """
         
-        self.is_parsing_intrinsics = name.startswith("//")
         self.lexer.begin(name, source)
         self.next = Token(TokenType.EOF, Span())
         self.advance()
@@ -696,10 +692,6 @@ class Parser:
         
         if self.next.type == TokenType.PARENTHESIS_OPEN:
             return self.abort(self.parse_expr_paren())
-        elif(
-                self.is_parsing_intrinsics
-                and self.next.type == TokenType.DOLLAR_PARENTHESIS_OPEN):
-            return self.abort(self.parse_expr_intrinsic())
         elif self.accept(TokenType.LITERAL_INT):
             return self.end(IntExprNode(self.current.int_value))
         elif self.accept(TokenType.LITERAL_CHR):
@@ -721,40 +713,3 @@ class Parser:
         node.span.replicate(self.current.span)
         node.span.start.replicate(node.span.end)
         return self.abort(node)
-    
-    
-    def parse_expr_intrinsic(self) -> Node:
-        """ Parse an intrinsic expression. """
-        
-        self.begin()
-        
-        if not self.accept(TokenType.DOLLAR_PARENTHESIS_OPEN):
-            self.log_error(
-                    "Missing opening '$(' in intrinsic expression!",
-                    self.current.span.end)
-        
-        if not self.accept(TokenType.IDENTIFIER):
-            node: ErrorNode = ErrorNode(
-                    "Expected an identifier for an intrinsic name!")
-            node.span.replicate(self.next.span)
-            return self.abort(node)
-        
-        name: IdentifierExprNode = IdentifierExprNode(self.current.str_value)
-        name.span.replicate(self.current.span)
-        expr: IntrinsicExprNode = IntrinsicExprNode(name)
-        
-        while self.accept(TokenType.COMMA):
-            param: Node = self.parse_expr()
-            
-            if not isinstance(param, ExprNode):
-                self.log_error(param)
-                continue
-            
-            expr.exprs.append(param)
-        
-        if not self.accept(TokenType.PARENTHESIS_CLOSE):
-            self.log_error(
-                    "Missing closing ')' in intrinsic expression!",
-                    self.current.span.end)
-        
-        return self.end(expr)
