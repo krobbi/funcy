@@ -6,11 +6,12 @@ __Copyright &copy; 2022-2023 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Example](#example)
    1. [Standard Library](#standard-library)
-		1. [`intrinsics:putChr`](#intrinsicsputchr)
-		2. [`//math.fy`](#mathfy)
-		3. [`//print.fy`](#printfy)
-		4. [`//string.fy`](#stringfy)
-		5. [`//std.fy`](#stdfy)
+      1. [`intrinsics:chrAt`](#intrinsicschrat)
+      2. [`intrinsics:putChr`](#intrinsicsputchr)
+      3. [`//math.fy`](#mathfy)
+      4. [`//print.fy`](#printfy)
+      5. [`//string.fy`](#stringfy)
+      6. [`//std.fy`](#stdfy)
    2. [About Strings](#about-strings)
 3. [Grammar](#grammar)
 4. [Runtime](#runtime)
@@ -36,32 +37,33 @@ Below is a FizzBuzz program written in Funcy:
 include "//print.fy"; // Include standard print library.
 
 // Play FizzBuzz for (1 ... 100).
-func main(){
-	// Return whether a number has a factor and print a message if it does.
-	func hasFactor(number, factor, message){
-		if(number % factor){
-			return false;
-		}
-		
-		printStr(message);
-		return true;
-	}
-	
-	let mut i = 0;
-	
-	while(i < 100){
-		i += 1;
-		
-		let mut hasFactors = false;
-		hasFactors |= hasFactor(i, 3, "Fizz");
-		hasFactors |= hasFactor(i, 5, "Buzz");
-		
-		if(hasFactors){
-			printChrLn('!');
-		} else {
-			printIntLn(i);
-		}
-	}
+func main() {
+   // Return whether a number has a factor and print a message if it does.
+   func hasFactor(number, factor, message) {
+      if (number % factor) {
+         return false;
+      }
+      
+      printStr(message);
+      return true;
+   }
+   
+   let mut i = 0;
+   
+   while (i < 100) {
+      i += 1;
+      
+      let mut hasFactors = false;
+      hasFactors |= hasFactor(i, 3, "Fizz");
+      hasFactors |= hasFactor(i, 5, "Buzz");
+      
+      if (hasFactors) {
+         putChr('!');
+         putChr('\n');
+      } else {
+         printIntLn(i);
+      }
+   }
 }
 ```
 
@@ -81,6 +83,12 @@ Funcy. Instead, these functions are written in the implementation language
 When called directly, intrinsic functions are inlined, eliminating the overhead
 that a function call normally causes.
 
+### `intrinsics:chrAt`
+The `chrAt(string, index)` intrinsic function. Return the character at `index`
+of `string`. Returns `0` if `index` is equal to `strLen(string)`. Produces
+undefined behavior if `index` is less than `0` or greater than
+`strLen(string)`.
+
 ### `intrinsics:putChr`
 The `putChr(character)` intrinsic function. Put `character` to the standard
 output and return it.
@@ -99,28 +107,28 @@ A library of functions for mathematical operations.
 A library of functions for printing values.
 
 Includes:
+* `intrinsics:chrAt`
 * `intrinsics:putChr`
 
-| Function                      | Description                                                                                                     |
-| :---------------------------- | :-------------------------------------------------------------------------------------------------------------- |
-| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.                                                      |
-| `putLn()`                     | Put a line break to the standard output and return it.                                                          |
-| `printLn()`                   | Print a line break and return the number of printed characters.                                                 |
-| `printChr(character)`         | Print a character and return the number of printed characters.                                                  |
-| `printChrLn(character)`       | Print a character with a line break and return the number of printed characters.                                |
-| `printStr(string)`            | Print a string and return the number of printed characters.                                                     |
-| `printStrLn(string)`          | Print a string with a line break and return the number of printed characters.                                   |
-| `printIntBase(value, base)`   | Print an integer with a base between `2` and `36` and return the number of printed characters.                  |
-| `printIntBaseLn(value, base)` | Print an integer with a base between `2` and `36` and a line break and return the number of printed characters. |
-| `printInt(value)`             | Print an integer and return the number of printed characters.                                                   |
-| `printIntLn(value)`           | Print an integer with a line break and return the number of printed characters.                                 |
+| Function                      | Description                                                          |
+| :---------------------------- | :------------------------------------------------------------------- |
+| `getDigitChr(digit)`          | Get a digit's character. E.g. `5` -> `'5'`, `10` -> `'a'`.           |
+| `printStr(string)`            | Print a string.                                                      |
+| `printStrLn(string)`          | Print a string with a line break.                                    |
+| `printIntBase(value, base)`   | Print an integer with a base between `2` and `36`.                   |
+| `printIntBaseLn(value, base)` | Print an integer with a base between `2` and `36` with a line break. |
+| `printInt(value)`             | Print an integer.                                                    |
+| `printIntLn(value)`           | Print an integer with a line break.                                  |
 
 ### `//string.fy`
 A library of functions for string manipulation.
 
+Includes:
+* `intrinsics:chrAt`
+
 | Function         | Description                                                                                |
 | :--------------- | :----------------------------------------------------------------------------------------- |
-| `strLen(string)` | Return the length of a string excluding its null terminator.                               |
+| `strLen(string)` | Return the length of a string.                                                             |
 | `strCmp(x, y)`   | Compare two strings as greater (`1`), lesser (`-1`), or equal (`0`) when sorted lexically. |
 | `strEq(x, y)`    | Return whether two strings are equal by value.                                             |
 
@@ -182,7 +190,7 @@ expr_equality    = expr_comparison, { ( "!=" | "==" ), expr_comparison } ;
 expr_comparison  = expr_sum, { ( "<" | "<=" | ">" | ">=" ), expr_sum } ;
 expr_sum         = expr_term, { ( "+" | "-" ), expr_term } ;
 expr_term        = expr_prefix, { ( "%" | "*" | "/" ), expr_prefix } ;
-expr_prefix      = ( "!" | "*" | "+" | "-" ), expr_prefix | expr_call ;
+expr_prefix      = ( "!" | "+" | "-" ), expr_prefix | expr_call ;
 expr_call        = expr_primary, { "(", [ expr, { ",", expr } ], ")" } ;
 expr_primary     = expr_paren | LITERAL_INT | LITERAL_CHR | LITERAL_STR | IDENTIFIER | "false" | "true" ;
 ```

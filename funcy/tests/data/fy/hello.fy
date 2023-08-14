@@ -6,6 +6,6 @@
 include "//print.fy";
 
 // Print 'Hello, Funcy!'.
-func main(){
+func main() {
 	printStrLn("Hello, Funcy!");
 }

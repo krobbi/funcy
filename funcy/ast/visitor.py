@@ -622,9 +622,7 @@ class Visitor:
         
         self.visit(node.expr, code)
         
-        if node.op == UnOp.DEREFERENCE:
-            code.make_unary_dereference()
-        elif node.op == UnOp.AFFIRM:
+        if node.op == UnOp.AFFIRM:
             pass # A prefixed '+' operator should have no effect.
         elif node.op == UnOp.NEGATE:
             code.make_unary_negate()

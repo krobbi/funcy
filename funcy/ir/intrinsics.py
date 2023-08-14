@@ -18,6 +18,13 @@ class Intrinsic:
         self.generator = generator
 
 
+def generate_chr_at(code: Code) -> None:
+    """ Generate a chrAt intrinsic. """
+    
+    code.make_binary_add()
+    code.make_unary_dereference()
+
+
 def generate_put_chr(code: Code) -> None:
     """ Generate a putChr intrinsic. """
     
@@ -28,5 +35,6 @@ def get_intrinsics() -> dict[str, Intrinsic]:
     """ Get a dictionary of intrinsics. """
     
     return {
+        "chrAt": Intrinsic(2, generate_chr_at),
         "putChr": Intrinsic(1, generate_put_chr),
     }

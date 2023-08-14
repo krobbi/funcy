@@ -616,7 +616,6 @@ class Parser:
         
         OPS: dict[TokenType, UnOp] = {
             TokenType.BANG: UnOp.NOT,
-            TokenType.STAR: UnOp.DEREFERENCE,
             TokenType.PLUS: UnOp.AFFIRM,
             TokenType.MINUS: UnOp.NEGATE,
         }

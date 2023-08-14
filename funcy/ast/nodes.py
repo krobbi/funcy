@@ -249,9 +249,6 @@ class AssignExprNode(ExprNode):
 class UnOp(Enum):
     """ A unary operator. """
     
-    DEREFERENCE = auto()
-    """ `*x`. """
-    
     AFFIRM = auto()
     """ `+x`. """
     
