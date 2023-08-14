@@ -3,6 +3,8 @@
 * A library of functions for printing values.
 */
 
+include "intrinsics:putChr";
+
 // Get a digit's character. E.g. 5 -> '5', 10 -> 'a'.
 func getDigitChr(digit){
 	if(digit < 10){

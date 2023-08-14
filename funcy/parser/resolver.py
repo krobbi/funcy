@@ -69,6 +69,9 @@ class Resolver:
         path. Return an empty string if the include path is invalid.
         """
         
+        if path.startswith("intrinsics:"):
+            return path
+        
         is_abs: bool = False # Paths starting with '/' are absolute.
         is_std: bool = name.startswith("//")
         
@@ -180,6 +183,14 @@ class Resolver:
         return children
     
     
+    def parse_intrinsic(self, identifier: str) -> ModuleNode:
+        """ Parse an intrinsic from its identifier. """
+        
+        module_node: ModuleNode = ModuleNode()
+        module_node.span.reset(f"intrinsics:{identifier}")
+        return module_node
+    
+    
     def declare_module(self, name: str) -> None:
         """
         Declare and parse a module from its name if it is not available.
@@ -193,13 +204,16 @@ class Resolver:
         if module.state != ResolverModuleState.UNPARSED:
             return
         
-        wrapper: InputWrapper = InputWrapper()
-        wrapper.from_path(self.get_module_path(name))
-        
-        if wrapper.is_ok and not wrapper.is_binary:
-            module.ast = self.parser.parse_module(name, wrapper.source)
+        if name.startswith("intrinsics:"):
+            module.ast = self.parse_intrinsic(name[11:])
         else:
-            self.log.log(f"Failed to load module '{name}'!")
+            wrapper: InputWrapper = InputWrapper()
+            wrapper.from_path(self.get_module_path(name))
+            
+            if wrapper.is_ok and not wrapper.is_binary:
+                module.ast = self.parser.parse_module(name, wrapper.source)
+            else:
+                self.log.log(f"Failed to load module '{name}'!")
         
         module.state = ResolverModuleState.PARSED
     
