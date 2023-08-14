@@ -1,5 +1,6 @@
 from ..io.log import Log
 from ..ir.code import Code
+from ..ir.intrinsics import Intrinsic, get_intrinsics
 from ..ir.optimizer import optimize_code
 from ..parser.position import Span
 from .nodes import *
@@ -14,6 +15,9 @@ class Visitor:
     log: Log
     """ The visitor's log. """
     
+    intrinsics: dict[str, Intrinsic]
+    """ The visitor's intrinsics. """
+    
     scope_stack: ScopeStack
     """ The visitor's scope stack. """
     
@@ -21,6 +25,7 @@ class Visitor:
         """ Initialize the visitor's log and scope stack. """
         
         self.log = log
+        self.intrinsics = get_intrinsics()
         self.scope_stack = ScopeStack(log)
     
     
@@ -156,8 +161,28 @@ class Visitor:
             self, node: IntrinsicStmtNode, code: Code) -> None:
         """ Visit an intrinsic statement node. """
         
-        parent_label: str = code.get_label()
-        code.set_label(parent_label)
+        name: str = node.name.name
+        
+        if self.scope_stack.has(name):
+            self.log_error(
+                    f"Intrinsic name '{name}' is already defined "
+                    "in the current scope!",
+                    node.name)
+            return
+        
+        if name in self.intrinsics:
+            parent_label: str = code.get_label()
+            intrinsic_label: str = code.append_label(f"intrinsic_{name}")
+            code.set_label(intrinsic_label)
+            
+            intrinsic: Intrinsic = self.intrinsics[name]
+            intrinsic.generator(code)
+            
+            code.set_label(parent_label)
+            self.scope_stack.define_func(
+                    name, intrinsic_label, intrinsic.arity)
+        else:
+            self.log_error(f"Intrinsic '{name}' does not exist!", node.name)
     
     
     def visit_func_stmt(self, node: FuncStmtNode, code: Code) -> None:

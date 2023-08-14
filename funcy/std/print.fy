@@ -14,11 +14,6 @@ func getDigitChr(digit){
 	}
 }
 
-// Put a character to the standard output and return it.
-func putChr(character){
-	return $(putChr, character);
-}
-
 // Put a line break to the standard output and return it.
 func putLn(){
 	return putChr('\n');
