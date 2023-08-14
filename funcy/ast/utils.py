@@ -10,6 +10,8 @@ def get_node_children(node: Node) -> list[Node]:
         result.extend(node.incls)
         result.extend(node.stmts)
         return result
+    elif isinstance(node, IntrinsicStmtNode):
+        return [node.name]
     elif isinstance(node, FuncStmtNode):
         result: list[Node] = [node.name]
         result.extend(node.decls)

@@ -407,6 +407,19 @@ class StmtNode(Node):
     """ A statement node of an abstract syntax tree. """
 
 
+class IntrinsicStmtNode(StmtNode):
+    """ An intrinsic statement node of an abstract syntax tree. """
+    
+    name: IdentifierExprNode
+    """ The intrinsic statement's name. """
+    
+    def __init__(self, name: IdentifierExprNode) -> None:
+        """ Initialize the intrinsic statement's name. """
+        
+        super().__init__()
+        self.name = name
+
+
 class FuncStmtNode(StmtNode):
     """ A function statement node of an abstract syntax tree. """
     
@@ -638,7 +651,7 @@ class ModuleNode(Node):
     incls: list[InclNode]
     """ The module's inclusions. """
     
-    stmts: list[FuncStmtNode]
+    stmts: list[StmtNode]
     """ The module's statements. """
     
     def __init__(self) -> None:

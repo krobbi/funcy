@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from pathlib import Path
 
-from ..ast.nodes import ModuleNode, RootNode
+from ..ast.nodes import *
 from ..io.input_wrapper import InputWrapper
 from ..io.log import Log
 from .parser import Parser
@@ -186,8 +186,13 @@ class Resolver:
     def parse_intrinsic(self, identifier: str) -> ModuleNode:
         """ Parse an intrinsic from its identifier. """
         
+        name_node: IdentifierExprNode = IdentifierExprNode(identifier)
+        name_node.span.reset(f"intrinsics:{identifier}")
+        intrinsic_node: IntrinsicStmtNode = IntrinsicStmtNode(name_node)
+        intrinsic_node.span.replicate(name_node.span)
         module_node: ModuleNode = ModuleNode()
-        module_node.span.reset(f"intrinsics:{identifier}")
+        module_node.stmts.append(intrinsic_node)
+        module_node.span.replicate(intrinsic_node.span)
         return module_node
     
     

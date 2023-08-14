@@ -66,6 +66,8 @@ class Visitor:
             self.visit_root(node, code)
         elif isinstance(node, ModuleNode):
             self.visit_module(node, code)
+        elif isinstance(node, IntrinsicStmtNode):
+            self.visit_intrinsic_stmt(node, code)
         elif isinstance(node, FuncStmtNode):
             self.visit_func_stmt(node, code)
         elif isinstance(node, BlockStmtNode):
@@ -148,6 +150,14 @@ class Visitor:
         
         for stmt in node.stmts:
             self.visit(stmt, code)
+    
+    
+    def visit_intrinsic_stmt(
+            self, node: IntrinsicStmtNode, code: Code) -> None:
+        """ Visit an intrinsic statement node. """
+        
+        parent_label: str = code.get_label()
+        code.set_label(parent_label)
     
     
     def visit_func_stmt(self, node: FuncStmtNode, code: Code) -> None:
